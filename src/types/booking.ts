@@ -124,6 +124,16 @@ export interface ResolveChangeRequestParams {
   resolvedByRole: "SUPER_ADMIN" | "ADMIN";
 }
 
+export interface CreateChangeRequestParams {
+  bookingId: string;
+  type: "MODIFICATION" | "CANCELLATION";
+  reason: string;
+  requestedChanges: string;
+  proposedSchedule?: string;
+  proposedDestination?: string;
+  submittedByRole?: string;
+}
+
 export interface BookingFilterOptions {
   search?: string;
   status?: BookingLifecycleStatus | "All";

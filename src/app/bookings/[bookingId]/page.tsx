@@ -275,10 +275,33 @@ export default function BookingDetailPage() {
                   />
                   <span className="text-[13px] font-semibold text-[#5B616B]">Price / payment</span>
                 </div>
-                <div className="px-[12px] text-[14px] text-[#0B0C0E] truncate">
-                  {booking.paymentSummaryDisplay}
+                <div className="px-[12px] text-[14px] text-[#0B0C0E] truncate flex items-center justify-between w-full">
+                  <span>{booking.paymentSummaryDisplay}</span>
+                  <Link
+                    href={`/bookings/${booking.id}/payments/${booking.id.replace("bkg_", "pmt_")}_1`}
+                    className="text-xs font-semibold text-[#164D53] hover:underline mr-2"
+                  >
+                    Manage payment ›
+                  </Link>
                 </div>
               </div>
+
+              {/* Trip container if present */}
+              {booking.tripId && (
+                <div className="flex items-center border border-[#ded6c9] rounded-[9px] overflow-hidden h-[38px]">
+                  <div className="w-[182px] h-full bg-[#f4eddf] px-[12px] flex items-center gap-[8px] shrink-0 border-r border-[#ded6c9]">
+                    <span className="text-[13px] font-semibold text-[#5B616B]">Trip</span>
+                  </div>
+                  <div className="px-[12px] text-[14px] text-[#0B0C0E] truncate">
+                    <Link
+                      href={`/trips/${booking.tripId}`}
+                      className="text-[#164D53] font-semibold hover:underline"
+                    >
+                      {booking.tripId} ›
+                    </Link>
+                  </div>
+                </div>
+              )}
 
               {/* Row 5: Booking mode */}
               <div className="flex items-center border border-[#ded6c9] rounded-[9px] overflow-hidden h-[38px]">
@@ -443,6 +466,14 @@ export default function BookingDetailPage() {
             Resolve change
           </Link>
 
+          {/* Create Change Request button */}
+          <Link
+            href={`/bookings/${booking.id}/change-requests/create`}
+            className="h-[48px] px-[20px] bg-white hover:bg-[#FAF8F4] border border-[#A6A19A] rounded-[12px] text-[#0B0C0E] text-[14px] font-semibold flex items-center justify-center transition-colors cursor-pointer"
+          >
+            Create change request
+          </Link>
+
           {/* Create assignment button */}
           <button
             type="button"
@@ -453,13 +484,12 @@ export default function BookingDetailPage() {
           </button>
 
           {/* Payment / refund */}
-          <button
-            type="button"
-            onClick={() => setShowPaymentNotice(true)}
-            className="h-[48px] px-[20px] bg-white hover:bg-[#FAF8F4] border border-[#DDD8CF] rounded-[12px] text-[#5B616B] text-[14px] font-semibold transition-colors cursor-pointer"
+          <Link
+            href={`/bookings/${booking.id}/payments/${booking.id.replace("bkg_", "pmt_")}_1`}
+            className="h-[48px] px-[20px] bg-white hover:bg-[#FAF8F4] border border-[#DDD8CF] rounded-[12px] text-[#0B0C0E] text-[14px] font-semibold flex items-center justify-center transition-colors cursor-pointer"
           >
             Payment / refund
-          </button>
+          </Link>
         </div>
 
         {/* Authority Guard Bottom Card */}

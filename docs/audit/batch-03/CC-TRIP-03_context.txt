@@ -1,0 +1,247 @@
+const imgBrandLogoSidebarDark = "https://www.figma.com/api/mcp/asset/bf37f38b-9e6f-424c-8b36-3d979e5ca1c0.png";
+
+type ButtonSecondaryProps = {
+  className?: string;
+  label?: string;
+  state?: "Default";
+};
+
+function ButtonSecondary({ className, label = "Button", state = "Default" }: ButtonSecondaryProps) {
+  return (
+    <div className={className || "bg-[var(--color\\/action\\/secondary\\/bg,white)] border border-[var(--color\\/border\\/strong,#a6a19a)] border-solid content-stretch flex h-[48px] items-center justify-center px-[20px] py-[12px] relative rounded-[var(--radius\\/md,12px)] w-[176px]"} data-node-id="14:14">
+      <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[20px] not-italic relative shrink-0 text-[14px] text-[color:var(--color\/action\/secondary\/text,#0b0c0e)] tracking-[0.1px] whitespace-nowrap" data-node-id="14:15">
+        {label}
+      </p>
+    </div>
+  );
+}
+
+type ButtonPrimaryProps = {
+  className?: string;
+  label?: string;
+  state?: "Default";
+};
+
+function ButtonPrimary({ className, label = "Button", state = "Default" }: ButtonPrimaryProps) {
+  return (
+    <div className={className || "bg-[var(--color\\/action\\/primary\\/bg,#0b0c0e)] content-stretch flex h-[48px] items-center justify-center px-[20px] py-[12px] relative rounded-[var(--radius\\/md,12px)] w-[176px]"} data-node-id="14:2">
+      <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[20px] not-italic relative shrink-0 text-[14px] text-[color:var(--color\/action\/primary\/text,white)] tracking-[0.1px] whitespace-nowrap" data-node-id="14:3">
+        {label}
+      </p>
+    </div>
+  );
+}
+
+type DateTimeProps = {
+  className?: string;
+  label?: string;
+  showHelper?: boolean;
+  state?: "Selected";
+  type?: "Date range";
+  value?: string;
+};
+
+function DateTime({ className, label = "Label", showHelper = true, state = "Selected", type = "Date range", value = "Value" }: DateTimeProps) {
+  return (
+    <div className={className || "content-stretch flex flex-col gap-[6px] items-start relative w-[360px]"} data-node-id="18:156">
+      <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[20px] not-italic relative shrink-0 text-[14px] text-[color:var(--color\/text\/primary,#0b0c0e)] tracking-[0.1px] whitespace-nowrap" data-node-id="18:157">
+        {label}
+      </p>
+      <div className="bg-[var(--color\/surface\/card,white)] border border-[var(--color\/border\/default,#ddd8cf)] border-solid content-stretch flex h-[48px] items-center justify-between overflow-clip px-[14px] relative rounded-[var(--radius\/sm,8px)] shrink-0 w-[360px]" data-node-id="18:158" data-name="Field">
+        <p className="[word-break:break-word] font-['Inter:Regular'] font-normal leading-[24px] not-italic relative shrink-0 text-[16px] text-[color:var(--color\/text\/primary,#0b0c0e)] whitespace-nowrap" data-node-id="18:159">
+          {value}
+        </p>
+        <div className="border-[1.5px] border-[var(--color\/text\/secondary,#5b616b)] border-solid relative rounded-[5px] shrink-0 size-[18px]" data-node-id="18:160" data-name="Calendar-Time slot" />
+      </div>
+      {showHelper && (
+        <p className="[word-break:break-word] font-['Inter:Medium'] font-medium leading-[16px] not-italic relative shrink-0 text-[12px] text-[color:var(--color\/text\/secondary,#5b616b)] tracking-[0.1px] whitespace-nowrap" data-node-id="18:161">
+          Service local time
+        </p>
+      )}
+    </div>
+  );
+}
+
+type InputProps = {
+  className?: string;
+  helper?: string;
+  label?: string;
+  showHelper?: boolean;
+  state?: "Empty";
+  type?: "Text";
+  value?: string;
+};
+
+function Input({ className, helper = "Helper text", label = "Label", showHelper = true, state = "Empty", type = "Text", value = "Value" }: InputProps) {
+  return (
+    <div className={className || "content-stretch flex flex-col gap-[6px] items-start relative w-[360px]"} data-node-id="17:2">
+      <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[20px] not-italic relative shrink-0 text-[14px] text-[color:var(--color\/text\/primary,#0b0c0e)] tracking-[0.1px] whitespace-nowrap" data-node-id="17:3">
+        {label}
+      </p>
+      <div className="bg-[var(--color\/surface\/card,white)] border border-[var(--color\/border\/default,#ddd8cf)] border-solid content-stretch flex h-[48px] items-center overflow-clip px-[14px] relative rounded-[var(--radius\/sm,8px)] shrink-0 w-full" data-node-id="17:4" data-name="Field">
+        <p className="[word-break:break-word] flex-[1_0_0] font-['Inter:Regular'] font-normal leading-[24px] min-w-px not-italic relative text-[16px] text-[color:var(--color\/text\/secondary,#5b616b)]" data-node-id="17:5">
+          {value}
+        </p>
+      </div>
+      {showHelper && (
+        <p className="[word-break:break-word] font-['Inter:Medium'] font-medium leading-[16px] not-italic relative shrink-0 text-[12px] text-[color:var(--color\/text\/secondary,#5b616b)] tracking-[0.1px] whitespace-nowrap" data-node-id="17:6">
+          {helper}
+        </p>
+      )}
+    </div>
+  );
+}
+
+export default function CcTrip03ConciergeReady() {
+  return (
+    <div className="bg-[var(--color\/surface\/canvas,#faf8f4)] border border-[var(--color\/border\/default,#ddd8cf)] border-solid overflow-clip relative rounded-[16px] size-full" data-node-id="83:1275" data-name="CC-TRIP-03__Concierge__Ready">
+      <div className="absolute bg-[var(--color\/surface\/inverse,#0b0c0e)] h-[900px] left-[-1px] overflow-clip top-[-1px] w-[240px]" data-node-id="83:1276" data-name="Command Center rail">
+        <a className="absolute block cursor-pointer h-[36px] left-[16px] overflow-clip rounded-[8px] top-[110px] w-[208px]" data-node-id="83:1279" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] text-left top-[9px] tracking-[0.15px] w-[180px]" data-node-id="83:1280">
+            Home
+          </p>
+        </a>
+        <a className="absolute block cursor-pointer h-[36px] left-[16px] overflow-clip rounded-[8px] top-[153px] w-[208px]" data-node-id="83:1283" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] text-left top-[9px] tracking-[0.15px] w-[180px]" data-node-id="83:1284">
+            Bookings
+          </p>
+        </a>
+        <a className="absolute bg-[var(--color\/brand\/graphite,#24272d)] block cursor-pointer h-[36px] left-[16px] overflow-clip rounded-[8px] top-[196px] w-[208px]" data-node-id="83:1285" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] text-left top-[9px] tracking-[0.15px] w-[180px]" data-node-id="83:1286">
+            Trips
+          </p>
+        </a>
+        <a className="absolute block cursor-pointer h-[36px] left-[16px] overflow-clip rounded-[8px] top-[239px] w-[208px]" data-node-id="83:1287" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] text-left top-[9px] tracking-[0.15px] w-[180px]" data-node-id="83:1288">
+            Concierge
+          </p>
+        </a>
+        <a className="absolute block cursor-pointer h-[36px] left-[16px] overflow-clip rounded-[8px] top-[282px] w-[208px]" data-node-id="83:1307" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] text-left top-[9px] tracking-[0.15px] w-[180px]" data-node-id="83:1308">{`Support & Legal`}</p>
+        </a>
+        <p className="[word-break:break-word] absolute font-['Inter:Medium'] font-medium leading-[16px] left-[24px] not-italic text-[12px] text-[color:var(--color\/text\/inverse,white)] top-[842px] tracking-[0.1px] w-[190px]" data-node-id="83:1309">
+          Concierge
+        </p>
+        <div className="absolute h-[88px] left-[16px] rounded-[10px] top-[16px] w-[208px]" data-node-id="120:7502" data-name="Brand/Logo/Sidebar Dark">
+          <img alt="" className="absolute inset-0 max-w-none object-contain pointer-events-none rounded-[10px] size-full" src={imgBrandLogoSidebarDark} />
+        </div>
+      </div>
+      <div className="absolute bg-[var(--color\/surface\/card,white)] border-[var(--color\/border\/default,#ddd8cf)] border-b border-solid h-[72px] left-[239px] overflow-clip top-[-1px] w-[1200px]" data-node-id="83:1310" data-name="Frame">
+        <div className="absolute bg-[var(--color\/surface\/subtle,#eee9e0)] h-[40px] left-[32px] overflow-clip rounded-[10px] top-[16px] w-[360px]" data-node-id="83:1311" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[22px] left-[14px] not-italic text-[14px] text-[color:var(--color\/text\/secondary,#5b616b)] top-[10px] w-[320px]" data-node-id="83:1312">
+            Search / command
+          </p>
+        </div>
+        <p className="-translate-x-full [word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[1170px] not-italic text-[13px] text-[color:var(--color\/text\/secondary,#5b616b)] text-right top-[26px] tracking-[0.15px] w-[100px]" data-node-id="83:1313">
+          User menu
+        </p>
+      </div>
+      <p className="[word-break:break-word] absolute font-['Inter:Bold'] font-bold leading-[36px] left-[279px] not-italic text-[28px] text-[color:var(--color\/text\/primary,#0b0c0e)] top-[103px] tracking-[-0.1px] w-[920px]" data-node-id="83:1314">
+        Create / Edit Trip
+      </p>
+      <Input className="absolute content-stretch flex flex-col gap-[6px] items-start left-[279px] top-[175px] w-[500px]" helper="" label="Customer" value="Authorized Customer" />
+      <Input className="absolute content-stretch flex flex-col gap-[6px] items-start left-[819px] top-[175px] w-[500px]" helper="" label="Destination" value="Optional destination" />
+      <Input className="absolute content-stretch flex flex-col gap-[6px] items-start left-[279px] top-[297px] w-[500px]" helper="" label="Title" value="Optional title • max 180" />
+      <DateTime className="absolute content-stretch flex flex-col gap-[6px] items-start left-[819px] top-[297px] w-[500px]" label="Trip dates" value="Start — End" />
+      <div className="absolute content-stretch flex flex-col gap-[6px] items-start left-[279px] top-[419px] w-[500px]" data-node-id="83:1336" data-name="Selection">
+        <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[20px] not-italic relative shrink-0 text-[14px] text-[color:var(--color\/text\/primary,#0b0c0e)] tracking-[0.1px] whitespace-nowrap" data-node-id="I83:1336;18:3">
+          Status
+        </p>
+        <div className="bg-[var(--color\/surface\/card,white)] border border-[var(--color\/border\/default,#ddd8cf)] border-solid content-stretch flex gap-[8px] h-[48px] items-center overflow-clip px-[14px] relative rounded-[var(--radius\/sm,8px)] shrink-0 w-full" data-node-id="I83:1336;18:4" data-name="Field">
+          <p className="[word-break:break-word] flex-[1_0_0] font-['Inter:Regular'] font-normal leading-[24px] min-w-px not-italic relative text-[16px] text-[color:var(--color\/text\/secondary,#5b616b)]" data-node-id="I83:1336;18:5">
+            Current status on edit
+          </p>
+          <div className="overflow-clip relative shrink-0 size-[20px]" data-node-id="I83:1336;18:6" data-name="Indicator slot">
+            <div className="absolute left-0 size-[20px] top-0" data-node-id="I83:1336;265:319" data-name="Foundation Icon/ChevronDown">
+              <CodeConnectSnippet data-node-id="I83:1336;265:319;300:99" data-name="ThirdParty/SimpleDS/ChevronDown">
+                {/* Simple Design System component */}
+                <ChevronDown variantSize="20" size="20" />
+              </CodeConnectSnippet>
+            </div>
+          </div>
+        </div>
+        <p className="[word-break:break-word] font-['Inter:Medium'] font-medium leading-[16px] not-italic relative shrink-0 text-[12px] text-[color:var(--color\/text\/secondary,#5b616b)] tracking-[0.1px] whitespace-nowrap" data-node-id="I83:1336;18:7">
+          ​
+        </p>
+      </div>
+      <ButtonPrimary className="absolute bg-[var(--color\/action\/primary\/bg,#0b0c0e)] content-stretch cursor-pointer flex h-[48px] items-center justify-center left-[819px] px-[20px] py-[12px] rounded-[var(--radius\/md,12px)] top-[437px] w-[190px]" label="Save trip" />
+      <ButtonSecondary className="absolute bg-[var(--color\/action\/secondary\/bg,white)] border border-[var(--color\/border\/strong,#a6a19a)] border-solid content-stretch cursor-pointer flex h-[48px] items-center justify-center left-[1025px] px-[20px] py-[12px] rounded-[var(--radius\/md,12px)] top-[437px] w-[160px]" label="Cancel" />
+      <p className="[word-break:break-word] absolute font-['Inter:Medium'] font-medium leading-[16px] left-[279px] not-italic text-[12px] text-[color:var(--color\/text\/secondary,#5b616b)] top-[553px] tracking-[0.1px] w-[1040px]" data-node-id="83:1346">
+        Customer creation of arbitrary trip containers is not exposed through the Customer App. This operational surface is scoped to Concierge/Admin/Super Admin.
+      </p>
+    </div>
+  );
+}
+SUPER CRITICAL: The generated React+Tailwind code MUST be converted to match the target project's technology stack and styling system.
+1. Analyze the target codebase to identify: technology stack, styling approach, component patterns, and design tokens
+2. Convert React syntax to the target framework/library
+3. Transform all Tailwind classes to the target styling system while preserving exact visual design
+4. Follow the project's existing patterns and conventions
+DO NOT install any Tailwind as a dependency unless the user instructs you to do so.
+
+Node ids have been added to the code as data attributes, e.g. `data-node-id="1:2"`.
+These styles are contained in the design: Type/Label/SM: Font(family: "Inter", style: Semi Bold, size: 13, weight: 600, lineHeight: 18, letterSpacing: 0.15000000596046448), Type/Caption: Font(family: "Inter", style: Medium, size: 12, weight: 500, lineHeight: 16, letterSpacing: 0.10000000149011612), Type/Body/MD: Font(family: "Inter", style: Regular, size: 14, weight: 400, lineHeight: 22, letterSpacing: 0), Type/Heading/H2: Font(family: "Inter", style: Bold, size: 28, weight: 700, lineHeight: 36, letterSpacing: -0.10000000149011612), Type/Label/MD: Font(family: "Inter", style: Semi Bold, size: 14, weight: 600, lineHeight: 20, letterSpacing: 0.10000000149011612), Type/Body/LG: Font(family: "Inter", style: Regular, size: 16, weight: 400, lineHeight: 24, letterSpacing: 0).
+If the node is connected to a code component in the users codebase via Code Connect, the connected component will be included in the final markup wrapped in a CodeConnectSnippet element, with relevant imports at the top of the file. There are two formats: 1. Single snippet: <CodeConnectSnippet data-snippet-language="React"><TitleComponent>Hello World</TitleComponent></CodeConnectSnippet> 2. Multiple options: <CodeConnectSnippet data-snippet-language="React" options={[<Button variant="primary" />, <Button variant="secondary" />]} /> IMPORTANT: the CodeConnectSnippet wrapper element should not be part of the final code. For the options format, choose the single most appropriate option to use in your implementation. The source of the code component will be in the import path, e.g. import {ComponentName } from 'path/to/component'; IMPORTANT: the import path may not be relative/may point to a URL, so you should search for the component in the codebase and MUST use it if possible.
+Component descriptions: The following components have usage descriptions or documentation links defined in Figma. These descriptions provide important context about the intended usage, best practices, and any constraints for each component. Follow these guidelines when implementing or using these components.
+
+## Type=Text, State=Empty
+**Node ID:** 17:2
+
+Text input / Empty
+
+## Input
+**Node ID:** 17:152
+
+Text input component. Types: Text, Email, Phone, Password, Number. States: Empty, Filled, Focus, Error, Disabled, Read-only. Approved request fields only.
+
+## Type=Date range, State=Selected
+**Node ID:** 18:156
+
+Date range / Selected. Preserve service-local timezone context.
+
+## DateTime
+**Node ID:** 18:174
+
+Date/time controls. Types: Date, Time, Date range. States: Empty, Selected, Invalid, Unavailable. Preserve service-local timezone context.
+
+## Type=Single select, State=Closed
+**Node ID:** 18:2
+
+Single select / Closed
+
+## Selection
+**Node ID:** 18:101
+
+Selection control. Types: Single select, Multi-option where contract supports, Yes-No. States: Closed, Open, Selected, Error, Disabled.
+
+## Icon/ChevronDown
+**Node ID:** 264:213
+
+Outlined 24px ChevronDown icon. Shared foundation asset.
+
+## Chevron down
+**Node ID:** 300:86
+
+Keywords: expand
+
+## State=Default
+**Node ID:** 14:2
+
+Primary button / Default
+
+## Button/Primary
+**Node ID:** 14:74
+
+Primary button. States: Default, Hover (web), Pressed, Focus, Loading, Disabled. Loading never implies success; visibility/action remains governed by role, state and screen.
+
+## State=Default
+**Node ID:** 14:14
+
+Secondary button / Default
+
+## Button/Secondary
+**Node ID:** 14:75
+
+Secondary button. States: Default, Hover (web), Pressed, Focus, Loading, Disabled. Loading never implies success; visibility/action remains governed by role, state and screen.
+The generated code contains image and SVG URL constants, e.g. const image = 'https://www.figma.com/api/mcp/asset/550e8400-e29b-41d4-a716-446655440000.png'. These URLs are temporary download sources and expire after 7 days. Download each asset into the project with curl -L, then replace its URL in the generated code with a reference to the downloaded asset. Never use the temporary URLs as runtime image sources.
+[Resource offloaded to file:///C:/Users/rakib_bro/.gemini/antigravity/brain/21653daa-a859-4e78-9fd0-d16d6235bd4c/.system_generated/steps/5931/media_0.png]

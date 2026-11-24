@@ -1,0 +1,340 @@
+const imgToneMarker = "https://www.figma.com/api/mcp/asset/c1cebfaa-5c37-4b0e-aa33-8584a6cd696d.svg";
+const imgToneMarker1 = "https://www.figma.com/api/mcp/asset/0318df04-77a4-453f-9295-7721419f8bcf.svg";
+const imgBrandLogoSidebarDark = "https://www.figma.com/api/mcp/asset/6ba0b799-0e9d-4644-a402-331899a8e135.png";
+
+type ButtonSecondaryProps = {
+  className?: string;
+  label?: string;
+  state?: "Default";
+};
+
+function ButtonSecondary({ className, label = "Button", state = "Default" }: ButtonSecondaryProps) {
+  return (
+    <div className={className || "bg-[var(--color\\/action\\/secondary\\/bg,white)] border border-[var(--color\\/border\\/strong,#a6a19a)] border-solid content-stretch flex h-[48px] items-center justify-center px-[20px] py-[12px] relative rounded-[var(--radius\\/md,12px)] w-[176px]"} data-node-id="14:14">
+      <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[20px] not-italic relative shrink-0 text-[14px] text-[color:var(--color\/action\/secondary\/text,#0b0c0e)] tracking-[0.1px] whitespace-nowrap" data-node-id="14:15">
+        {label}
+      </p>
+    </div>
+  );
+}
+
+type ButtonTertiaryProps = {
+  className?: string;
+  label?: string;
+  state?: "Default";
+};
+
+function ButtonTertiary({ className, label = "Button", state = "Default" }: ButtonTertiaryProps) {
+  return (
+    <div className={className || "content-stretch flex h-[48px] items-center justify-center px-[20px] py-[12px] relative rounded-[var(--radius\\/md,12px)] w-[176px]"} data-node-id="14:26">
+      <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[20px] not-italic relative shrink-0 text-[14px] text-[color:var(--color\/text\/link,#164d53)] tracking-[0.1px] whitespace-nowrap" data-node-id="14:27">
+        {label}
+      </p>
+    </div>
+  );
+}
+
+type ButtonDestructiveProps = {
+  className?: string;
+  label?: string;
+  state?: "Default";
+};
+
+function ButtonDestructive({ className, label = "Button", state = "Default" }: ButtonDestructiveProps) {
+  return (
+    <div className={className || "bg-[var(--color\\/semantic\\/danger,#b33a3a)] content-stretch flex h-[48px] items-center justify-center px-[20px] py-[12px] relative rounded-[var(--radius\\/md,12px)] w-[176px]"} data-node-id="14:50">
+      <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[20px] not-italic relative shrink-0 text-[14px] text-[color:var(--color\/text\/inverse,white)] tracking-[0.1px] whitespace-nowrap" data-node-id="14:51">
+        {label}
+      </p>
+    </div>
+  );
+}
+
+type ButtonPrimaryProps = {
+  className?: string;
+  label?: string;
+  state?: "Default";
+};
+
+function ButtonPrimary({ className, label = "Button", state = "Default" }: ButtonPrimaryProps) {
+  return (
+    <div className={className || "bg-[var(--color\\/action\\/primary\\/bg,#0b0c0e)] content-stretch flex h-[48px] items-center justify-center px-[20px] py-[12px] relative rounded-[var(--radius\\/md,12px)] w-[176px]"} data-node-id="14:2">
+      <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[20px] not-italic relative shrink-0 text-[14px] text-[color:var(--color\/action\/primary\/text,white)] tracking-[0.1px] whitespace-nowrap" data-node-id="14:3">
+        {label}
+      </p>
+    </div>
+  );
+}
+
+type StatusRefundProps = {
+  className?: string;
+  state?: "PENDING";
+};
+
+function StatusRefund({ className, state = "PENDING" }: StatusRefundProps) {
+  return (
+    <div className={className || "bg-[var(--color\\/semantic\\/warningtint,#f7efd9)] content-stretch flex gap-[6px] items-center px-[10px] py-[5px] relative rounded-[var(--radius\\/pill,999px)]"} data-node-id="20:207">
+      <div className="relative shrink-0 size-[6px]" data-node-id="20:208" data-name="Tone marker">
+        <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgToneMarker} />
+      </div>
+      <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[18px] not-italic relative shrink-0 text-[13px] text-[color:var(--color\/semantic\/warning,#8a5610)] tracking-[0.15px] whitespace-nowrap" data-node-id="20:209">
+        PENDING
+      </p>
+    </div>
+  );
+}
+
+type StatusPaymentProps = {
+  className?: string;
+  state?: "SUCCEEDED";
+};
+
+function StatusPayment({ className, state = "SUCCEEDED" }: StatusPaymentProps) {
+  return (
+    <div className={className || "bg-[var(--color\\/semantic\\/successtint,#e6f2ec)] content-stretch flex gap-[6px] items-center px-[10px] py-[5px] relative rounded-[var(--radius\\/pill,999px)]"} data-node-id="20:192">
+      <div className="relative shrink-0 size-[6px]" data-node-id="20:193" data-name="Tone marker">
+        <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgToneMarker1} />
+      </div>
+      <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[18px] not-italic relative shrink-0 text-[13px] text-[color:var(--color\/semantic\/success,#1f6b4a)] tracking-[0.15px] whitespace-nowrap" data-node-id="20:194">
+        SUCCEEDED
+      </p>
+    </div>
+  );
+}
+
+export default function CcPay01AdminSuperAdminReady() {
+  return (
+    <div className="bg-[var(--color\/surface\/canvas,#faf8f4)] border border-[var(--color\/border\/default,#ddd8cf)] border-solid overflow-clip relative rounded-[16px] size-full" data-node-id="81:777" data-name="CC-PAY-01__Admin_/_Super_Admin__Ready">
+      <div className="absolute bg-[var(--color\/surface\/inverse,#0b0c0e)] h-[900px] left-[-1px] overflow-clip top-[-1px] w-[240px]" data-node-id="81:778" data-name="Command Center rail">
+        <div className="absolute h-[36px] left-[16px] overflow-clip rounded-[8px] top-[110px] w-[208px]" data-node-id="81:781" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] top-[9px] tracking-[0.15px] w-[180px]" data-node-id="81:782">
+            Home
+          </p>
+        </div>
+        <div className="absolute h-[36px] left-[16px] overflow-clip rounded-[8px] top-[153px] w-[208px]" data-node-id="81:783" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] top-[9px] tracking-[0.15px] w-[180px]" data-node-id="81:784">
+            Customers
+          </p>
+        </div>
+        <div className="absolute h-[36px] left-[16px] overflow-clip rounded-[8px] top-[196px] w-[208px]" data-node-id="81:785" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] top-[9px] tracking-[0.15px] w-[180px]" data-node-id="81:786">
+            Bookings
+          </p>
+        </div>
+        <div className="absolute h-[36px] left-[16px] overflow-clip rounded-[8px] top-[239px] w-[208px]" data-node-id="81:787" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] top-[9px] tracking-[0.15px] w-[180px]" data-node-id="81:788">
+            Trips
+          </p>
+        </div>
+        <div className="absolute h-[36px] left-[16px] overflow-clip rounded-[8px] top-[282px] w-[208px]" data-node-id="81:789" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] top-[9px] tracking-[0.15px] w-[180px]" data-node-id="81:790">
+            Concierge
+          </p>
+        </div>
+        <div className="absolute h-[36px] left-[16px] overflow-clip rounded-[8px] top-[325px] w-[208px]" data-node-id="81:791" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] top-[9px] tracking-[0.15px] w-[180px]" data-node-id="81:792">
+            Vendors
+          </p>
+        </div>
+        <div className="absolute h-[36px] left-[16px] overflow-clip rounded-[8px] top-[368px] w-[208px]" data-node-id="81:793" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] top-[9px] tracking-[0.15px] w-[180px]" data-node-id="81:794">
+            Assets
+          </p>
+        </div>
+        <div className="absolute h-[36px] left-[16px] overflow-clip rounded-[8px] top-[411px] w-[208px]" data-node-id="81:795" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] top-[9px] tracking-[0.15px] w-[180px]" data-node-id="81:796">
+            Availability
+          </p>
+        </div>
+        <div className="absolute h-[36px] left-[16px] overflow-clip rounded-[8px] top-[454px] w-[208px]" data-node-id="81:797" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] top-[9px] tracking-[0.15px] w-[180px]" data-node-id="81:798">
+            Pricing
+          </p>
+        </div>
+        <div className="absolute bg-[var(--color\/brand\/graphite,#24272d)] h-[36px] left-[16px] overflow-clip rounded-[8px] top-[497px] w-[208px]" data-node-id="81:799" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] top-[9px] tracking-[0.15px] w-[180px]" data-node-id="81:800">
+            Finance
+          </p>
+        </div>
+        <div className="absolute h-[36px] left-[16px] overflow-clip rounded-[8px] top-[540px] w-[208px]" data-node-id="81:801" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] top-[9px] tracking-[0.15px] w-[180px]" data-node-id="81:802">
+            Catalog
+          </p>
+        </div>
+        <div className="absolute h-[36px] left-[16px] overflow-clip rounded-[8px] top-[583px] w-[208px]" data-node-id="81:803" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] top-[9px] tracking-[0.15px] w-[180px]" data-node-id="81:804">
+            Geography
+          </p>
+        </div>
+        <div className="absolute h-[36px] left-[16px] overflow-clip rounded-[8px] top-[626px] w-[208px]" data-node-id="81:805" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] top-[9px] tracking-[0.15px] w-[180px]" data-node-id="81:806">
+            Assignments
+          </p>
+        </div>
+        <div className="absolute h-[36px] left-[16px] overflow-clip rounded-[8px] top-[669px] w-[208px]" data-node-id="81:807" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] top-[9px] tracking-[0.15px] w-[180px]" data-node-id="81:808">
+            Access
+          </p>
+        </div>
+        <div className="absolute h-[36px] left-[16px] overflow-clip rounded-[8px] top-[712px] w-[208px]" data-node-id="81:809" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] top-[9px] tracking-[0.15px] w-[180px]" data-node-id="81:810">{`Support & Legal`}</p>
+        </div>
+        <p className="[word-break:break-word] absolute font-['Inter:Medium'] font-medium leading-[16px] left-[24px] not-italic text-[12px] text-[color:var(--color\/text\/inverse,white)] top-[842px] tracking-[0.1px] w-[190px]" data-node-id="81:811">
+          Admin / Super Admin
+        </p>
+        <div className="absolute h-[88px] left-[16px] rounded-[10px] top-[16px] w-[208px]" data-node-id="120:7428" data-name="Brand/Logo/Sidebar Dark">
+          <img alt="" className="absolute inset-0 max-w-none object-contain pointer-events-none rounded-[10px] size-full" src={imgBrandLogoSidebarDark} />
+        </div>
+      </div>
+      <div className="absolute bg-[var(--color\/surface\/card,white)] border-[var(--color\/border\/default,#ddd8cf)] border-b border-solid h-[72px] left-[239px] overflow-clip top-[-1px] w-[1200px]" data-node-id="81:812" data-name="Frame">
+        <div className="absolute bg-[var(--color\/surface\/subtle,#eee9e0)] h-[40px] left-[32px] overflow-clip rounded-[10px] top-[16px] w-[360px]" data-node-id="81:813" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[22px] left-[14px] not-italic text-[14px] text-[color:var(--color\/text\/secondary,#5b616b)] top-[10px] w-[320px]" data-node-id="81:814">
+            Search / command
+          </p>
+        </div>
+        <p className="-translate-x-full [word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[1170px] not-italic text-[13px] text-[color:var(--color\/text\/secondary,#5b616b)] text-right top-[26px] tracking-[0.15px] w-[100px]" data-node-id="81:815">
+          User menu
+        </p>
+      </div>
+      <p className="[word-break:break-word] absolute font-['Inter:Bold'] font-bold leading-[36px] left-[279px] not-italic text-[28px] text-[color:var(--color\/text\/primary,#0b0c0e)] top-[103px] tracking-[-0.1px] w-[900px]" data-node-id="81:816">
+        Payment Detail / Refund Management
+      </p>
+      <StatusPayment className="absolute bg-[var(--color\/semantic\/successtint,#e6f2ec)] content-stretch flex gap-[6px] items-center left-[279px] px-[10px] py-[5px] rounded-[var(--radius\/pill,999px)] top-[159px]" />
+      <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[20px] left-[429px] not-italic text-[14px] text-[color:var(--color\/text\/primary,#0b0c0e)] top-[163px] tracking-[0.1px] w-[350px]" data-node-id="81:820">
+        Authoritative payment state
+      </p>
+      <div className="[word-break:break-word] absolute bg-[var(--color\/surface\/card,white)] border border-[var(--color\/border\/default,#ddd8cf)] border-solid h-[320px] left-[279px] not-italic overflow-clip rounded-[12px] top-[209px] w-[520px]" data-node-id="81:821" data-name="Frame">
+        <p className="absolute font-['Inter:Semi_Bold'] font-semibold leading-[26px] left-[15px] text-[18px] text-[color:var(--color\/text\/primary,#0b0c0e)] top-[13px] w-[488px]" data-node-id="81:822">
+          Payment
+        </p>
+        <p className="absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[15px] text-[13px] text-[color:var(--color\/text\/secondary,#5b616b)] top-[55px] tracking-[0.15px] w-[180px]" data-node-id="81:823">
+          Booking
+        </p>
+        <p className="absolute font-['Inter:Regular'] font-normal leading-[22px] left-[199px] text-[14px] text-[color:var(--color\/text\/primary,#0b0c0e)] top-[55px] w-[304px]" data-node-id="81:824">
+          Booking reference
+        </p>
+        <p className="absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[15px] text-[13px] text-[color:var(--color\/text\/secondary,#5b616b)] top-[95px] tracking-[0.15px] w-[180px]" data-node-id="81:825">
+          Purpose
+        </p>
+        <p className="absolute font-['Inter:Regular'] font-normal leading-[22px] left-[199px] text-[14px] text-[color:var(--color\/text\/primary,#0b0c0e)] top-[95px] w-[304px]" data-node-id="81:826">
+          FULL / DEPOSIT / BALANCE
+        </p>
+        <p className="absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[15px] text-[13px] text-[color:var(--color\/text\/secondary,#5b616b)] top-[135px] tracking-[0.15px] w-[180px]" data-node-id="81:827">
+          Amount
+        </p>
+        <p className="absolute font-['Inter:Regular'] font-normal leading-[22px] left-[199px] text-[14px] text-[color:var(--color\/text\/primary,#0b0c0e)] top-[135px] w-[304px]" data-node-id="81:828">
+          XOF / transaction currency
+        </p>
+        <p className="absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[15px] text-[13px] text-[color:var(--color\/text\/secondary,#5b616b)] top-[175px] tracking-[0.15px] w-[180px]" data-node-id="81:829">
+          Provider ref
+        </p>
+        <p className="absolute font-['Inter:Regular'] font-normal leading-[22px] left-[199px] text-[14px] text-[color:var(--color\/text\/primary,#0b0c0e)] top-[175px] w-[304px]" data-node-id="81:830">
+          Role-appropriate reference
+        </p>
+        <p className="absolute font-['Inter:Medium'] font-medium leading-[16px] left-[15px] text-[12px] text-[color:var(--color\/text\/secondary,#5b616b)] top-[231px] tracking-[0.1px] w-[488px]" data-node-id="81:831">
+          Provider/client return is not final truth; server/provider reconciliation is authoritative.
+        </p>
+      </div>
+      <div className="absolute bg-[var(--color\/surface\/card,white)] border border-[var(--color\/border\/default,#ddd8cf)] border-solid h-[320px] left-[839px] overflow-clip rounded-[12px] top-[209px] w-[520px]" data-node-id="81:832" data-name="Frame">
+        <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[26px] left-[15px] not-italic text-[18px] text-[color:var(--color\/text\/primary,#0b0c0e)] top-[13px] w-[488px]" data-node-id="81:833">
+          Refunds
+        </p>
+        <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[15px] not-italic text-[13px] text-[color:var(--color\/text\/secondary,#5b616b)] top-[57px] tracking-[0.15px] w-[180px]" data-node-id="81:834">
+          Existing refund
+        </p>
+        <StatusRefund className="absolute bg-[var(--color\/semantic\/warningtint,#f7efd9)] content-stretch flex gap-[6px] items-center left-[199px] px-[10px] py-[5px] rounded-[var(--radius\/pill,999px)] top-[51px]" />
+        <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[15px] not-italic text-[13px] text-[color:var(--color\/text\/secondary,#5b616b)] top-[109px] tracking-[0.15px] w-[180px]" data-node-id="81:838">
+          Refundable remainder
+        </p>
+        <p className="[word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[22px] left-[199px] not-italic text-[14px] text-[color:var(--color\/text\/primary,#0b0c0e)] top-[109px] w-[304px]" data-node-id="81:839">
+          Authorized roles only
+        </p>
+        <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[15px] not-italic text-[13px] text-[color:var(--color\/text\/secondary,#5b616b)] top-[149px] tracking-[0.15px] w-[180px]" data-node-id="81:840">
+          Reason / notes
+        </p>
+        <p className="[word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[22px] left-[199px] not-italic text-[14px] text-[color:var(--color\/text\/primary,#0b0c0e)] top-[149px] w-[304px]" data-node-id="81:841">
+          When returned
+        </p>
+        <p className="[word-break:break-word] absolute font-['Inter:Medium'] font-medium leading-[16px] left-[15px] not-italic text-[12px] text-[color:var(--color\/text\/secondary,#5b616b)] top-[231px] tracking-[0.1px] w-[488px]" data-node-id="81:842">
+          Refund initiation is Admin/Super Admin only. Cancellation and refund are separate.
+        </p>
+      </div>
+      <ButtonPrimary className="absolute bg-[var(--color\/action\/primary\/bg,#0b0c0e)] content-stretch cursor-pointer flex h-[48px] items-center justify-center left-[279px] px-[20px] py-[12px] rounded-[var(--radius\/md,12px)] top-[565px] w-[240px]" label="Create payment action" />
+      <ButtonDestructive className="absolute bg-[var(--color\/semantic\/danger,#b33a3a)] content-stretch cursor-pointer flex h-[48px] items-center justify-center left-[535px] px-[20px] py-[12px] rounded-[var(--radius\/md,12px)] top-[565px] w-[200px]" label="Initiate refund" />
+      <ButtonTertiary className="absolute content-stretch cursor-pointer flex h-[48px] items-center justify-center left-[751px] px-[20px] py-[12px] rounded-[var(--radius\/md,12px)] top-[565px] w-[170px]" label="Refresh status" />
+      <ButtonSecondary className="absolute bg-[var(--color\/action\/secondary\/bg,white)] border border-[var(--color\/border\/strong,#a6a19a)] border-solid content-stretch cursor-pointer flex h-[48px] items-center justify-center left-[937px] px-[20px] py-[12px] rounded-[var(--radius\/md,12px)] top-[565px] w-[210px]" label="Return to booking" />
+    </div>
+  );
+}
+SUPER CRITICAL: The generated React+Tailwind code MUST be converted to match the target project's technology stack and styling system.
+1. Analyze the target codebase to identify: technology stack, styling approach, component patterns, and design tokens
+2. Convert React syntax to the target framework/library
+3. Transform all Tailwind classes to the target styling system while preserving exact visual design
+4. Follow the project's existing patterns and conventions
+DO NOT install any Tailwind as a dependency unless the user instructs you to do so.
+
+Node ids have been added to the code as data attributes, e.g. `data-node-id="1:2"`.
+These styles are contained in the design: Type/Label/SM: Font(family: "Inter", style: Semi Bold, size: 13, weight: 600, lineHeight: 18, letterSpacing: 0.15000000596046448), Type/Caption: Font(family: "Inter", style: Medium, size: 12, weight: 500, lineHeight: 16, letterSpacing: 0.10000000149011612), Type/Body/MD: Font(family: "Inter", style: Regular, size: 14, weight: 400, lineHeight: 22, letterSpacing: 0), Type/Heading/H2: Font(family: "Inter", style: Bold, size: 28, weight: 700, lineHeight: 36, letterSpacing: -0.10000000149011612), Type/Label/MD: Font(family: "Inter", style: Semi Bold, size: 14, weight: 600, lineHeight: 20, letterSpacing: 0.10000000149011612), Type/Title/MD: Font(family: "Inter", style: Semi Bold, size: 18, weight: 650, lineHeight: 26, letterSpacing: 0).
+Component descriptions: The following components have usage descriptions or documentation links defined in Figma. These descriptions provide important context about the intended usage, best practices, and any constraints for each component. Follow these guidelines when implementing or using these components.
+
+## State=SUCCEEDED
+**Node ID:** 20:192
+
+Payment status / SUCCEEDED / Success
+
+## Status/Payment
+**Node ID:** 20:277
+
+Payment canonical state chips. Keep this state machine separate from booking/payment/change/assignment/refund and other domains.
+
+## State=PENDING
+**Node ID:** 20:207
+
+Refund status / PENDING / Warning
+
+## Status/Refund
+**Node ID:** 20:278
+
+Refund canonical state chips. Keep this state machine separate from booking/payment/change/assignment/refund and other domains.
+
+## State=Default
+**Node ID:** 14:2
+
+Primary button / Default
+
+## Button/Primary
+**Node ID:** 14:74
+
+Primary button. States: Default, Hover (web), Pressed, Focus, Loading, Disabled. Loading never implies success; visibility/action remains governed by role, state and screen.
+
+## State=Default
+**Node ID:** 14:50
+
+Destructive button / Default
+
+## Button/Destructive
+**Node ID:** 14:78
+
+Destructive button. States: Default, Hover (web), Pressed, Focus, Loading, Disabled. Loading never implies success; visibility/action remains governed by role, state and screen.
+
+## State=Default
+**Node ID:** 14:26
+
+Tertiary button / Default
+
+## Button/Tertiary
+**Node ID:** 14:76
+
+Tertiary button. States: Default, Hover (web), Pressed, Focus, Loading, Disabled. Loading never implies success; visibility/action remains governed by role, state and screen.
+
+## State=Default
+**Node ID:** 14:14
+
+Secondary button / Default
+
+## Button/Secondary
+**Node ID:** 14:75
+
+Secondary button. States: Default, Hover (web), Pressed, Focus, Loading, Disabled. Loading never implies success; visibility/action remains governed by role, state and screen.
+The generated code contains image and SVG URL constants, e.g. const image = 'https://www.figma.com/api/mcp/asset/550e8400-e29b-41d4-a716-446655440000.png'. These URLs are temporary download sources and expire after 7 days. Download each asset into the project with curl -L, then replace its URL in the generated code with a reference to the downloaded asset. Never use the temporary URLs as runtime image sources.
+[Resource offloaded to file:///C:/Users/rakib_bro/.gemini/antigravity/brain/21653daa-a859-4e78-9fd0-d16d6235bd4c/.system_generated/steps/5927/media_0.png]

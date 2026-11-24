@@ -80,16 +80,24 @@ export default function BookingChangeRequestsPage() {
         </div>
 
         {/* Header */}
-        <div className="mb-[24px]">
-          <h1
-            className="text-[28px] font-bold text-[#0B0C0E] tracking-[-0.1px] leading-[36px]"
-            data-node-id="81:580"
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-[24px]">
+          <div>
+            <h1
+              className="text-[28px] font-bold text-[#0B0C0E] tracking-[-0.1px] leading-[36px]"
+              data-node-id="81:580"
+            >
+              Booking Change Requests
+            </h1>
+            <p className="text-[14px] text-[#5B616B] mt-[4px]">
+              Context: {booking.reference} · v{booking.version} · {booking.customerName}
+            </p>
+          </div>
+          <Link
+            href={`/bookings/${booking.id}/change-requests/create`}
+            className="h-[44px] px-[18px] bg-[#0B0C0E] text-white text-[13px] font-semibold rounded-[10px] hover:bg-[#17191D] inline-flex items-center justify-center transition-colors self-start md:self-auto"
           >
-            Booking Change Requests
-          </h1>
-          <p className="text-[14px] text-[#5B616B] mt-[4px]">
-            Context: {booking.reference} · v{booking.version} · {booking.customerName}
-          </p>
+            + Create Request on Behalf
+          </Link>
         </div>
 
         {/* Change Requests Table */}

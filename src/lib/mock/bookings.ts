@@ -6,6 +6,7 @@ import type {
   BookingLifecycleStatus,
   BookingListResult,
   CreateBookingParams,
+  CreateChangeRequestParams,
   ResolveChangeRequestParams,
 } from "@/types/booking";
 
@@ -431,6 +432,65 @@ export class BookingRepository {
     const resolvedBooking = this.getBookingById(bookingId);
     const targetId = resolvedBooking?.id || bookingId;
     return this.changeRequests.filter((cr) => cr.bookingId === targetId);
+  }
+
+  public hasPendingChangeRequest(bookingId: string): boolean {
+    const list = this.listChangeRequests(bookingId);
+    return list.some((cr) => cr.status === "PENDING_ADMIN");
+  }
+
+  public getPendingChangeRequest(bookingId: string): BookingChangeRequest | undefined {
+    const list = this.listChangeRequests(bookingId);
+    return list.find((cr) => cr.status === "PENDING_ADMIN");
+  }
+
+  public createChangeRequest(params: CreateChangeRequestParams): BookingChangeRequest {
+    const booking = this.getBookingById(params.bookingId);
+    if (!booking) {
+      throw new Error(`Booking not found: ${params.bookingId}`);
+    }
+
+    if (this.hasPendingChangeRequest(booking.id)) {
+      throw new Error(
+        `A pending change or cancellation request already exists for booking ${booking.reference}. Duplicate pending requests are strictly prevented.`,
+      );
+    }
+
+    if (!params.requestedChanges?.trim() && !params.reason?.trim()) {
+      throw new Error("Request details or reason are required.");
+    }
+
+    const now = new Date();
+    const requestId = `cr_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 6)}`;
+    const createdDisplay = now.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    const newRequest: BookingChangeRequest = {
+      id: requestId,
+      bookingId: booking.id,
+      type: params.type,
+      requestedChanges: params.requestedChanges?.trim() || params.reason?.trim(),
+      vendorDecision: "PENDING",
+      vendorNotes: `Created on behalf by ${params.submittedByRole || "Concierge"}: ${params.reason}`,
+      status: "PENDING_ADMIN",
+      createdAt: now.toISOString(),
+      createdDisplay,
+      proposedSchedule: params.proposedSchedule?.trim(),
+      proposedScheduleDisplay: params.proposedSchedule?.trim(),
+      proposedDestination: params.proposedDestination?.trim(),
+    };
+
+    this.changeRequests.unshift(newRequest);
+    booking.changeRequestStatus =
+      params.type === "MODIFICATION" ? "PENDING_MODIFICATION" : "PENDING_CANCELLATION";
+    booking.updatedAt = now.toISOString();
+
+    this.notify();
+    return newRequest;
   }
 
   public getChangeRequest(bookingId: string, requestId: string): BookingChangeRequest | undefined {

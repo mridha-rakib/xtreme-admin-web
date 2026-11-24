@@ -113,3 +113,4 @@ export * from "./booking";
 export * from "./payment";
 export * from "./trip";
 export * from "./concierge";
+export * from "./vendor";

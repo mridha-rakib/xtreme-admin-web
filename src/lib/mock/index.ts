@@ -55,3 +55,5 @@ export * from "./payments";
 export * from "./trips";
 export * from "./concierge-requests";
 export * from "./conversations";
+export * from "./vendors";
+export * from "./vendor-staff";

@@ -35,7 +35,10 @@ export function Sidebar() {
       <nav className="flex-1 overflow-y-auto px-[16px] py-[6px] space-y-[7px]">
         {visibleItems.map((item) => {
           const isActive =
-            pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+            pathname === item.href ||
+            (item.href !== "/" && pathname.startsWith(item.href)) ||
+            (item.id === "vendors" &&
+              (pathname.startsWith("/vendor/") || pathname.startsWith("/vendors")));
           return <NavigationItem key={item.id} item={item} isActive={isActive} />;
         })}
       </nav>
@@ -44,12 +47,12 @@ export function Sidebar() {
       <div className="h-[48px] px-[24px] pb-[16px] flex items-center shrink-0">
         <p className="text-[12px] font-medium tracking-[0.1px] text-white/60">
           {user?.role === "SUPER_ADMIN"
-            ? "Admin / Super Admin"
+            ? "Admin"
             : user?.role === "ADMIN"
-              ? "Operations Admin"
+              ? "Admin"
               : user?.role === "CONCIERGE"
-                ? "Concierge Team"
-                : "Partner Vendor"}
+                ? "Concierge"
+                : "Vendor"}
         </p>
       </div>
     </aside>

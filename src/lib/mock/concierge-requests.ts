@@ -133,15 +133,26 @@ export class ConciergeRequestRepository {
     }
 
     const customer = customerRepository.getCustomerById(params.customerId);
-    const customerName = customer
-      ? `${customer.firstName} ${customer.lastName}`
-      : "Valued Customer";
-    const customerEmail = customer ? customer.email : "guest@example.com";
+    if (!customer) {
+      throw new ConciergeValidationError(
+        "Selected customer does not exist in the customer repository.",
+      );
+    }
+    const customerName = `${customer.firstName} ${customer.lastName}`;
+    const customerEmail = customer.email;
 
     let tripReference: string | undefined;
     if (params.tripId) {
       const trip = tripRepository.getTripById(params.tripId);
-      tripReference = trip?.reference || params.tripId;
+      if (!trip) {
+        throw new ConciergeValidationError("Selected trip does not exist in the trip repository.");
+      }
+      if (trip.customerId !== params.customerId) {
+        throw new ConciergeValidationError(
+          "The selected trip does not belong to the selected customer.",
+        );
+      }
+      tripReference = trip.reference || params.tripId;
     }
 
     const seq = (this.requests.length + 1).toString().padStart(2, "0");

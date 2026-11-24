@@ -50,6 +50,26 @@ describe("ConciergeRequestRepository Unit & Domain Model Tests", () => {
         details: "   ",
       }),
     ).toThrow(ConciergeValidationError);
+
+    // Customer existence verification (Batch 4 focused audit)
+    expect(() =>
+      conciergeRequestRepository.createRequest({
+        customerId: "non_existent_customer",
+        type: "PLAN_TRIP",
+        details: "Trip inquiry",
+      }),
+    ).toThrow(ConciergeValidationError);
+
+    // Customer / Trip relationship integrity verification (Batch 4 focused audit)
+    // cus_001 (Olivia Carter) does not own TRIP-261124-02 (Ethan Mitchell)
+    expect(() =>
+      conciergeRequestRepository.createRequest({
+        customerId: "cus_001",
+        tripId: "TRIP-261124-02",
+        type: "PLAN_TRIP",
+        details: "Trip inquiry with mismatched trip",
+      }),
+    ).toThrow(ConciergeValidationError);
   });
 
   it("successfully creates a concierge request with resolved customer and trip context", () => {

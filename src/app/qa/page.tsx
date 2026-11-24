@@ -1,18 +1,20 @@
 "use client";
 
-import { MOCK_PERSONAS, useSession } from "@/lib/auth/session";
+import { MOCK_PERSONAS, VENDOR_B_PERSONA, useSession } from "@/lib/auth/session";
 import { bookingRepository } from "@/lib/mock/bookings";
 import { conciergeRequestRepository } from "@/lib/mock/concierge-requests";
 import { conversationRepository } from "@/lib/mock/conversations";
 import { customerRepository } from "@/lib/mock/customers";
 import { paymentRepository } from "@/lib/mock/payments";
 import { tripRepository } from "@/lib/mock/trips";
+import { vendorStaffRepository } from "@/lib/mock/vendor-staff";
+import { vendorRepository } from "@/lib/mock/vendors";
 import type { CommandCenterRole } from "@/types";
 import Link from "next/link";
 import React, { useState } from "react";
 
 export default function QAEnvironmentHub() {
-  const { user, status, switchRole, signIn, signOut } = useSession();
+  const { user, status, switchRole, switchUser, signIn, signOut } = useSession();
   const [isSimulatedFailure, setIsSimulatedFailure] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
@@ -39,9 +41,11 @@ export default function QAEnvironmentHub() {
     tripRepository.resetDefaults();
     conciergeRequestRepository.resetDefaults();
     conversationRepository.resetDefaults();
+    vendorRepository.resetDefaults();
+    vendorStaffRepository.resetDefaults();
     setIsSimulatedFailure(false);
     setStatusMessage(
-      "Customer, Booking, Payment, Trip, Concierge Request, and Conversation repositories reset to initial deterministic state",
+      "Customer, Booking, Payment, Trip, Concierge, and Vendor repositories reset to initial deterministic state",
     );
   };
 
@@ -111,6 +115,46 @@ export default function QAEnvironmentHub() {
               </div>
             </div>
 
+            <div className="space-y-2 pt-2 border-t border-[#DDD8CF]">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[#5B616B] block">
+                Multi-Tenant Vendor Testing Personas
+              </p>
+              <div className="grid grid-cols-1 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    switchRole("VENDOR");
+                    setStatusMessage(
+                      "Switched to Vendor A: Arman K. (AeroJet Aviation - vnd_aerojet_99)",
+                    );
+                  }}
+                  className={`px-3 py-2 text-xs font-semibold rounded-md border text-left transition-colors ${
+                    user?.role === "VENDOR" && user?.vendorId === "vnd_aerojet_99"
+                      ? "bg-[#0B0C0E] text-white border-[#0B0C0E]"
+                      : "bg-white text-[#0B0C0E] border-[#DDD8CF] hover:bg-[#FAF8F4]"
+                  }`}
+                >
+                  Vendor A: Arman K. (AeroJet Aviation)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    switchUser(VENDOR_B_PERSONA);
+                    setStatusMessage(
+                      "Switched to Vendor B: Claire Delacroix (Côte d'Azur Marine - vnd_azure_01)",
+                    );
+                  }}
+                  className={`px-3 py-2 text-xs font-semibold rounded-md border text-left transition-colors ${
+                    user?.role === "VENDOR" && user?.vendorId === "vnd_azure_01"
+                      ? "bg-[#0B0C0E] text-white border-[#0B0C0E]"
+                      : "bg-white text-[#0B0C0E] border-[#DDD8CF] hover:bg-[#FAF8F4]"
+                  }`}
+                >
+                  Vendor B: Claire Delacroix (Côte d&apos;Azur Marine)
+                </button>
+              </div>
+            </div>
+
             <div className="flex gap-2 pt-2">
               <button
                 type="button"
@@ -170,6 +214,14 @@ export default function QAEnvironmentHub() {
                 className="w-full py-2.5 px-4 bg-[#164D53] hover:bg-[#113E43] text-white rounded-md text-xs font-semibold text-center transition-colors"
               >
                 Reset Concierge Requests & Conversations
+              </button>
+
+              <button
+                type="button"
+                onClick={handleReset}
+                className="w-full py-2.5 px-4 bg-[#24272D] hover:bg-[#17191D] text-white rounded-md text-xs font-semibold text-center transition-colors"
+              >
+                Reset Vendors &amp; Staff to Initial Defaults
               </button>
             </div>
 

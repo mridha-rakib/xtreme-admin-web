@@ -36,6 +36,15 @@ export const MOCK_PERSONAS: Record<CommandCenterRole, CommandCenterUser> = {
   },
 };
 
+export const VENDOR_B_PERSONA: CommandCenterUser = {
+  id: "usr_vendor_02",
+  name: "Claire Delacroix",
+  email: "charters@cotedazur-marine.internal",
+  role: "VENDOR",
+  department: "Riviera Maritime Ops",
+  vendorId: "vnd_azure_01",
+};
+
 export interface SignInCredentials {
   identifier: string;
   password?: string;
@@ -68,6 +77,7 @@ export function isMockAuthAllowed(): boolean {
 
 interface SessionContextType extends CommandCenterSession {
   switchRole: (role: CommandCenterRole) => void;
+  switchUser: (user: CommandCenterUser) => void;
   signIn: (credentials?: SignInCredentials | CommandCenterRole) => Promise<SignInResult>;
   signOut: () => void;
   isQAMode: boolean;
@@ -117,6 +127,17 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       if (typeof window !== "undefined") {
         localStorage.setItem("xtreme_session_user", JSON.stringify(targetUser));
       }
+    }
+  };
+
+  const switchUser = (targetUser: CommandCenterUser) => {
+    if (!isMockAuthAllowed()) {
+      return;
+    }
+    setCurrentUser(targetUser);
+    setStatus("authenticated");
+    if (typeof window !== "undefined") {
+      localStorage.setItem("xtreme_session_user", JSON.stringify(targetUser));
     }
   };
 
@@ -206,6 +227,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: status === "authenticated" && currentUser !== null,
         status,
         switchRole,
+        switchUser,
         signIn,
         signOut,
         isQAMode,

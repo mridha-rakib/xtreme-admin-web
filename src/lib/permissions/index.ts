@@ -131,6 +131,84 @@ export function getVisibleNavItems(
   role: CommandCenterRole | null | undefined,
 ): CommandCenterNavItem[] {
   if (!role) return [];
+
+  if (role === "VENDOR") {
+    return [
+      {
+        id: "home",
+        label: "Home",
+        href: "/",
+        iconName: "home",
+        requiredPermission: "view:dashboard",
+        section: "main",
+      },
+      {
+        id: "bookings",
+        label: "Bookings",
+        href: "/bookings",
+        iconName: "calendar",
+        requiredPermission: "view:bookings",
+        section: "main",
+      },
+      {
+        id: "vendors",
+        label: "Vendors",
+        href: "/vendor/organization",
+        iconName: "store",
+        requiredPermission: "view:dashboard",
+        section: "management",
+      },
+      {
+        id: "assets",
+        label: "Assets",
+        href: "/assets",
+        iconName: "layers",
+        requiredPermission: "view:assets",
+        section: "management",
+      },
+      {
+        id: "availability",
+        label: "Availability",
+        href: "/availability",
+        iconName: "calendar",
+        requiredPermission: "view:assets",
+        section: "management",
+      },
+      {
+        id: "pricing",
+        label: "Pricing",
+        href: "/pricing",
+        iconName: "tag",
+        requiredPermission: "view:dashboard",
+        section: "management",
+      },
+      {
+        id: "finance",
+        label: "Finance",
+        href: "/finance",
+        iconName: "bars",
+        requiredPermission: "view:dashboard",
+        section: "management",
+      },
+      {
+        id: "assignments",
+        label: "Assignments",
+        href: "/assignments",
+        iconName: "clipboard",
+        requiredPermission: "view:dashboard",
+        section: "management",
+      },
+      {
+        id: "support-legal",
+        label: "Support & Legal",
+        href: "/support-legal",
+        iconName: "shield",
+        requiredPermission: "view:dashboard",
+        section: "system",
+      },
+    ];
+  }
+
   return COMMAND_CENTER_NAV_ITEMS.filter((item) =>
     hasCommandCenterPermission(role, item.requiredPermission),
   );

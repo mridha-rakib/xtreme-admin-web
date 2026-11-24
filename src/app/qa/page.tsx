@@ -1,6 +1,7 @@
 "use client";
 
 import { MOCK_PERSONAS, useSession } from "@/lib/auth/session";
+import { bookingRepository } from "@/lib/mock/bookings";
 import { customerRepository } from "@/lib/mock/customers";
 import type { CommandCenterRole } from "@/types";
 import Link from "next/link";
@@ -29,8 +30,9 @@ export default function QAEnvironmentHub() {
 
   const handleReset = () => {
     customerRepository.resetToDefaults();
+    bookingRepository.resetDefaults();
     setIsSimulatedFailure(false);
-    setStatusMessage("Customer repository reset to initial deterministic state");
+    setStatusMessage("Customer and Booking repositories reset to initial deterministic state");
   };
 
   return (

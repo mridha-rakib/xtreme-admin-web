@@ -1,0 +1,256 @@
+const imgBrandLogoSidebarDark = "https://www.figma.com/api/mcp/asset/3ac5fddd-7bfd-4941-bc48-43f449bd144b.png";
+
+type ButtonPrimaryProps = {
+  className?: string;
+  label?: string;
+  state?: "Default";
+};
+
+function ButtonPrimary({ className, label = "Button", state = "Default" }: ButtonPrimaryProps) {
+  return (
+    <div className={className || "bg-[var(--color\\/action\\/primary\\/bg,#0b0c0e)] content-stretch flex h-[48px] items-center justify-center px-[20px] py-[12px] relative rounded-[var(--radius\\/md,12px)] w-[176px]"} data-node-id="14:2">
+      <p className="[word-break:break-word] font-['Inter:Semi_Bold'] font-semibold leading-[20px] not-italic relative shrink-0 text-[14px] text-[color:var(--color\/action\/primary\/text,white)] tracking-[0.1px] whitespace-nowrap" data-node-id="14:3">
+        {label}
+      </p>
+    </div>
+  );
+}
+
+export default function CcCon03ConciergeReady() {
+  return (
+    <div className="bg-[var(--color\/surface\/canvas,#faf8f4)] border border-[var(--color\/border\/default,#ddd8cf)] border-solid overflow-clip relative rounded-[16px] size-full" data-node-id="83:1533" data-name="CC-CON-03__Concierge__Ready">
+      <div className="absolute bg-[var(--color\/surface\/inverse,#0b0c0e)] h-[900px] left-[-1px] overflow-clip top-[-1px] w-[240px]" data-node-id="83:1534" data-name="Command Center rail">
+        <a className="absolute block cursor-pointer h-[36px] left-[16px] overflow-clip rounded-[8px] top-[110px] w-[208px]" data-node-id="83:1537" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] text-left top-[9px] tracking-[0.15px] w-[180px]" data-node-id="83:1538">
+            Home
+          </p>
+        </a>
+        <a className="absolute block cursor-pointer h-[36px] left-[16px] overflow-clip rounded-[8px] top-[153px] w-[208px]" data-node-id="83:1541" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] text-left top-[9px] tracking-[0.15px] w-[180px]" data-node-id="83:1542">
+            Bookings
+          </p>
+        </a>
+        <a className="absolute block cursor-pointer h-[36px] left-[16px] overflow-clip rounded-[8px] top-[196px] w-[208px]" data-node-id="83:1543" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] text-left top-[9px] tracking-[0.15px] w-[180px]" data-node-id="83:1544">
+            Trips
+          </p>
+        </a>
+        <a className="absolute bg-[var(--color\/brand\/graphite,#24272d)] block cursor-pointer h-[36px] left-[16px] overflow-clip rounded-[8px] top-[239px] w-[208px]" data-node-id="83:1545" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] text-left top-[9px] tracking-[0.15px] w-[180px]" data-node-id="83:1546">
+            Concierge
+          </p>
+        </a>
+        <a className="absolute block cursor-pointer h-[36px] left-[16px] overflow-clip rounded-[8px] top-[282px] w-[208px]" data-node-id="83:1565" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[12px] not-italic text-[13px] text-[color:var(--color\/text\/inverse,white)] text-left top-[9px] tracking-[0.15px] w-[180px]" data-node-id="83:1566">{`Support & Legal`}</p>
+        </a>
+        <p className="[word-break:break-word] absolute font-['Inter:Medium'] font-medium leading-[16px] left-[24px] not-italic text-[12px] text-[color:var(--color\/text\/inverse,white)] top-[842px] tracking-[0.1px] w-[190px]" data-node-id="83:1567">
+          Concierge
+        </p>
+        <div className="absolute h-[88px] left-[16px] rounded-[10px] top-[16px] w-[208px]" data-node-id="120:7505" data-name="Brand/Logo/Sidebar Dark">
+          <img alt="" className="absolute inset-0 max-w-none object-contain pointer-events-none rounded-[10px] size-full" src={imgBrandLogoSidebarDark} />
+        </div>
+      </div>
+      <div className="absolute bg-[var(--color\/surface\/card,white)] border-[var(--color\/border\/default,#ddd8cf)] border-b border-solid h-[72px] left-[239px] overflow-clip top-[-1px] w-[1200px]" data-node-id="83:1568" data-name="Frame">
+        <div className="absolute bg-[var(--color\/surface\/subtle,#eee9e0)] h-[40px] left-[32px] overflow-clip rounded-[10px] top-[16px] w-[360px]" data-node-id="83:1569" data-name="Frame">
+          <p className="[word-break:break-word] absolute font-['Inter:Regular'] font-normal leading-[22px] left-[14px] not-italic text-[14px] text-[color:var(--color\/text\/secondary,#5b616b)] top-[10px] w-[320px]" data-node-id="83:1570">
+            Search / command
+          </p>
+        </div>
+        <p className="-translate-x-full [word-break:break-word] absolute font-['Inter:Semi_Bold'] font-semibold leading-[18px] left-[1170px] not-italic text-[13px] text-[color:var(--color\/text\/secondary,#5b616b)] text-right top-[26px] tracking-[0.15px] w-[100px]" data-node-id="83:1571">
+          User menu
+        </p>
+      </div>
+      <p className="[word-break:break-word] absolute font-['Inter:Bold'] font-bold leading-[36px] left-[279px] not-italic text-[28px] text-[color:var(--color\/text\/primary,#0b0c0e)] top-[103px] tracking-[-0.1px] w-[920px]" data-node-id="83:1572">
+        Concierge Conversation Inbox
+      </p>
+      <ButtonPrimary className="absolute bg-[var(--color\/action\/primary\/bg,#0b0c0e)] content-stretch cursor-pointer flex h-[48px] items-center justify-center left-[1059px] px-[20px] py-[12px] rounded-[var(--radius\/md,12px)] top-[157px] w-[300px]" label="Create / open conversation" />
+      <div className="[word-break:break-word] absolute bg-[var(--color\/surface\/card,white)] border border-[var(--color\/border\/default,#ddd8cf)] border-solid h-[458px] left-[279px] not-italic overflow-clip rounded-[12px] top-[175px] w-[1080px]" data-node-id="83:1575" data-name="Frame">
+        <div className="absolute bg-[var(--color\/surface\/subtle,#eee9e0)] content-stretch flex font-['Inter:Semi_Bold'] font-semibold gap-[16px] h-[52px] items-center leading-[18px] left-[-1px] overflow-clip px-[16px] text-[13px] text-[color:var(--color\/text\/secondary,#5b616b)] top-[-1px] tracking-[0.15px] w-[1080px]" data-node-id="83:1576" data-name="Frame">
+          <p className="flex-[1_0_0] min-w-px relative" data-node-id="83:1577">
+            Conversation
+          </p>
+          <p className="flex-[1_0_0] min-w-px relative" data-node-id="83:1578">
+            Customer / Context
+          </p>
+          <p className="flex-[1_0_0] min-w-px relative" data-node-id="83:1579">
+            Unread
+          </p>
+          <p className="flex-[1_0_0] min-w-px relative" data-node-id="83:1580">
+            Status
+          </p>
+          <p className="flex-[1_0_0] min-w-px relative" data-node-id="83:1581">
+            Updated
+          </p>
+          <p className="flex-[1_0_0] min-w-px relative" data-node-id="83:1582">
+            Actions
+          </p>
+        </div>
+        <div className="absolute border-[var(--color\/border\/default,#ddd8cf)] border-b border-solid content-stretch flex font-['Inter:Regular'] font-normal gap-[16px] h-[58px] items-center left-[-1px] overflow-clip px-[16px] text-[14px] top-[51px] w-[1080px]" data-node-id="83:1583" data-name="Frame">
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1584">
+            Value
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1585">
+            Value
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1586">
+            2
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1587">
+            OPEN
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1588">
+            Date/time
+          </p>
+          <a className="block cursor-pointer flex-[1_0_0] leading-[0] min-w-px relative text-[color:var(--color\/text\/link,#164d53)]" data-node-id="83:1589">
+            <p className="leading-[22px]">View ›</p>
+          </a>
+        </div>
+        <div className="absolute border-[var(--color\/border\/default,#ddd8cf)] border-b border-solid content-stretch flex font-['Inter:Regular'] font-normal gap-[16px] h-[58px] items-center left-[-1px] overflow-clip px-[16px] text-[14px] top-[109px] w-[1080px]" data-node-id="83:1590" data-name="Frame">
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1591">
+            Value
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1592">
+            Value
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1593">
+            0
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1594">
+            IN PROGRESS
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1595">
+            Date/time
+          </p>
+          <a className="block cursor-pointer flex-[1_0_0] leading-[0] min-w-px relative text-[color:var(--color\/text\/link,#164d53)]" data-node-id="83:1596">
+            <p className="leading-[22px]">View ›</p>
+          </a>
+        </div>
+        <div className="absolute border-[var(--color\/border\/default,#ddd8cf)] border-b border-solid content-stretch flex font-['Inter:Regular'] font-normal gap-[16px] h-[58px] items-center left-[-1px] overflow-clip px-[16px] text-[14px] top-[167px] w-[1080px]" data-node-id="83:1597" data-name="Frame">
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1598">
+            Value
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1599">
+            Value
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1600">
+            2
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1601">
+            COMPLETED
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1602">
+            Date/time
+          </p>
+          <a className="block cursor-pointer flex-[1_0_0] leading-[0] min-w-px relative text-[color:var(--color\/text\/link,#164d53)]" data-node-id="83:1603">
+            <p className="leading-[22px]">View ›</p>
+          </a>
+        </div>
+        <div className="absolute border-[var(--color\/border\/default,#ddd8cf)] border-b border-solid content-stretch flex font-['Inter:Regular'] font-normal gap-[16px] h-[58px] items-center left-[-1px] overflow-clip px-[16px] text-[14px] top-[225px] w-[1080px]" data-node-id="83:1604" data-name="Frame">
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1605">
+            Value
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1606">
+            Value
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1607">
+            0
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1608">
+            OPEN
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1609">
+            Date/time
+          </p>
+          <a className="block cursor-pointer flex-[1_0_0] leading-[0] min-w-px relative text-[color:var(--color\/text\/link,#164d53)]" data-node-id="83:1610">
+            <p className="leading-[22px]">View ›</p>
+          </a>
+        </div>
+        <div className="absolute border-[var(--color\/border\/default,#ddd8cf)] border-b border-solid content-stretch flex font-['Inter:Regular'] font-normal gap-[16px] h-[58px] items-center left-[-1px] overflow-clip px-[16px] text-[14px] top-[283px] w-[1080px]" data-node-id="83:1611" data-name="Frame">
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1612">
+            Value
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1613">
+            Value
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1614">
+            2
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1615">
+            IN PROGRESS
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1616">
+            Date/time
+          </p>
+          <a className="block cursor-pointer flex-[1_0_0] leading-[0] min-w-px relative text-[color:var(--color\/text\/link,#164d53)]" data-node-id="83:1617">
+            <p className="leading-[22px]">View ›</p>
+          </a>
+        </div>
+        <div className="absolute border-[var(--color\/border\/default,#ddd8cf)] border-b border-solid content-stretch flex font-['Inter:Regular'] font-normal gap-[16px] h-[58px] items-center left-[-1px] overflow-clip px-[16px] text-[14px] top-[341px] w-[1080px]" data-node-id="83:1618" data-name="Frame">
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1619">
+            Value
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1620">
+            Value
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1621">
+            0
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1622">
+            COMPLETED
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1623">
+            Date/time
+          </p>
+          <a className="block cursor-pointer flex-[1_0_0] leading-[0] min-w-px relative text-[color:var(--color\/text\/link,#164d53)]" data-node-id="83:1624">
+            <p className="leading-[22px]">View ›</p>
+          </a>
+        </div>
+        <div className="absolute border-[var(--color\/border\/default,#ddd8cf)] border-b border-solid content-stretch flex font-['Inter:Regular'] font-normal gap-[16px] h-[58px] items-center left-[-1px] overflow-clip px-[16px] text-[14px] top-[399px] w-[1080px]" data-node-id="83:1625" data-name="Frame">
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1626">
+            Value
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1627">
+            Value
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1628">
+            2
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1629">
+            OPEN
+          </p>
+          <p className="flex-[1_0_0] leading-[22px] min-w-px relative text-[color:var(--color\/text\/primary,#0b0c0e)]" data-node-id="83:1630">
+            Date/time
+          </p>
+          <a className="block cursor-pointer flex-[1_0_0] leading-[0] min-w-px relative text-[color:var(--color\/text\/link,#164d53)]" data-node-id="83:1631">
+            <p className="leading-[22px]">View ›</p>
+          </a>
+        </div>
+      </div>
+      <p className="[word-break:break-word] absolute font-['Inter:Medium'] font-medium leading-[16px] left-[279px] not-italic text-[12px] text-[color:var(--color\/text\/secondary,#5b616b)] top-[663px] tracking-[0.1px] w-[1080px]" data-node-id="83:1632">
+        Persistent Customer–Concierge conversations are separate from generic operational/internal notes.
+      </p>
+    </div>
+  );
+}
+SUPER CRITICAL: The generated React+Tailwind code MUST be converted to match the target project's technology stack and styling system.
+1. Analyze the target codebase to identify: technology stack, styling approach, component patterns, and design tokens
+2. Convert React syntax to the target framework/library
+3. Transform all Tailwind classes to the target styling system while preserving exact visual design
+4. Follow the project's existing patterns and conventions
+DO NOT install any Tailwind as a dependency unless the user instructs you to do so.
+
+Node ids have been added to the code as data attributes, e.g. `data-node-id="1:2"`.
+These styles are contained in the design: Type/Label/SM: Font(family: "Inter", style: Semi Bold, size: 13, weight: 600, lineHeight: 18, letterSpacing: 0.15000000596046448), Type/Caption: Font(family: "Inter", style: Medium, size: 12, weight: 500, lineHeight: 16, letterSpacing: 0.10000000149011612), Type/Body/MD: Font(family: "Inter", style: Regular, size: 14, weight: 400, lineHeight: 22, letterSpacing: 0), Type/Heading/H2: Font(family: "Inter", style: Bold, size: 28, weight: 700, lineHeight: 36, letterSpacing: -0.10000000149011612), Type/Label/MD: Font(family: "Inter", style: Semi Bold, size: 14, weight: 600, lineHeight: 20, letterSpacing: 0.10000000149011612).
+Component descriptions: The following components have usage descriptions or documentation links defined in Figma. These descriptions provide important context about the intended usage, best practices, and any constraints for each component. Follow these guidelines when implementing or using these components.
+
+## State=Default
+**Node ID:** 14:2
+
+Primary button / Default
+
+## Button/Primary
+**Node ID:** 14:74
+
+Primary button. States: Default, Hover (web), Pressed, Focus, Loading, Disabled. Loading never implies success; visibility/action remains governed by role, state and screen.
+The generated code contains image and SVG URL constants, e.g. const image = 'https://www.figma.com/api/mcp/asset/550e8400-e29b-41d4-a716-446655440000.png'. These URLs are temporary download sources and expire after 7 days. Download each asset into the project with curl -L, then replace its URL in the generated code with a reference to the downloaded asset. Never use the temporary URLs as runtime image sources.
+[Resource offloaded to file:///C:/Users/rakib_bro/.gemini/antigravity/brain/21653daa-a859-4e78-9fd0-d16d6235bd4c/.system_generated/steps/6270/media_0.png]

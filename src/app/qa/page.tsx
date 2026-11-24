@@ -2,6 +2,8 @@
 
 import { MOCK_PERSONAS, useSession } from "@/lib/auth/session";
 import { bookingRepository } from "@/lib/mock/bookings";
+import { conciergeRequestRepository } from "@/lib/mock/concierge-requests";
+import { conversationRepository } from "@/lib/mock/conversations";
 import { customerRepository } from "@/lib/mock/customers";
 import { paymentRepository } from "@/lib/mock/payments";
 import { tripRepository } from "@/lib/mock/trips";
@@ -35,9 +37,11 @@ export default function QAEnvironmentHub() {
     bookingRepository.resetDefaults();
     paymentRepository.resetDefaults();
     tripRepository.resetDefaults();
+    conciergeRequestRepository.resetDefaults();
+    conversationRepository.resetDefaults();
     setIsSimulatedFailure(false);
     setStatusMessage(
-      "Customer, Booking, Payment, and Trip repositories reset to initial deterministic state",
+      "Customer, Booking, Payment, Trip, Concierge Request, and Conversation repositories reset to initial deterministic state",
     );
   };
 
@@ -158,6 +162,14 @@ export default function QAEnvironmentHub() {
                 className="w-full py-2.5 px-4 bg-[#A88343] hover:bg-[#967439] text-white rounded-md text-xs font-semibold text-center transition-colors"
               >
                 Reset Customers to Initial Defaults
+              </button>
+
+              <button
+                type="button"
+                onClick={handleReset}
+                className="w-full py-2.5 px-4 bg-[#164D53] hover:bg-[#113E43] text-white rounded-md text-xs font-semibold text-center transition-colors"
+              >
+                Reset Concierge Requests & Conversations
               </button>
             </div>
 

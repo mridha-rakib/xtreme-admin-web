@@ -240,6 +240,24 @@ export default function TripDetailPage() {
                 </span>
               </div>
             </div>
+
+            {/* Linked Concierge Requests Context */}
+            <div className="mt-6 pt-6 border-t border-[#DDD8CF] flex items-center justify-between">
+              <div>
+                <span className="text-[14px] font-semibold text-[#0B0C0E]">
+                  Concierge Coordination
+                </span>
+                <p className="text-[12px] text-[#5B616B] mt-0.5">
+                  Linked request context for this trip itinerary
+                </p>
+              </div>
+              <Link
+                href={`/concierge/requests/create?tripId=${trip.id}`}
+                className="text-[13px] font-semibold text-[#164D53] hover:underline"
+              >
+                + Create Concierge Request ›
+              </Link>
+            </div>
           </div>
 
           {/* Card 2: Related Operational Context & Linked Bookings */}

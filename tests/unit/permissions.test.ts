@@ -41,10 +41,9 @@ describe("Permissions and Navigation Governance", () => {
     it("filters out system items for CONCIERGE", () => {
       const items = getVisibleNavItems("CONCIERGE");
       const ids = items.map((i) => i.id);
-      expect(ids).toContain("dashboard");
+      expect(ids).toContain("home");
       expect(ids).toContain("bookings");
-      expect(ids).not.toContain("iam");
-      expect(ids).not.toContain("audit-logs");
+      expect(ids).not.toContain("access");
     });
 
     it("returns empty array for unauthenticated / null roles", () => {

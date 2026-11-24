@@ -107,3 +107,5 @@ export interface CommandCenterNavItem {
   badge?: string | number;
   section: "main" | "management" | "system";
 }
+
+export * from "./customer";

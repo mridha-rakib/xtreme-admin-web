@@ -77,4 +77,31 @@ describe("Session Context & Provider", () => {
       "useSession must be used within a SessionProvider",
     );
   });
+
+  it("fails closed when mock personas are explicitly disabled", async () => {
+    const originalEnv = process.env.NEXT_PUBLIC_ENABLE_MOCK_PERSONAS;
+    process.env.NEXT_PUBLIC_ENABLE_MOCK_PERSONAS = "false";
+    localStorage.clear();
+
+    try {
+      const { result } = renderHook(() => useSession(), {
+        wrapper: ({ children }) => <SessionProvider>{children}</SessionProvider>,
+      });
+
+      expect(result.current.user).toBeNull();
+      expect(result.current.status).toBe("unauthenticated");
+      expect(result.current.isAuthenticated).toBe(false);
+
+      // Attempting mock sign in fails closed
+      const res = await result.current.signIn({
+        identifier: "victoria.vance@xtremeconcierge.internal",
+        password: "xtreme2026",
+      });
+      expect(res.success).toBe(false);
+      expect(res.error).toContain("Mock authentication is disabled");
+    } finally {
+      process.env.NEXT_PUBLIC_ENABLE_MOCK_PERSONAS = originalEnv;
+      localStorage.clear();
+    }
+  });
 });

@@ -1,307 +1,310 @@
 "use client";
 
 import { CommandCenterShell } from "@/components/layout/CommandCenterShell";
-import { PageContainer } from "@/components/layout/PageContainer";
-import {
-  AccessDeniedState,
-  Button,
-  Card,
-  DataTable,
-  EmptyState,
-  ErrorState,
-  Input,
-  LoadingState,
-  Modal,
-  Pagination,
-  Select,
-  StatusBadge,
-  Tabs,
-} from "@/components/ui";
 import { useSession } from "@/lib/auth/session";
-import { MOCK_FOUNDATION_METRICS } from "@/lib/mock";
-import { hasCommandCenterPermission } from "@/types";
+import Image from "next/image";
+import Link from "next/link";
 import React, { useState } from "react";
 
-export default function FoundationReadinessPage() {
+interface WorkQueueItem {
+  reference: string;
+  context: "Booking" | "Concierge Request" | "Assignment";
+  status: "In Progress" | "New" | "Confirmed" | "Open" | "Completed";
+  statusColor: "warning" | "info" | "success" | "neutral";
+  updated: string;
+  assigned: string;
+  roleScope: Array<"SUPER_ADMIN" | "ADMIN" | "CONCIERGE" | "VENDOR">;
+}
+
+const WORK_QUEUE_DATA: WorkQueueItem[] = [
+  {
+    reference: "RES-10482",
+    context: "Booking",
+    status: "In Progress",
+    statusColor: "warning",
+    updated: "Jan 27, 2025 10:24 AM",
+    assigned: "Concierge Team",
+    roleScope: ["SUPER_ADMIN", "ADMIN", "CONCIERGE", "VENDOR"],
+  },
+  {
+    reference: "REQ-56921",
+    context: "Concierge Request",
+    status: "New",
+    statusColor: "info",
+    updated: "Jan 27, 2025 9:58 AM",
+    assigned: "Guest Services",
+    roleScope: ["SUPER_ADMIN", "ADMIN", "CONCIERGE"],
+  },
+  {
+    reference: "ASN-33015",
+    context: "Assignment",
+    status: "In Progress",
+    statusColor: "warning",
+    updated: "Jan 27, 2025 9:36 AM",
+    assigned: "Ops Dispatch",
+    roleScope: ["SUPER_ADMIN", "ADMIN", "CONCIERGE", "VENDOR"],
+  },
+  {
+    reference: "RES-10479",
+    context: "Booking",
+    status: "Confirmed",
+    statusColor: "success",
+    updated: "Jan 27, 2025 8:50 AM",
+    assigned: "Lead Concierge",
+    roleScope: ["SUPER_ADMIN", "ADMIN", "CONCIERGE", "VENDOR"],
+  },
+  {
+    reference: "REQ-56910",
+    context: "Concierge Request",
+    status: "Open",
+    statusColor: "info",
+    updated: "Jan 27, 2025 8:15 AM",
+    assigned: "Concierge Team",
+    roleScope: ["SUPER_ADMIN", "ADMIN", "CONCIERGE"],
+  },
+  {
+    reference: "ASN-33011",
+    context: "Assignment",
+    status: "Completed",
+    statusColor: "neutral",
+    updated: "Jan 27, 2025 7:40 AM",
+    assigned: "Aviation Ops",
+    roleScope: ["SUPER_ADMIN", "ADMIN", "VENDOR"],
+  },
+];
+
+export default function SuperAdminDashboardPage() {
   const { user } = useSession();
-  const [activeTab, setActiveTab] = useState("overview");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedItem, setSelectedItem] = useState<WorkQueueItem | null>(null);
 
-  // Check RBAC permission for financial audit overview
-  const canViewFinance = hasCommandCenterPermission(user?.role, "view:finance");
-  const canManageSystem = hasCommandCenterPermission(user?.role, "manage:system");
-
-  const sampleColumns = [
-    { key: "module", header: "Architecture Domain" },
-    {
-      key: "status",
-      header: "Governance State",
-      render: () => <StatusBadge status="success" label="Active" />,
-    },
-    { key: "roleRequired", header: "Access Level" },
-    { key: "screensScope", header: "Batch Scope" },
-  ];
-
-  const sampleData = [
-    {
-      module: "Dashboard & Operations (Section 05_01)",
-      roleRequired: "ALL ROLES",
-      screensScope: "Phase 4.1",
-    },
-    {
-      module: "Guest Bookings & Dispatch (Section 05_02)",
-      roleRequired: "CONCIERGE+",
-      screensScope: "Phase 4.2",
-    },
-    {
-      module: "Fleet & Asset Pool (Section 05_03)",
-      roleRequired: "ADMIN+",
-      screensScope: "Phase 4.3",
-    },
-    {
-      module: "Financial Ledger & Billings (Section 05_04)",
-      roleRequired: "ADMIN+",
-      screensScope: "Phase 4.4",
-    },
-    {
-      module: "Access Governance & IAM (Section 05_05)",
-      roleRequired: "SUPER_ADMIN",
-      screensScope: "Phase 4.5",
-    },
-  ];
+  const currentRole = user?.role || "SUPER_ADMIN";
+  const visibleQueue = WORK_QUEUE_DATA.filter((item) => item.roleScope.includes(currentRole));
 
   return (
     <CommandCenterShell>
-      <PageContainer
-        title="Admin Web Command Center — Foundation Readiness"
-        description="Phase 4.0.1 independent architectural foundation, RBAC testbed, and Figma token integration. Business screens (0/64) will follow in batch implementation phases."
-        badge={<StatusBadge status="info" label="Foundation Build" />}
-        actions={
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
-              Preview Foundation Modal
-            </Button>
-            <Button variant="primary" size="sm">
-              Live Health Status
-            </Button>
-          </div>
-        }
+      <div
+        className="p-[32px] max-w-[1200px] w-full"
+        data-node-id="77:26"
+        data-name="CC-HOME-01__Super_Admin__Ready"
       >
-        {/* Metric Cards Row */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {MOCK_FOUNDATION_METRICS.map((metric) => (
-            <Card key={metric.id} className="p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-brand-slate">
-                  {metric.label}
-                </span>
-                <span className="text-[11px] font-semibold text-state-success bg-state-successBg px-1.5 py-0.5 rounded">
-                  {metric.delta}
-                </span>
-              </div>
-              <p className="mt-2 text-2xl font-bold text-brand-onyx">{metric.value}</p>
-              <p className="mt-1 text-[11px] text-brand-slate">{metric.contextText}</p>
-            </Card>
-          ))}
-        </div>
-
-        {/* Foundation Tabs */}
-        <div className="space-y-4">
-          <Tabs
-            tabs={[
-              { id: "overview", label: "Architecture Overview" },
-              { id: "primitives", label: "UI Primitives Gallery" },
-              { id: "rbac", label: "RBAC Security Testbed" },
-            ]}
-            activeTab={activeTab}
-            onChange={setActiveTab}
-          />
-
-          {activeTab === "overview" && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 space-y-6">
-                <Card
-                  title="Independent Project Setup Verification"
-                  subtitle="Strict separation from mobile application packages"
-                >
-                  <DataTable
-                    columns={sampleColumns}
-                    data={sampleData}
-                    keyExtractor={(row) => row.module}
-                  />
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={3}
-                    onPageChange={setCurrentPage}
-                    className="mt-4 border-t border-brand-line/60 pt-3"
-                  />
-                </Card>
-
-                <Card
-                  title="Zero-Reuse Policy Compliance"
-                  subtitle="Standalone packages, independent styling & types"
-                >
-                  <ul className="space-y-2 text-xs text-brand-slate">
-                    <li className="flex items-center gap-2">
-                      <span className="text-state-success font-bold">✓</span>
-                      Independent repository:{" "}
-                      <code className="bg-surface-subtle px-1 py-0.5 rounded text-brand-onyx">
-                        mridha-rakib/xtreme-admin-web
-                      </code>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-state-success font-bold">✓</span>
-                      Native Web UI components (Tailwind CSS, HTML5, React 19)
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-state-success font-bold">✓</span>
-                      Authoritative Figma design tokens & brand assets extracted directly from
-                      Section 05_Command_Center
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-state-success font-bold">✓</span>
-                      Fail-closed role governance and mock session context
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-state-success font-bold">✓</span>
-                      Strict scope restriction: Exactly 0 of 64 business screens implemented
-                    </li>
-                  </ul>
-                </Card>
-              </div>
-
-              <div className="space-y-6">
-                <Card title="Active Operational Session" subtitle="Current simulated persona">
-                  <div className="space-y-3 text-xs">
-                    <div>
-                      <span className="text-brand-slate">User Name:</span>
-                      <p className="font-semibold text-brand-onyx">{user?.name}</p>
-                    </div>
-                    <div>
-                      <span className="text-brand-slate">Email Address:</span>
-                      <p className="font-semibold text-brand-onyx">{user?.email}</p>
-                    </div>
-                    <div>
-                      <span className="text-brand-slate">Active Role:</span>
-                      <p className="font-semibold text-brand-onyx">{user?.role}</p>
-                    </div>
-                    <div>
-                      <span className="text-brand-slate">Department:</span>
-                      <p className="font-semibold text-brand-onyx">{user?.department}</p>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card
-                  title="Permission Evaluation"
-                  subtitle="Dynamic permission resolution based on persona"
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-xs">
-                      <span>View Financial Ledger:</span>
-                      <StatusBadge
-                        status={canViewFinance ? "success" : "danger"}
-                        label={canViewFinance ? "Authorized" : "Denied"}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between text-xs">
-                      <span>Manage Access Governance:</span>
-                      <StatusBadge
-                        status={canManageSystem ? "success" : "danger"}
-                        label={canManageSystem ? "Authorized" : "Denied"}
-                      />
-                    </div>
-                  </div>
-                </Card>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "primitives" && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card title="Inputs & Form Controls">
-                <div className="space-y-3">
-                  <Input label="Flight Call Sign" placeholder="e.g. N104XQ" />
-                  <Select
-                    label="Fleet Priority"
-                    options={[
-                      { value: "STANDARD", label: "Standard Charter" },
-                      { value: "HEAD_OF_STATE", label: "VIP Diplomatic Priority" },
-                      { value: "URGENT", label: "Urgent Medical / Evac" },
-                    ]}
-                  />
-                  <div className="flex gap-2 pt-2">
-                    <Button variant="primary" size="sm">
-                      Primary
-                    </Button>
-                    <Button variant="secondary" size="sm">
-                      Secondary
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      Outline
-                    </Button>
-                    <Button variant="danger" size="sm">
-                      Danger
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-
-              <Card title="State Views Preview">
-                <div className="space-y-4">
-                  <LoadingState message="Testing loader primitive..." />
-                  <EmptyState
-                    title="Sample Empty View"
-                    description="Used when datasets or searches return empty."
-                  />
-                </div>
-              </Card>
-            </div>
-          )}
-
-          {activeTab === "rbac" && (
-            <div className="space-y-6">
-              <Card title="Simulated Access Control Guard">
-                {canManageSystem ? (
-                  <div className="p-4 rounded-md bg-state-successBg border border-state-success/30 text-xs text-state-success font-medium">
-                    Access Granted: Your persona ({user?.role}) has permission to manage system
-                    governance.
-                  </div>
-                ) : (
-                  <AccessDeniedState
-                    title="Access Restricted for Role"
-                    description={`Your currently selected persona (${user?.role}) does not have permission to manage system governance.`}
-                  />
-                )}
-              </Card>
-            </div>
-          )}
-        </div>
-
-        {/* Test Modal Component */}
-        <Modal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          title="Foundation Primitives Modal"
-          description="Interactive dialog component verifying accessibility and keybindings."
-          footer={
-            <>
-              <Button variant="outline" size="sm" onClick={() => setIsModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button variant="primary" size="sm" onClick={() => setIsModalOpen(false)}>
-                Confirm Action
-              </Button>
-            </>
-          }
-        >
-          <p className="text-xs text-brand-slate leading-relaxed">
-            This dialog verifies that focus management, backdrop rendering, and escape-key listener
-            behave properly in the independent Admin Web foundation.
+        {/* Header Titles */}
+        <div className="mb-[32px]">
+          <h1
+            className="text-[31px] font-bold leading-[38px] text-[#0B0C0E]"
+            data-node-id="1126:6878"
+          >
+            Role-Based Home
+          </h1>
+          <p
+            className="text-[20px] font-normal leading-[28px] text-[#0B0C0E] mt-[4px]"
+            data-node-id="1126:6879"
+          >
+            Role-aware work queue
           </p>
-        </Modal>
-      </PageContainer>
+        </div>
+
+        {/* 4 KPI Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[16px] mb-[36px]">
+          {/* Card 1: Bookings */}
+          <div
+            className="bg-white border border-[#DDD8CF] rounded-[12px] h-[124px] p-[20px] flex items-center gap-[16px] shadow-sm"
+            data-node-id="1126:6880"
+            data-name="KPI / Role-scoped bookings"
+          >
+            <div className="w-[35px] h-[35px] shrink-0 flex items-center justify-center">
+              <Image src="/figma-assets/imgVectorIconCalendar1.svg" alt="" width={35} height={35} />
+            </div>
+            <div>
+              <p className="text-[14px] font-semibold text-[#0B0C0E] leading-[18px]">
+                Role-scoped bookings
+              </p>
+              <p className="text-[28px] font-bold text-[#0B0C0E] leading-[34px] my-[2px]">24</p>
+              <p className="text-[13px] font-normal text-[#5B616B] leading-[16px]">
+                Accessible items only
+              </p>
+            </div>
+          </div>
+
+          {/* Card 2: Assignments */}
+          <div
+            className="bg-white border border-[#DDD8CF] rounded-[12px] h-[124px] p-[20px] flex items-center gap-[16px] shadow-sm"
+            data-node-id="1126:6887"
+            data-name="KPI / Assignments / work"
+          >
+            <div className="w-[35px] h-[35px] shrink-0 flex items-center justify-center">
+              <Image src="/figma-assets/imgVectorIconLayers1.svg" alt="" width={35} height={35} />
+            </div>
+            <div>
+              <p className="text-[14px] font-semibold text-[#0B0C0E] leading-[18px]">
+                Assignments / work
+              </p>
+              <p className="text-[28px] font-bold text-[#0B0C0E] leading-[34px] my-[2px]">17</p>
+              <p className="text-[13px] font-normal text-[#5B616B] leading-[16px]">
+                Accessible items only
+              </p>
+            </div>
+          </div>
+
+          {/* Card 3: Concierge */}
+          <div
+            className="bg-white border border-[#DDD8CF] rounded-[12px] h-[124px] p-[20px] flex items-center gap-[16px] shadow-sm"
+            data-node-id="1126:6893"
+            data-name="KPI / Concierge / requests"
+          >
+            <div className="w-[35px] h-[35px] shrink-0 flex items-center justify-center">
+              <Image src="/figma-assets/imgVectorIconBell.svg" alt="" width={35} height={35} />
+            </div>
+            <div>
+              <p className="text-[14px] font-semibold text-[#0B0C0E] leading-[18px]">
+                Concierge / requests
+              </p>
+              <p className="text-[28px] font-bold text-[#0B0C0E] leading-[34px] my-[2px]">38</p>
+              <p className="text-[13px] font-normal text-[#5B616B] leading-[16px]">
+                Accessible items only
+              </p>
+            </div>
+          </div>
+
+          {/* Card 4: Role-specific items */}
+          <div
+            className="bg-white border border-[#DDD8CF] rounded-[12px] h-[124px] p-[20px] flex items-center gap-[16px] shadow-sm"
+            data-node-id="1126:6900"
+            data-name="KPI / Role-specific items"
+          >
+            <div className="w-[35px] h-[35px] shrink-0 flex items-center justify-center">
+              <Image src="/figma-assets/imgVectorIconBolt.svg" alt="" width={35} height={35} />
+            </div>
+            <div>
+              <p className="text-[14px] font-semibold text-[#0B0C0E] leading-[18px]">
+                Role-specific items
+              </p>
+              <p className="text-[28px] font-bold text-[#0B0C0E] leading-[34px] my-[2px]">9</p>
+              <p className="text-[13px] font-normal text-[#5B616B] leading-[16px]">
+                Accessible items only
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Work Queue Table Container */}
+        <div className="bg-white border border-[#DDD8CF] rounded-[12px] overflow-hidden shadow-sm">
+          {/* Table Header Row */}
+          <div
+            className="h-[52px] bg-[#EEE9E0] px-[20px] flex items-center text-[14px] font-semibold text-[#0B0C0E]"
+            data-node-id="1126:6905"
+            data-name="Table header"
+          >
+            <div className="w-[180px]">Reference</div>
+            <div className="w-[200px]">Context</div>
+            <div className="w-[160px]">Status</div>
+            <div className="w-[220px]">Updated</div>
+            <div className="flex-1">Assigned</div>
+            <div className="w-[100px] text-right">Actions</div>
+          </div>
+
+          {/* Table Body Rows */}
+          <div className="divide-y divide-[#DDD8CF]/60">
+            {visibleQueue.length === 0 ? (
+              <div className="py-[32px] text-center text-[14px] text-[#5B616B]">
+                No operational items assigned to your current role view.
+              </div>
+            ) : (
+              visibleQueue.map((item) => {
+                const statusStyles = {
+                  warning: "bg-[#FFF8E1] text-[#B26A00] border-[#FFE082]",
+                  info: "bg-[#E0F2FE] text-[#184E77] border-[#BAE6FD]",
+                  success: "bg-[#E8F5E9] text-[#0E7047] border-[#A5D6A7]",
+                  neutral: "bg-[#F4F0E8] text-[#5B616B] border-[#DDD8CF]",
+                };
+
+                return (
+                  <div
+                    key={item.reference}
+                    className="h-[56px] px-[20px] flex items-center text-[14px] hover:bg-[#FAF8F4] transition-colors"
+                  >
+                    <div className="w-[180px] font-medium text-[#0B0C0E]">{item.reference}</div>
+                    <div className="w-[200px] text-[#5B616B]">{item.context}</div>
+                    <div className="w-[160px]">
+                      <span
+                        className={`inline-flex px-[8px] py-[2px] rounded-full text-[12px] font-semibold border ${statusStyles[item.statusColor]}`}
+                      >
+                        {item.status}
+                      </span>
+                    </div>
+                    <div className="w-[220px] text-[#5B616B] text-[13px]">{item.updated}</div>
+                    <div className="flex-1 text-[#0B0C0E] font-medium text-[13px]">
+                      {item.assigned}
+                    </div>
+                    <div className="w-[100px] text-right">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedItem(item)}
+                        className="text-[#164D53] hover:text-[#0B0C0E] font-semibold text-[13px] cursor-pointer inline-flex items-center gap-1"
+                      >
+                        View ›
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+
+        {/* Operational Preview Modal for Queue View Action */}
+        {selectedItem && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs"
+          >
+            <div className="w-full max-w-md bg-white border border-[#DDD8CF] rounded-xl shadow-modal p-6">
+              <div className="flex items-center justify-between pb-3 border-b border-[#DDD8CF]">
+                <h3 className="text-base font-bold text-[#0B0C0E]">
+                  {selectedItem.reference} — {selectedItem.context}
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setSelectedItem(null)}
+                  className="text-[#5B616B] hover:text-[#0B0C0E] text-sm p-1 cursor-pointer"
+                  aria-label="Close details"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="py-4 space-y-3 text-xs">
+                <div>
+                  <span className="text-[#5B616B] block">Status:</span>
+                  <span className="font-semibold text-[#0B0C0E]">{selectedItem.status}</span>
+                </div>
+                <div>
+                  <span className="text-[#5B616B] block">Assigned Unit:</span>
+                  <span className="font-semibold text-[#0B0C0E]">{selectedItem.assigned}</span>
+                </div>
+                <div>
+                  <span className="text-[#5B616B] block">Last Operational Timestamp:</span>
+                  <span className="font-semibold text-[#0B0C0E]">{selectedItem.updated}</span>
+                </div>
+                <p className="text-[11px] text-[#5B616B] bg-[#FAF8F4] p-3 rounded border border-[#DDD8CF] mt-2">
+                  This work item is linked to the {selectedItem.context} pipeline. Full batch screen
+                  will activate in Phase 4.2.
+                </p>
+              </div>
+
+              <div className="pt-3 border-t border-[#DDD8CF] flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setSelectedItem(null)}
+                  className="px-4 py-2 bg-[#0B0C0E] text-white text-xs font-semibold rounded-md hover:bg-[#17191D] cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </CommandCenterShell>
   );
 }

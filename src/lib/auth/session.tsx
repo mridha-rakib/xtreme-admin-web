@@ -36,47 +36,167 @@ export const MOCK_PERSONAS: Record<CommandCenterRole, CommandCenterUser> = {
   },
 };
 
+export interface SignInCredentials {
+  identifier: string;
+  password?: string;
+  role?: CommandCenterRole;
+}
+
+export interface SignInResult {
+  success: boolean;
+  error?: string;
+}
+
+/**
+ * Validates whether mock authentication and mock personas are permitted.
+ * Strictly requires explicit development, test, or QA environment and explicit flag.
+ * Fails closed in production or unverified/unknown environments.
+ */
+export function isMockAuthAllowed(): boolean {
+  if (process.env.NODE_ENV === "test") {
+    // In automated unit/integration tests, allow mock personas unless explicitly disabled
+    return process.env.NEXT_PUBLIC_ENABLE_MOCK_PERSONAS !== "false";
+  }
+
+  const appEnv = process.env.NEXT_PUBLIC_APP_ENV;
+  const enableMock = process.env.NEXT_PUBLIC_ENABLE_MOCK_PERSONAS;
+
+  // In production or unknown environments, strictly fail closed
+  const isPermittedEnv = appEnv === "development" || appEnv === "qa";
+  return isPermittedEnv && enableMock === "true";
+}
+
 interface SessionContextType extends CommandCenterSession {
   switchRole: (role: CommandCenterRole) => void;
-  signIn: (role?: CommandCenterRole) => void;
+  signIn: (credentials?: SignInCredentials | CommandCenterRole) => Promise<SignInResult>;
   signOut: () => void;
+  isQAMode: boolean;
+  setQAMode: (enabled: boolean) => void;
 }
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
-  const [currentUser, setCurrentUser] = useState<CommandCenterUser | null>(
-    MOCK_PERSONAS.SUPER_ADMIN,
-  );
-  const [status, setStatus] = useState<CommandCenterSession["status"]>("authenticated");
-
-  // In production builds, verify fail-closed authorization behavior
-  useEffect(() => {
-    const isProduction = process.env.NODE_ENV === "production";
-    const allowMock = process.env.NEXT_PUBLIC_ENABLE_MOCK_PERSONAS !== "false";
-
-    if (isProduction && !allowMock) {
-      // In strict production mode without mock personas enabled, default to unauthenticated
-      setCurrentUser(null);
-      setStatus("unauthenticated");
+  const [currentUser, setCurrentUser] = useState<CommandCenterUser | null>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("xtreme_session_user");
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch {}
+      }
     }
-  }, []);
+    // Fail closed in production and unknown environments
+    if (!isMockAuthAllowed()) {
+      return null;
+    }
+    return MOCK_PERSONAS.SUPER_ADMIN;
+  });
+
+  const [status, setStatus] = useState<CommandCenterSession["status"]>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("xtreme_session_user");
+      if (stored) return "authenticated";
+    }
+    if (!isMockAuthAllowed()) {
+      return "unauthenticated";
+    }
+    return "authenticated";
+  });
+
+  const [isQAMode, setQAMode] = useState<boolean>(true);
 
   const switchRole = (role: CommandCenterRole) => {
+    if (!isMockAuthAllowed()) {
+      return;
+    }
     const targetUser = MOCK_PERSONAS[role];
     if (targetUser) {
       setCurrentUser(targetUser);
       setStatus("authenticated");
+      if (typeof window !== "undefined") {
+        localStorage.setItem("xtreme_session_user", JSON.stringify(targetUser));
+      }
     }
   };
 
-  const signIn = (role: CommandCenterRole = "SUPER_ADMIN") => {
-    switchRole(role);
+  const signIn = async (
+    credentials?: SignInCredentials | CommandCenterRole,
+  ): Promise<SignInResult> => {
+    // Fail-closed enforcement for production/unknown environments
+    if (!isMockAuthAllowed()) {
+      return {
+        success: false,
+        error:
+          "Mock authentication is disabled in this environment. Production authentication required.",
+      };
+    }
+
+    // If passed directly as a role string (from dev switcher or tests)
+    if (typeof credentials === "string") {
+      switchRole(credentials);
+      return { success: true };
+    }
+
+    if (!credentials) {
+      switchRole("SUPER_ADMIN");
+      return { success: true };
+    }
+
+    const { identifier, password, role } = credentials;
+
+    if (!identifier || !identifier.trim()) {
+      return { success: false, error: "Identifier is required." };
+    }
+
+    if (!password || !password.trim()) {
+      return { success: false, error: "Password is required." };
+    }
+
+    // Check for suspended account test case
+    const cleanId = identifier.trim().toLowerCase();
+    if (cleanId.includes("suspended")) {
+      return {
+        success: false,
+        error: "Account is suspended. Contact operations director.",
+      };
+    }
+
+    // Check password validity (mock standard: allow xtreme2026, admin123, or any non-empty test password except "wrong" or "invalid")
+    if (password === "wrong" || password === "invalid" || password.length < 4) {
+      return { success: false, error: "Invalid credentials provided." };
+    }
+
+    // Determine role based on identifier or explicit role
+    let resolvedRole: CommandCenterRole = role || "SUPER_ADMIN";
+    if (cleanId.includes("concierge")) {
+      resolvedRole = "CONCIERGE";
+    } else if (cleanId.includes("vendor") || cleanId.includes("aerojet")) {
+      resolvedRole = "VENDOR";
+    } else if (cleanId.includes("operations") || cleanId.includes("admin@")) {
+      resolvedRole = "ADMIN";
+    }
+
+    const userToSet = MOCK_PERSONAS[resolvedRole];
+    const fullUser = {
+      ...userToSet,
+      email: cleanId.includes("@") ? cleanId : userToSet.email,
+    };
+    setCurrentUser(fullUser);
+    setStatus("authenticated");
+    if (typeof window !== "undefined") {
+      localStorage.setItem("xtreme_session_user", JSON.stringify(fullUser));
+    }
+
+    return { success: true };
   };
 
   const signOut = () => {
     setCurrentUser(null);
     setStatus("unauthenticated");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("xtreme_session_user");
+    }
   };
 
   return (
@@ -88,6 +208,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         switchRole,
         signIn,
         signOut,
+        isQAMode,
+        setQAMode,
       }}
     >
       {children}

@@ -1,4 +1,2 @@
-// Customers feature module boundary
-export interface CustomersState {
-  filterCount: number;
-}
+export * from "@/types/customer";
+export * from "@/lib/mock/customers";

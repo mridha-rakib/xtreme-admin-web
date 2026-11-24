@@ -1,92 +1,56 @@
 "use client";
 
-import { BrandLogo } from "@/components/ui/BrandLogo";
 import { useSession } from "@/lib/auth/session";
 import { getVisibleNavItems } from "@/lib/permissions";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import React from "react";
 import { NavigationItem } from "./NavigationItem";
 
-export function Sidebar({ className }: { className?: string }) {
+export function Sidebar() {
   const pathname = usePathname();
   const { user } = useSession();
   const visibleItems = getVisibleNavItems(user?.role);
 
-  const mainGroup = visibleItems.filter((item) => item.section === "main");
-  const managementGroup = visibleItems.filter((item) => item.section === "management");
-  const systemGroup = visibleItems.filter((item) => item.section === "system");
-
   return (
     <aside
-      className="w-60 min-w-[240px] max-w-[240px] bg-brand-onyx text-white flex flex-col h-screen border-r border-brand-carbon select-none"
-      aria-label="Admin Command Center Sidebar"
+      className="w-[240px] min-w-[240px] max-w-[240px] bg-[#0B0C0E] text-white flex flex-col h-screen select-none border-r border-[#17191D]"
+      aria-label="Command Center Rail"
     >
-      {/* Brand Header */}
-      <div className="h-[72px] px-5 flex items-center border-b border-brand-carbon">
-        <BrandLogo variant="dark" height={26} />
-      </div>
-
-      {/* Navigation Links */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
-        {mainGroup.length > 0 && (
-          <div className="space-y-1">
-            <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-brand-slate/80">
-              Operations
-            </p>
-            {mainGroup.map((item) => (
-              <NavigationItem
-                key={item.id}
-                item={item}
-                isActive={
-                  pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
-                }
-              />
-            ))}
-          </div>
-        )}
-
-        {managementGroup.length > 0 && (
-          <div className="space-y-1">
-            <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-brand-slate/80">
-              Management
-            </p>
-            {managementGroup.map((item) => (
-              <NavigationItem
-                key={item.id}
-                item={item}
-                isActive={pathname === item.href || pathname.startsWith(item.href)}
-              />
-            ))}
-          </div>
-        )}
-
-        {systemGroup.length > 0 && (
-          <div className="space-y-1">
-            <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-brand-slate/80">
-              Governance
-            </p>
-            {systemGroup.map((item) => (
-              <NavigationItem
-                key={item.id}
-                item={item}
-                isActive={pathname === item.href || pathname.startsWith(item.href)}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Operational Persona Footer */}
-      <div className="p-3 border-t border-brand-carbon bg-brand-carbon/30">
-        <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-md">
-          <div className="w-7 h-7 rounded-full bg-brand-accent/40 text-brand-gold flex items-center justify-center font-bold text-xs border border-brand-accent/60">
-            {user?.name ? user.name.charAt(0) : "A"}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-white truncate">{user?.name || "Anonymous"}</p>
-            <p className="text-[10px] text-brand-slate truncate">{user?.role || "GUEST"}</p>
-          </div>
+      {/* Brand Logo */}
+      <div className="h-[104px] pt-[16px] px-[16px] shrink-0">
+        <div className="w-[208px] h-[88px] rounded-[10px] overflow-hidden relative flex items-center justify-center">
+          <Image
+            src="/branding/logo-sidebar-dark.png"
+            alt="XTREME Concierge"
+            width={208}
+            height={88}
+            priority
+            className="object-contain"
+          />
         </div>
+      </div>
+
+      {/* Navigation Items */}
+      <nav className="flex-1 overflow-y-auto px-[16px] py-[6px] space-y-[7px]">
+        {visibleItems.map((item) => {
+          const isActive =
+            pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+          return <NavigationItem key={item.id} item={item} isActive={isActive} />;
+        })}
+      </nav>
+
+      {/* Footer Role Indicator */}
+      <div className="h-[48px] px-[24px] pb-[16px] flex items-center shrink-0">
+        <p className="text-[12px] font-medium tracking-[0.1px] text-white/60">
+          {user?.role === "SUPER_ADMIN"
+            ? "Admin / Super Admin"
+            : user?.role === "ADMIN"
+              ? "Operations Admin"
+              : user?.role === "CONCIERGE"
+                ? "Concierge Team"
+                : "Partner Vendor"}
+        </p>
       </div>
     </aside>
   );

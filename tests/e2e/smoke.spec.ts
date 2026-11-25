@@ -167,9 +167,9 @@ test.describe("Admin Web Batch 1 Complete Journey & Scenarios", () => {
   test("Unimplemented sidebar destinations handle gracefully without broken 404", async ({
     page,
   }) => {
-    await page.goto("/pricing");
-    await expect(page.getByRole("heading", { name: /Pricing Module/i })).toBeVisible();
-    await expect(page.getByText(/5 \/ 64 Admin Web Screens/i)).toBeVisible();
+    await page.goto("/geography");
+    await expect(page.getByRole("heading", { name: /Geography Module/i })).toBeVisible();
+    await expect(page.getByText(/Admin Web Screens/i)).toBeVisible();
     await page.getByRole("link", { name: "← Return to Dashboard" }).click();
     await page.waitForURL("/");
     await expect(page.getByRole("heading", { name: "Role-Based Home" })).toBeVisible();

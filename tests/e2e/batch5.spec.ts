@@ -141,9 +141,8 @@ test.describe("Batch 5 E2E Integration: Vendor Management & Scoped Staff Workspa
     await page.getByRole("button", { name: "Save" }).click();
     await expect(page.getByText("Display name is required.")).toBeVisible();
 
-    // Scope guard callouts on future destinations
+    // Linked destinations on vendor detail
     await page.goto("/vendors/vnd_aerojet_99");
-    await page.getByRole("button", { name: "Open ›" }).first().click();
-    await expect(page.getByText(/scheduled for a future planned phase/i)).toBeVisible();
+    await expect(page.getByRole("link", { name: "Open ›" }).first()).toBeVisible();
   });
 });

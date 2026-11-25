@@ -69,3 +69,5 @@ export * from "./vendor-payables";
 export * from "./fx-rates";
 export * from "./financial-reporting";
 export * from "./catalog";
+export * from "./services";
+export * from "./service-custom-fields";

@@ -128,3 +128,5 @@ export * from "./pricing";
 export * from "./finance";
 export * from "./fx";
 export * from "./catalog";
+export * from "./service";
+export * from "./custom-field";

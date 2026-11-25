@@ -13,6 +13,8 @@ import { customerPriceRepository } from "@/lib/mock/customer-prices";
 import { customerRepository } from "@/lib/mock/customers";
 import { fxRateRepository } from "@/lib/mock/fx-rates";
 import { paymentRepository } from "@/lib/mock/payments";
+import { serviceCustomFieldRepository } from "@/lib/mock/service-custom-fields";
+import { serviceRepository } from "@/lib/mock/services";
 import { tripRepository } from "@/lib/mock/trips";
 import { vendorPayableRepository } from "@/lib/mock/vendor-payables";
 import { vendorRateRepository } from "@/lib/mock/vendor-rates";
@@ -61,9 +63,11 @@ export default function QAEnvironmentHub() {
     vendorPayableRepository.resetDefaults();
     fxRateRepository.resetDefaults();
     catalogRepository.resetDefaults();
+    serviceRepository.resetDefaults();
+    serviceCustomFieldRepository.resetDefaults();
     setIsSimulatedFailure(false);
     setStatusMessage(
-      "Customer, Booking, Payment, Trip, Concierge, Vendor, Asset, Availability, Pricing, Payables, FX, and Catalog repositories reset to initial deterministic state",
+      "Customer, Booking, Payment, Trip, Concierge, Vendor, Asset, Availability, Pricing, Payables, FX, Catalog, Services, and Custom Field repositories reset to initial deterministic state",
     );
   };
 
@@ -265,6 +269,69 @@ export default function QAEnvironmentHub() {
               >
                 Reset Finance, FX &amp; Catalog to Initial Defaults
               </button>
+
+              <button
+                type="button"
+                onClick={handleReset}
+                className="w-full py-2.5 px-4 bg-[#0B0C0E] hover:bg-[#17191D] text-white rounded-md text-xs font-semibold text-center transition-colors"
+              >
+                Reset All Repositories to Seed State
+              </button>
+            </div>
+
+            <div className="border-t border-[#DDD8CF] pt-4 mt-4">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[#5B616B] mb-2">
+                Batch 10 Services &amp; Custom Fields Routes
+              </h3>
+              <ul className="text-xs space-y-1 text-[#164D53]">
+                <li>
+                  <Link href="/catalog/services" className="hover:underline">
+                    → CC-CAT-02: Services List (/catalog/services)
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/catalog/services/srv_aviation_01" className="hover:underline">
+                    → CC-CAT-03: Service Detail (/catalog/services/srv_aviation_01)
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/catalog/services/create" className="hover:underline">
+                    → CC-CAT-04: Create Service (/catalog/services/create)
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/catalog/services/srv_aviation_01/edit" className="hover:underline">
+                    → CC-CAT-04: Edit Service (/catalog/services/srv_aviation_01/edit)
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/catalog/services/srv_aviation_01/custom-fields"
+                    className="hover:underline"
+                  >
+                    → CC-CAT-05: Service Custom Fields
+                    (/catalog/services/srv_aviation_01/custom-fields)
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/catalog/services/srv_aviation_01/custom-fields/create"
+                    className="hover:underline"
+                  >
+                    → CC-CAT-06: Create Custom Field
+                    (/catalog/services/srv_aviation_01/custom-fields/create)
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/catalog/services/srv_aviation_01/custom-fields/cf_pax_count/edit"
+                    className="hover:underline"
+                  >
+                    → CC-CAT-06: Edit Custom Field
+                    (/catalog/services/srv_aviation_01/custom-fields/cf_pax_count/edit)
+                  </Link>
+                </li>
+              </ul>
             </div>
 
             <div className="border-t border-[#DDD8CF] pt-4 mt-4">

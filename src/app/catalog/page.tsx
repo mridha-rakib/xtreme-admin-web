@@ -2,6 +2,7 @@
 
 import { CommandCenterShell } from "@/components/layout/CommandCenterShell";
 import { Button } from "@/components/ui/Button";
+import { CatalogNavigationTabs } from "@/features/catalog/CatalogNavigationTabs";
 import { useSession } from "@/lib/auth/session";
 import { catalogRepository } from "@/lib/mock/catalog";
 import type { CatalogCategory } from "@/types";
@@ -75,6 +76,9 @@ export default function CatalogDirectoryPage() {
             + Add Category
           </Button>
         </div>
+
+        {/* Catalog Navigation Tabs */}
+        <CatalogNavigationTabs />
 
         {/* Filters Toolbar */}
         <div className="bg-white border border-[#DDD8CF] rounded-xl p-4 shadow-sm mb-6 space-y-3">

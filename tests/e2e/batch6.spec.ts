@@ -197,21 +197,14 @@ test.describe("Batch 6 E2E Integration: Scoped Authorization & Asset Lifecycle",
     await expect(page.getByRole("cell", { name: "Mon - Fri" }).first()).toBeVisible();
     await expect(page.getByText("06:00 - 22:00")).toBeVisible();
 
-    // Click Create rule button -> Displays Scope Guard banner
-    await page.getByRole("button", { name: "Create rule" }).click();
-    await expect(
-      page.getByText(
-        "CC-AVL-02 Availability Rule Detail & Editor is scheduled for a future planned phase. Configuration overview only; active allocation write controls are not exposed.",
-      ),
-    ).toBeVisible();
+    // Click Create rule link -> Navigates to CC-AVL-02 create rule
+    await page.getByRole("link", { name: "Create rule" }).click();
+    await expect(page).toHaveURL("/availability/rules/create");
 
-    // Click Open on any row -> Displays Scope Guard banner
-    const openButtons = page.getByRole("button", { name: "Open ›" });
-    await openButtons.first().click();
-    await expect(
-      page.getByText(
-        "CC-AVL-02 Availability Rule Detail & Editor is scheduled for a future planned phase. Configuration overview only; active allocation write controls are not exposed.",
-      ),
-    ).toBeVisible();
+    // Return to /availability and verify row action links to edit
+    await page.goto("/availability");
+    const openLinks = page.getByRole("link", { name: "Open ›" });
+    await openLinks.first().click();
+    await expect(page).toHaveURL(/\/availability\/rules\/.*\/edit/);
   });
 });

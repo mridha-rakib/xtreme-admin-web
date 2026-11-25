@@ -64,3 +64,97 @@ export interface UpdateAvailabilityRuleParams {
   vendorId?: string;
   notes?: string;
 }
+
+export type AvailabilityExceptionType = "UNAVAILABLE" | "AVAILABLE_OVERRIDE" | "CAPACITY_OVERRIDE";
+
+export const APPROVED_EXCEPTION_TYPES: AvailabilityExceptionType[] = [
+  "UNAVAILABLE",
+  "AVAILABLE_OVERRIDE",
+  "CAPACITY_OVERRIDE",
+];
+
+export interface AvailabilityException {
+  id: string;
+  target: string;
+  targetType: AvailabilityTargetType;
+  targetId?: string;
+  vendorId?: string;
+  startsAt: string;
+  endsAt: string;
+  startsDisplay?: string;
+  endsDisplay?: string;
+  type: AvailabilityExceptionType;
+  capacityOverride?: number;
+  reason: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateAvailabilityExceptionParams {
+  target: string;
+  targetType?: AvailabilityTargetType;
+  targetId?: string;
+  vendorId?: string;
+  startsAt: string;
+  endsAt: string;
+  type: AvailabilityExceptionType;
+  capacityOverride?: number;
+  reason: string;
+}
+
+export interface UpdateAvailabilityExceptionParams {
+  target?: string;
+  targetType?: AvailabilityTargetType;
+  targetId?: string;
+  vendorId?: string;
+  startsAt?: string;
+  endsAt?: string;
+  type?: AvailabilityExceptionType;
+  capacityOverride?: number;
+  reason?: string;
+}
+
+export type AvailabilitySlotStatus = "OPEN" | "CLOSED";
+
+export const APPROVED_SLOT_STATUSES: AvailabilitySlotStatus[] = ["OPEN", "CLOSED"];
+
+export interface AvailabilitySlot {
+  id: string;
+  target: string;
+  targetType: AvailabilityTargetType;
+  targetId?: string;
+  vendorId?: string;
+  startsAt: string;
+  endsAt: string;
+  startsDisplay?: string;
+  endsDisplay?: string;
+  capacity: number;
+  status: AvailabilitySlotStatus;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateAvailabilitySlotParams {
+  target: string;
+  targetType?: AvailabilityTargetType;
+  targetId?: string;
+  vendorId?: string;
+  startsAt: string;
+  endsAt: string;
+  capacity: number;
+  status?: AvailabilitySlotStatus;
+  notes?: string;
+}
+
+export interface UpdateAvailabilitySlotParams {
+  target?: string;
+  targetType?: AvailabilityTargetType;
+  targetId?: string;
+  vendorId?: string;
+  startsAt?: string;
+  endsAt?: string;
+  capacity?: number;
+  status?: AvailabilitySlotStatus;
+  notes?: string;
+}

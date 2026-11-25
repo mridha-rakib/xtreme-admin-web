@@ -59,4 +59,6 @@ export * from "./vendors";
 export * from "./vendor-staff";
 export * from "./assets";
 export * from "./availability";
+export * from "./availability-exceptions";
+export * from "./availability-slots";
 export * from "./allocation";

@@ -1,9 +1,11 @@
 "use client";
 
 import { CommandCenterShell } from "@/components/layout/CommandCenterShell";
+import { AvailabilityNavigationTabs } from "@/features/availability/AvailabilityNavigationTabs";
 import { useSession } from "@/lib/auth/session";
 import { availabilityRepository } from "@/lib/mock/availability";
 import type { AvailabilityRule } from "@/types/availability";
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 export default function AvailabilityRulesPage() {
@@ -12,7 +14,6 @@ export default function AvailabilityRulesPage() {
   const [rules, setRules] = useState<AvailabilityRule[]>([]);
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<boolean | "ALL">("ALL");
-  const [scopeNotice, setScopeNotice] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -36,12 +37,6 @@ export default function AvailabilityRulesPage() {
     return () => unsubscribe();
   }, [user, search, activeFilter]);
 
-  const handleScopeNotice = () => {
-    setScopeNotice(
-      "CC-AVL-02 Availability Rule Detail & Editor is scheduled for a future planned phase. Configuration overview only; active allocation write controls are not exposed.",
-    );
-  };
-
   return (
     <CommandCenterShell>
       <div
@@ -64,30 +59,18 @@ export default function AvailabilityRulesPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handleScopeNotice}
+            <Link
+              href="/availability/rules/create"
               className="h-[48px] min-w-[240px] px-[24px] bg-[#0B0C0E] text-white text-[14px] font-semibold rounded-[12px] hover:bg-[#17191D] inline-flex items-center justify-center transition-colors shadow-sm"
               data-node-id="88:2268"
             >
               Create rule
-            </button>
+            </Link>
           </div>
         </div>
 
-        {/* Scope Guard Banner */}
-        {scopeNotice && (
-          <div className="mb-[24px] p-4 bg-[#EFF6FF] border border-[#BFDBFE] rounded-[10px] text-[#1E40AF] text-[13px] flex items-center justify-between">
-            <span>{scopeNotice}</span>
-            <button
-              type="button"
-              onClick={() => setScopeNotice(null)}
-              className="text-[#1E40AF] font-bold text-sm ml-4"
-            >
-              ✕
-            </button>
-          </div>
-        )}
+        {/* Navigation Tabs */}
+        <AvailabilityNavigationTabs />
 
         {/* Filters */}
         <div className="bg-white border border-[#DDD8CF] rounded-[12px] p-4 shadow-card mb-[20px] flex flex-wrap items-center justify-between gap-4">
@@ -222,14 +205,13 @@ export default function AvailabilityRulesPage() {
                         )}
                       </td>
                       <td className="py-4 px-6 text-right">
-                        <button
-                          type="button"
-                          onClick={handleScopeNotice}
+                        <Link
+                          href={`/availability/rules/${rule.id}/edit`}
                           className="text-[#164D53] hover:text-[#0B0C0E] font-semibold text-[14px] inline-flex items-center gap-1"
                           data-node-id="88:2286"
                         >
                           Open ›
-                        </button>
+                        </Link>
                       </td>
                     </tr>
                   ))

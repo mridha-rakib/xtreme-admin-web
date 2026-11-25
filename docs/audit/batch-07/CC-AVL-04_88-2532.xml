@@ -1,0 +1,67 @@
+    <frame id="88:2532" name="CC-AVL-04__Admin__Ready" x="20" y="1150" width="1440" height="900">
+      <frame id="88:2533" name="Command Center rail" x="0" y="0" width="240" height="900">
+        <frame id="88:2536" name="Frame" x="16" y="110" width="208" height="36">
+          <text id="88:2537" name="Home" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2538" name="Frame" x="16" y="153" width="208" height="36">
+          <text id="88:2539" name="Customers" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2540" name="Frame" x="16" y="196" width="208" height="36">
+          <text id="88:2541" name="Bookings" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2542" name="Frame" x="16" y="239" width="208" height="36">
+          <text id="88:2543" name="Trips" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2544" name="Frame" x="16" y="282" width="208" height="36">
+          <text id="88:2545" name="Concierge" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2546" name="Frame" x="16" y="325" width="208" height="36">
+          <text id="88:2547" name="Vendors" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2548" name="Frame" x="16" y="368" width="208" height="36">
+          <text id="88:2549" name="Assets" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2550" name="Frame" x="16" y="411" width="208" height="36">
+          <text id="88:2551" name="Availability" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2552" name="Frame" x="16" y="454" width="208" height="36">
+          <text id="88:2553" name="Pricing" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2554" name="Frame" x="16" y="497" width="208" height="36">
+          <text id="88:2555" name="Finance" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2556" name="Frame" x="16" y="540" width="208" height="36">
+          <text id="88:2557" name="Catalog" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2558" name="Frame" x="16" y="583" width="208" height="36" hidden="true">
+          <text id="88:2559" name="Geography" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2560" name="Frame" x="16" y="583" width="208" height="36">
+          <text id="88:2561" name="Assignments" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2562" name="Frame" x="16" y="669" width="208" height="36" hidden="true">
+          <text id="88:2563" name="Access" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2564" name="Frame" x="16" y="626" width="208" height="36">
+          <text id="88:2565" name="Support &amp; Legal" x="12" y="9" width="180" height="18" />
+        </frame>
+        <text id="88:2566" name="Admin" x="24" y="842" width="190" height="16" />
+        <rounded-rectangle id="120:7613" name="Brand/Logo/Sidebar Dark" x="16" y="16" width="208" height="88" />
+      </frame>
+      <frame id="88:2567" name="Frame" x="240" y="0" width="1200" height="72">
+        <frame id="88:2568" name="Frame" x="32" y="16" width="360" height="40">
+          <text id="88:2569" name="Search / command" x="14" y="10" width="320" height="22" />
+        </frame>
+        <text id="88:2570" name="User menu" x="1070" y="26" width="100" height="18" />
+      </frame>
+      <text id="88:2571" name="Create / Edit Availability Exception" x="280" y="104" width="920" height="36" />
+      <instance id="88:2572" name="Input" x="280" y="176" width="500" height="96" />
+      <instance id="88:2577" name="DateTime" x="820" y="176" width="500" height="96" />
+      <instance id="88:2583" name="DateTime" x="280" y="298" width="500" height="96" />
+      <instance id="88:2589" name="Selection" x="820" y="298" width="500" height="96" />
+      <instance id="88:2595" name="Input" x="280" y="420" width="500" height="96" />
+      <instance id="88:2600" name="Input" x="820" y="420" width="500" height="96" />
+      <instance id="88:2605" name="Button/Primary" x="280" y="554" width="200" height="48" />
+      <instance id="88:2607" name="Button/Secondary" x="496" y="554" width="160" height="48" />
+      <text id="88:2609" name="AVAILABLE_OVERRIDE never bypasses an active allocation conflict." x="280" y="650" width="1040" height="16" />
+    </frame>

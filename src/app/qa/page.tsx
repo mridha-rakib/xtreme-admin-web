@@ -3,6 +3,8 @@
 import { MOCK_PERSONAS, VENDOR_B_PERSONA, useSession } from "@/lib/auth/session";
 import { assetRepository } from "@/lib/mock/assets";
 import { availabilityRepository } from "@/lib/mock/availability";
+import { availabilityExceptionRepository } from "@/lib/mock/availability-exceptions";
+import { availabilitySlotRepository } from "@/lib/mock/availability-slots";
 import { bookingRepository } from "@/lib/mock/bookings";
 import { conciergeRequestRepository } from "@/lib/mock/concierge-requests";
 import { conversationRepository } from "@/lib/mock/conversations";
@@ -47,9 +49,11 @@ export default function QAEnvironmentHub() {
     vendorStaffRepository.resetDefaults();
     assetRepository.resetDefaults();
     availabilityRepository.resetDefaults();
+    availabilityExceptionRepository.resetDefaults();
+    availabilitySlotRepository.resetDefaults();
     setIsSimulatedFailure(false);
     setStatusMessage(
-      "Customer, Booking, Payment, Trip, Concierge, Vendor, Asset, and Availability repositories reset to initial deterministic state",
+      "Customer, Booking, Payment, Trip, Concierge, Vendor, Asset, Availability Rules, Exceptions, and Slots repositories reset to initial deterministic state",
     );
   };
 

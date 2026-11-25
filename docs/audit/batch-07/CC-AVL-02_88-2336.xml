@@ -1,0 +1,69 @@
+    <frame id="88:2336" name="CC-AVL-02__Admin__Ready" x="1500" y="190" width="1440" height="900">
+      <frame id="88:2337" name="Command Center rail" x="0" y="0" width="240" height="900">
+        <frame id="88:2340" name="Frame" x="16" y="110" width="208" height="36">
+          <text id="88:2341" name="Home" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2342" name="Frame" x="16" y="153" width="208" height="36">
+          <text id="88:2343" name="Customers" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2344" name="Frame" x="16" y="196" width="208" height="36">
+          <text id="88:2345" name="Bookings" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2346" name="Frame" x="16" y="239" width="208" height="36">
+          <text id="88:2347" name="Trips" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2348" name="Frame" x="16" y="282" width="208" height="36">
+          <text id="88:2349" name="Concierge" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2350" name="Frame" x="16" y="325" width="208" height="36">
+          <text id="88:2351" name="Vendors" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2352" name="Frame" x="16" y="368" width="208" height="36">
+          <text id="88:2353" name="Assets" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2354" name="Frame" x="16" y="411" width="208" height="36">
+          <text id="88:2355" name="Availability" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2356" name="Frame" x="16" y="454" width="208" height="36">
+          <text id="88:2357" name="Pricing" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2358" name="Frame" x="16" y="497" width="208" height="36">
+          <text id="88:2359" name="Finance" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2360" name="Frame" x="16" y="540" width="208" height="36">
+          <text id="88:2361" name="Catalog" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2362" name="Frame" x="16" y="583" width="208" height="36" hidden="true">
+          <text id="88:2363" name="Geography" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2364" name="Frame" x="16" y="583" width="208" height="36">
+          <text id="88:2365" name="Assignments" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2366" name="Frame" x="16" y="669" width="208" height="36" hidden="true">
+          <text id="88:2367" name="Access" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2368" name="Frame" x="16" y="626" width="208" height="36">
+          <text id="88:2369" name="Support &amp; Legal" x="12" y="9" width="180" height="18" />
+        </frame>
+        <text id="88:2370" name="Admin" x="24" y="842" width="190" height="16" />
+        <rounded-rectangle id="120:7611" name="Brand/Logo/Sidebar Dark" x="16" y="16" width="208" height="88" />
+      </frame>
+      <frame id="88:2371" name="Frame" x="240" y="0" width="1200" height="72">
+        <frame id="88:2372" name="Frame" x="32" y="16" width="360" height="40">
+          <text id="88:2373" name="Search / command" x="14" y="10" width="320" height="22" />
+        </frame>
+        <text id="88:2374" name="User menu" x="1070" y="26" width="100" height="18" />
+      </frame>
+      <text id="88:2375" name="Create / Edit Availability Rule" x="280" y="104" width="920" height="36" />
+      <instance id="88:2376" name="Input" x="280" y="176" width="500" height="96" />
+      <instance id="88:2381" name="Input" x="820" y="176" width="500" height="96" />
+      <instance id="88:2386" name="Selection" x="280" y="298" width="500" height="96" />
+      <instance id="88:2392" name="Input" x="820" y="298" width="500" height="96" />
+      <instance id="88:2397" name="Input" x="280" y="420" width="500" height="96" />
+      <instance id="88:2402" name="Input" x="820" y="420" width="500" height="96" />
+      <instance id="88:2407" name="DateTime" x="280" y="542" width="500" height="96" />
+      <instance id="88:2413" name="Selection" x="820" y="542" width="500" height="96" />
+      <instance id="88:2419" name="Button/Primary" x="280" y="680" width="180" height="48" />
+      <instance id="88:2421" name="Button/Secondary" x="476" y="680" width="160" height="48" />
+      <text id="88:2423" name="Target/ownership validation is authoritative; configuration cannot bypass existing reservations." x="280" y="770" width="1040" height="16" />
+    </frame>

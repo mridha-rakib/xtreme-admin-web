@@ -16,12 +16,23 @@ export function SubmitVendorRateForm() {
 
   const isVendor = user?.role === "VENDOR";
   const vendorId = isVendor ? user.vendorId : "vnd_aerojet_99";
-  const vendorOrg = vendorRepository.getVendorById(user, vendorId || "vnd_aerojet_99");
 
-  // Retrieve vendor assets for optional association
-  const vendorAssets = assetRepository.listAssets(user, {
-    vendorId: vendorId || undefined,
-  });
+  let vendorOrg = undefined;
+  let vendorAssets: ReturnType<typeof assetRepository.listAssets> = [];
+  if (user) {
+    try {
+      vendorOrg = vendorRepository.getVendorById(user, vendorId || "vnd_aerojet_99");
+    } catch {
+      vendorOrg = undefined;
+    }
+    try {
+      vendorAssets = assetRepository.listAssets(user, {
+        vendorId: vendorId || undefined,
+      });
+    } catch {
+      vendorAssets = [];
+    }
+  }
 
   const [vendorServiceId, setVendorServiceId] = useState("vs_aerojet_charter");
   const [vendorServiceName, setVendorServiceName] = useState("Charter Flight Operations");

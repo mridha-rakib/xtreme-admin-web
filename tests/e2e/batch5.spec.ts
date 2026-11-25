@@ -144,8 +144,6 @@ test.describe("Batch 5 E2E Integration: Vendor Management & Scoped Staff Workspa
     // Scope guard callouts on future destinations
     await page.goto("/vendors/vnd_aerojet_99");
     await page.getByRole("button", { name: "Open ›" }).first().click();
-    await expect(
-      page.getByText(/scheduled for a future planned phase/i),
-    ).toBeVisible();
+    await expect(page.getByText(/scheduled for a future planned phase/i)).toBeVisible();
   });
 });

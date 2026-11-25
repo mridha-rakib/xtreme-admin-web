@@ -1,4 +1,4 @@
-import type { CreateVendorStaffParams, VendorStaff } from "@/types/vendor";
+import type { CreateVendorStaffParams, UpdateVendorStaffParams, VendorStaff } from "@/types/vendor";
 
 export class VendorStaffValidationError extends Error {
   constructor(message: string) {
@@ -190,6 +190,43 @@ export class VendorStaffRepository {
     this.staff.push(newStaff);
     this.notify();
     return newStaff;
+  }
+
+  public updateStaff(id: string, params: UpdateVendorStaffParams): VendorStaff {
+    const existing = this.getStaffById(id);
+    if (!existing) {
+      throw new VendorStaffValidationError(`Vendor staff with ID "${id}" was not found.`);
+    }
+
+    if (params.name !== undefined) {
+      if (!params.name.trim()) {
+        throw new VendorStaffValidationError("Staff name cannot be empty.");
+      }
+      existing.name = params.name.trim();
+    }
+
+    if (params.email !== undefined) {
+      existing.email = params.email.trim();
+    }
+
+    if (params.employeeCode !== undefined) {
+      if (!params.employeeCode.trim()) {
+        throw new VendorStaffValidationError("Employee code cannot be empty.");
+      }
+      existing.employeeCode = params.employeeCode.trim();
+    }
+
+    if (params.staffType !== undefined) {
+      existing.staffType = params.staffType;
+    }
+
+    if (params.active !== undefined) {
+      existing.active = Boolean(params.active);
+    }
+
+    existing.updatedAt = new Date().toISOString();
+    this.notify();
+    return existing;
   }
 
   public resetDefaults(): void {

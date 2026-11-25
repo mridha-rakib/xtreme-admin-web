@@ -57,3 +57,5 @@ export * from "./concierge-requests";
 export * from "./conversations";
 export * from "./vendors";
 export * from "./vendor-staff";
+export * from "./assets";
+export * from "./availability";

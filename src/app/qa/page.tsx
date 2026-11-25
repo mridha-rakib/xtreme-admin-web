@@ -1,6 +1,8 @@
 "use client";
 
 import { MOCK_PERSONAS, VENDOR_B_PERSONA, useSession } from "@/lib/auth/session";
+import { assetRepository } from "@/lib/mock/assets";
+import { availabilityRepository } from "@/lib/mock/availability";
 import { bookingRepository } from "@/lib/mock/bookings";
 import { conciergeRequestRepository } from "@/lib/mock/concierge-requests";
 import { conversationRepository } from "@/lib/mock/conversations";
@@ -43,9 +45,11 @@ export default function QAEnvironmentHub() {
     conversationRepository.resetDefaults();
     vendorRepository.resetDefaults();
     vendorStaffRepository.resetDefaults();
+    assetRepository.resetDefaults();
+    availabilityRepository.resetDefaults();
     setIsSimulatedFailure(false);
     setStatusMessage(
-      "Customer, Booking, Payment, Trip, Concierge, and Vendor repositories reset to initial deterministic state",
+      "Customer, Booking, Payment, Trip, Concierge, Vendor, Asset, and Availability repositories reset to initial deterministic state",
     );
   };
 
@@ -222,6 +226,14 @@ export default function QAEnvironmentHub() {
                 className="w-full py-2.5 px-4 bg-[#24272D] hover:bg-[#17191D] text-white rounded-md text-xs font-semibold text-center transition-colors"
               >
                 Reset Vendors &amp; Staff to Initial Defaults
+              </button>
+
+              <button
+                type="button"
+                onClick={handleReset}
+                className="w-full py-2.5 px-4 bg-[#0B0C0E] hover:bg-[#17191D] text-white rounded-md text-xs font-semibold text-center transition-colors"
+              >
+                Reset Assets &amp; Availability to Initial Defaults
               </button>
             </div>
 

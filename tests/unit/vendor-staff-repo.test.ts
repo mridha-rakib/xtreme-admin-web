@@ -98,4 +98,28 @@ describe("VendorStaffRepository Unit & Multi-Tenant Tests", () => {
     expect(aerojetStaff.length).toBe(7);
     expect(aerojetStaff.map((s) => s.id)).not.toContain(created.id);
   });
+
+  it("updates existing staff attributes with validation", () => {
+    const updated = vendorStaffRepository.updateStaff("stf_001", {
+      name: "Marcus Vance Senior",
+      staffType: "CAPTAIN",
+      active: false,
+    });
+
+    expect(updated.name).toBe("Marcus Vance Senior");
+    expect(updated.staffType).toBe("CAPTAIN");
+    expect(updated.active).toBe(false);
+
+    expect(() =>
+      vendorStaffRepository.updateStaff("stf_001", {
+        name: "   ",
+      }),
+    ).toThrow(VendorStaffValidationError);
+
+    expect(() =>
+      vendorStaffRepository.updateStaff("stf_001", {
+        employeeCode: "",
+      }),
+    ).toThrow(VendorStaffValidationError);
+  });
 });

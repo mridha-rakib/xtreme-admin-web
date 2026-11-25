@@ -1,0 +1,134 @@
+<frame id="86:2147" name="CC-AST-01__Admin__Ready" x="20" y="190" width="1440" height="900">
+      <frame id="86:2148" name="Command Center rail" x="0" y="0" width="240" height="900">
+        <frame id="86:2151" name="Frame" x="16" y="110" width="208" height="36">
+          <text id="86:2152" name="Home" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="86:2153" name="Frame" x="16" y="153" width="208" height="36">
+          <text id="86:2154" name="Customers" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="86:2155" name="Frame" x="16" y="196" width="208" height="36">
+          <text id="86:2156" name="Bookings" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="86:2157" name="Frame" x="16" y="239" width="208" height="36">
+          <text id="86:2158" name="Trips" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="86:2159" name="Frame" x="16" y="282" width="208" height="36">
+          <text id="86:2160" name="Concierge" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="86:2161" name="Frame" x="16" y="325" width="208" height="36">
+          <text id="86:2162" name="Vendors" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="86:2163" name="Frame" x="16" y="368" width="208" height="36">
+          <text id="86:2164" name="Assets" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="86:2165" name="Frame" x="16" y="411" width="208" height="36">
+          <text id="86:2166" name="Availability" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="86:2167" name="Frame" x="16" y="454" width="208" height="36">
+          <text id="86:2168" name="Pricing" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="86:2169" name="Frame" x="16" y="497" width="208" height="36">
+          <text id="86:2170" name="Finance" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="86:2171" name="Frame" x="16" y="540" width="208" height="36">
+          <text id="86:2172" name="Catalog" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="86:2173" name="Frame" x="16" y="583" width="208" height="36" hidden="true">
+          <text id="86:2174" name="Geography" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="86:2175" name="Frame" x="16" y="583" width="208" height="36">
+          <text id="86:2176" name="Assignments" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="86:2177" name="Frame" x="16" y="669" width="208" height="36" hidden="true">
+          <text id="86:2178" name="Access" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="86:2179" name="Frame" x="16" y="626" width="208" height="36">
+          <text id="86:2180" name="Support &amp; Legal" x="12" y="9" width="180" height="18" />
+        </frame>
+        <text id="86:2181" name="Admin" x="24" y="842" width="190" height="16" />
+        <rounded-rectangle id="120:7566" name="Brand/Logo/Sidebar Dark" x="16" y="16" width="208" height="88" />
+      </frame>
+      <frame id="86:2182" name="Frame" x="240" y="0" width="1200" height="72">
+        <frame id="86:2183" name="Frame" x="32" y="16" width="360" height="40">
+          <text id="86:2184" name="Search / command" x="14" y="10" width="320" height="22" />
+        </frame>
+        <text id="86:2185" name="User menu" x="1070" y="26" width="100" height="18" />
+      </frame>
+      <text id="86:2186" name="Assets List" x="280" y="104" width="920" height="36" />
+      <instance id="86:2187" name="Button/Primary" x="1120" y="158" width="240" height="48" />
+      <frame id="86:2189" name="Frame" x="280" y="176" width="1080" height="458">
+        <frame id="86:2190" name="Frame" x="0" y="0" width="1080" height="52">
+          <text id="86:2191" name="Display name" x="16" y="17" width="137.7142791748047" height="18" />
+          <text id="86:2192" name="Owner" x="167.7142791748047" y="17" width="137.7142791748047" height="18" />
+          <text id="86:2193" name="Destination" x="319.4285583496094" y="17" width="137.7142791748047" height="18" />
+          <text id="86:2194" name="Code" x="471.142822265625" y="17" width="137.7142791748047" height="18" />
+          <text id="86:2195" name="Capacity" x="622.8571166992188" y="17" width="137.7142791748047" height="18" />
+          <text id="86:2196" name="Status" x="774.5714111328125" y="17" width="137.71426391601562" height="18" />
+          <text id="86:2197" name="Actions" x="926.28564453125" y="17" width="137.71426391601562" height="18" />
+        </frame>
+        <frame id="86:2198" name="Frame" x="0" y="52" width="1080" height="58">
+          <text id="86:2199" name="Value" x="16" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2200" name="Value" x="167.7142791748047" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2201" name="Value" x="319.4285583496094" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2202" name="Value" x="471.142822265625" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2203" name="Value" x="622.8571166992188" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2204" name="ACTIVE" x="774.5714111328125" y="17.5" width="137.71426391601562" height="22" />
+          <text id="86:2205" name="View ›" x="926.28564453125" y="17.5" width="137.71426391601562" height="22" />
+        </frame>
+        <frame id="86:2206" name="Frame" x="0" y="110" width="1080" height="58">
+          <text id="86:2207" name="Value" x="16" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2208" name="Value" x="167.7142791748047" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2209" name="Value" x="319.4285583496094" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2210" name="Value" x="471.142822265625" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2211" name="Value" x="622.8571166992188" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2212" name="MAINTENANCE" x="774.5714111328125" y="17.5" width="137.71426391601562" height="22" />
+          <text id="86:2213" name="View ›" x="926.28564453125" y="17.5" width="137.71426391601562" height="22" />
+        </frame>
+        <frame id="86:2214" name="Frame" x="0" y="168" width="1080" height="58">
+          <text id="86:2215" name="Value" x="16" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2216" name="Value" x="167.7142791748047" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2217" name="Value" x="319.4285583496094" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2218" name="Value" x="471.142822265625" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2219" name="Value" x="622.8571166992188" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2220" name="INACTIVE" x="774.5714111328125" y="17.5" width="137.71426391601562" height="22" />
+          <text id="86:2221" name="View ›" x="926.28564453125" y="17.5" width="137.71426391601562" height="22" />
+        </frame>
+        <frame id="86:2222" name="Frame" x="0" y="226" width="1080" height="58">
+          <text id="86:2223" name="Value" x="16" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2224" name="Value" x="167.7142791748047" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2225" name="Value" x="319.4285583496094" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2226" name="Value" x="471.142822265625" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2227" name="Value" x="622.8571166992188" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2228" name="ACTIVE" x="774.5714111328125" y="17.5" width="137.71426391601562" height="22" />
+          <text id="86:2229" name="View ›" x="926.28564453125" y="17.5" width="137.71426391601562" height="22" />
+        </frame>
+        <frame id="86:2230" name="Frame" x="0" y="284" width="1080" height="58">
+          <text id="86:2231" name="Value" x="16" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2232" name="Value" x="167.7142791748047" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2233" name="Value" x="319.4285583496094" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2234" name="Value" x="471.142822265625" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2235" name="Value" x="622.8571166992188" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2236" name="MAINTENANCE" x="774.5714111328125" y="17.5" width="137.71426391601562" height="22" />
+          <text id="86:2237" name="View ›" x="926.28564453125" y="17.5" width="137.71426391601562" height="22" />
+        </frame>
+        <frame id="86:2238" name="Frame" x="0" y="342" width="1080" height="58">
+          <text id="86:2239" name="Value" x="16" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2240" name="Value" x="167.7142791748047" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2241" name="Value" x="319.4285583496094" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2242" name="Value" x="471.142822265625" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2243" name="Value" x="622.8571166992188" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2244" name="INACTIVE" x="774.5714111328125" y="17.5" width="137.71426391601562" height="22" />
+          <text id="86:2245" name="View ›" x="926.28564453125" y="17.5" width="137.71426391601562" height="22" />
+        </frame>
+        <frame id="86:2246" name="Frame" x="0" y="400" width="1080" height="58">
+          <text id="86:2247" name="Value" x="16" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2248" name="Value" x="167.7142791748047" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2249" name="Value" x="319.4285583496094" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2250" name="Value" x="471.142822265625" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2251" name="Value" x="622.8571166992188" y="17.5" width="137.7142791748047" height="22" />
+          <text id="86:2252" name="ACTIVE" x="774.5714111328125" y="17.5" width="137.71426391601562" height="22" />
+          <text id="86:2253" name="View ›" x="926.28564453125" y="17.5" width="137.71426391601562" height="22" />
+        </frame>
+      </frame>
+      <text id="86:2254" name="Vendor sees own assets; Admin/Super Admin remain permission/scoped." x="280" y="664" width="1080" height="16" />
+    </frame>

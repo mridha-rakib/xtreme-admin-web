@@ -72,18 +72,13 @@ export default function VendorStaffPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() =>
-                setActiveNotice(
-                  "CC-VEN-06 Staff Assignment & Association Management is scheduled for Phase 4.6 (future scope).",
-                )
-              }
+            <Link
+              href="/vendor/staff/manage"
               className="h-[48px] px-[24px] bg-[#0B0C0E] text-white text-[14px] font-semibold rounded-[12px] hover:bg-[#17191D] inline-flex items-center justify-center transition-colors"
               data-node-id="14:2"
             >
               Manage association
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -153,17 +148,12 @@ export default function VendorStaffPage() {
                         )}
                       </td>
                       <td className="py-4 px-6 text-right">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setActiveNotice(
-                              `CC-VEN-06 Staff Details for ${s.name} (${s.employeeCode}) is scheduled for Phase 4.6 (future scope).`,
-                            )
-                          }
+                        <Link
+                          href={`/vendor/staff/${s.id}/edit`}
                           className="text-[#164D53] hover:text-[#0B0C0E] font-semibold text-[14px] inline-flex items-center gap-1"
                         >
                           View ›
-                        </button>
+                        </Link>
                       </td>
                     </tr>
                   ))

@@ -1,0 +1,134 @@
+<frame id="88:2228" name="CC-AVL-01__Admin__Ready" x="20" y="190" width="1440" height="900">
+      <frame id="88:2229" name="Command Center rail" x="0" y="0" width="240" height="900">
+        <frame id="88:2232" name="Frame" x="16" y="110" width="208" height="36">
+          <text id="88:2233" name="Home" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2234" name="Frame" x="16" y="153" width="208" height="36">
+          <text id="88:2235" name="Customers" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2236" name="Frame" x="16" y="196" width="208" height="36">
+          <text id="88:2237" name="Bookings" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2238" name="Frame" x="16" y="239" width="208" height="36">
+          <text id="88:2239" name="Trips" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2240" name="Frame" x="16" y="282" width="208" height="36">
+          <text id="88:2241" name="Concierge" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2242" name="Frame" x="16" y="325" width="208" height="36">
+          <text id="88:2243" name="Vendors" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2244" name="Frame" x="16" y="368" width="208" height="36">
+          <text id="88:2245" name="Assets" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2246" name="Frame" x="16" y="411" width="208" height="36">
+          <text id="88:2247" name="Availability" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2248" name="Frame" x="16" y="454" width="208" height="36">
+          <text id="88:2249" name="Pricing" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2250" name="Frame" x="16" y="497" width="208" height="36">
+          <text id="88:2251" name="Finance" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2252" name="Frame" x="16" y="540" width="208" height="36">
+          <text id="88:2253" name="Catalog" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2254" name="Frame" x="16" y="583" width="208" height="36" hidden="true">
+          <text id="88:2255" name="Geography" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2256" name="Frame" x="16" y="583" width="208" height="36">
+          <text id="88:2257" name="Assignments" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2258" name="Frame" x="16" y="669" width="208" height="36" hidden="true">
+          <text id="88:2259" name="Access" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2260" name="Frame" x="16" y="626" width="208" height="36">
+          <text id="88:2261" name="Support &amp; Legal" x="12" y="9" width="180" height="18" />
+        </frame>
+        <text id="88:2262" name="Admin" x="24" y="842" width="190" height="16" />
+        <rounded-rectangle id="120:7610" name="Brand/Logo/Sidebar Dark" x="16" y="16" width="208" height="88" />
+      </frame>
+      <frame id="88:2263" name="Frame" x="240" y="0" width="1200" height="72">
+        <frame id="88:2264" name="Frame" x="32" y="16" width="360" height="40">
+          <text id="88:2265" name="Search / command" x="14" y="10" width="320" height="22" />
+        </frame>
+        <text id="88:2266" name="User menu" x="1070" y="26" width="100" height="18" />
+      </frame>
+      <text id="88:2267" name="Availability Rules" x="280" y="104" width="920" height="36" />
+      <instance id="88:2268" name="Button/Primary" x="1120" y="158" width="240" height="48" />
+      <frame id="88:2270" name="Frame" x="280" y="176" width="1080" height="458">
+        <frame id="88:2271" name="Frame" x="0" y="0" width="1080" height="52">
+          <text id="88:2272" name="Target" x="16" y="17" width="139.42857360839844" height="18" />
+          <text id="88:2273" name="Weekday" x="167.42857360839844" y="17" width="139.42857360839844" height="18" />
+          <text id="88:2274" name="Time window" x="318.8571472167969" y="17" width="139.42855834960938" height="18" />
+          <text id="88:2275" name="Timezone" x="470.28570556640625" y="17" width="139.42855834960938" height="18" />
+          <text id="88:2276" name="Capacity" x="621.7142333984375" y="17" width="139.42855834960938" height="18" />
+          <text id="88:2277" name="Active" x="773.142822265625" y="17" width="139.42855834960938" height="18" />
+          <text id="88:2278" name="Actions" x="924.5714111328125" y="17" width="139.42855834960938" height="18" />
+        </frame>
+        <frame id="88:2279" name="Frame" x="0" y="52" width="1080" height="58">
+          <text id="88:2280" name="Value" x="16" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2281" name="Value" x="167.42857360839844" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2282" name="Value" x="318.8571472167969" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2283" name="Value" x="470.28570556640625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2284" name="Capacity" x="621.7142333984375" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2285" name="No" x="773.142822265625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2286" name="Open ›" x="924.5714111328125" y="17.5" width="139.42855834960938" height="22" />
+        </frame>
+        <frame id="88:2287" name="Frame" x="0" y="110" width="1080" height="58">
+          <text id="88:2288" name="Value" x="16" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2289" name="Value" x="167.42857360839844" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2290" name="Value" x="318.8571472167969" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2291" name="Value" x="470.28570556640625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2292" name="Capacity" x="621.7142333984375" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2293" name="Yes" x="773.142822265625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2294" name="Open ›" x="924.5714111328125" y="17.5" width="139.42855834960938" height="22" />
+        </frame>
+        <frame id="88:2295" name="Frame" x="0" y="168" width="1080" height="58">
+          <text id="88:2296" name="Value" x="16" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2297" name="Value" x="167.42857360839844" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2298" name="Value" x="318.8571472167969" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2299" name="Value" x="470.28570556640625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2300" name="Capacity" x="621.7142333984375" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2301" name="No" x="773.142822265625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2302" name="Open ›" x="924.5714111328125" y="17.5" width="139.42855834960938" height="22" />
+        </frame>
+        <frame id="88:2303" name="Frame" x="0" y="226" width="1080" height="58">
+          <text id="88:2304" name="Value" x="16" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2305" name="Value" x="167.42857360839844" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2306" name="Value" x="318.8571472167969" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2307" name="Value" x="470.28570556640625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2308" name="Capacity" x="621.7142333984375" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2309" name="Yes" x="773.142822265625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2310" name="Open ›" x="924.5714111328125" y="17.5" width="139.42855834960938" height="22" />
+        </frame>
+        <frame id="88:2311" name="Frame" x="0" y="284" width="1080" height="58">
+          <text id="88:2312" name="Value" x="16" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2313" name="Value" x="167.42857360839844" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2314" name="Value" x="318.8571472167969" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2315" name="Value" x="470.28570556640625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2316" name="Capacity" x="621.7142333984375" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2317" name="No" x="773.142822265625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2318" name="Open ›" x="924.5714111328125" y="17.5" width="139.42855834960938" height="22" />
+        </frame>
+        <frame id="88:2319" name="Frame" x="0" y="342" width="1080" height="58">
+          <text id="88:2320" name="Value" x="16" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2321" name="Value" x="167.42857360839844" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2322" name="Value" x="318.8571472167969" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2323" name="Value" x="470.28570556640625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2324" name="Capacity" x="621.7142333984375" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2325" name="Yes" x="773.142822265625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2326" name="Open ›" x="924.5714111328125" y="17.5" width="139.42855834960938" height="22" />
+        </frame>
+        <frame id="88:2327" name="Frame" x="0" y="400" width="1080" height="58">
+          <text id="88:2328" name="Value" x="16" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2329" name="Value" x="167.42857360839844" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2330" name="Value" x="318.8571472167969" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2331" name="Value" x="470.28570556640625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2332" name="Capacity" x="621.7142333984375" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2333" name="No" x="773.142822265625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2334" name="Open ›" x="924.5714111328125" y="17.5" width="139.42855834960938" height="22" />
+        </frame>
+      </frame>
+      <text id="88:2335" name="Configuration only. No direct active-allocation write controls are exposed." x="280" y="664" width="1080" height="16" />
+    </frame>

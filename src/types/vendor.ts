@@ -27,7 +27,15 @@ export interface UpdateVendorParams {
   contactPhone?: string;
 }
 
-export type VendorStaffType = "PILOT" | "CHAUFFEUR" | "OPS" | "MANAGER" | "SECURITY" | string;
+export type VendorStaffType =
+  | "PILOT"
+  | "CHAUFFEUR"
+  | "OPS"
+  | "MANAGER"
+  | "SECURITY"
+  | "COORDINATOR"
+  | "CAPTAIN"
+  | string;
 
 export interface VendorStaff {
   id: string;
@@ -47,5 +55,13 @@ export interface CreateVendorStaffParams {
   email: string;
   staffType: VendorStaffType;
   employeeCode: string;
+  active?: boolean;
+}
+
+export interface UpdateVendorStaffParams {
+  name?: string;
+  email?: string;
+  staffType?: VendorStaffType;
+  employeeCode?: string;
   active?: boolean;
 }

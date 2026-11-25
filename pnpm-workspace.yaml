@@ -2,3 +2,9 @@ allowBuilds:
   '@biomejs/biome': true
   esbuild: true
   sharp: true
+
+overrides:
+  postcss: '>=8.5.23'
+  tinypool: '>=2.1.2'
+  '@vitest/mocker': '>=4.1.12'
+

@@ -230,17 +230,12 @@ export default function MyVendorOrganizationPage() {
               {/* Payables */}
               <div className="flex items-center justify-between py-2">
                 <span className="text-[14px] text-[#0B0C0E] font-medium">Payables</span>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setActiveNotice(
-                      "Vendor Payables & Settlements is scheduled for a future planned phase.",
-                    )
-                  }
+                <Link
+                  href="/finance/vendor-payables"
                   className="text-[13px] font-semibold text-[#164D53] hover:text-[#0B0C0E] transition-colors"
                 >
                   Open ›
-                </button>
+                </Link>
               </div>
             </div>
           </div>

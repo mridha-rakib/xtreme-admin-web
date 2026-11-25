@@ -125,3 +125,6 @@ export * from "./vendor";
 export * from "./asset";
 export * from "./availability";
 export * from "./pricing";
+export * from "./finance";
+export * from "./fx";
+export * from "./catalog";

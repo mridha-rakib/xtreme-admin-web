@@ -6,12 +6,15 @@ import { availabilityRepository } from "@/lib/mock/availability";
 import { availabilityExceptionRepository } from "@/lib/mock/availability-exceptions";
 import { availabilitySlotRepository } from "@/lib/mock/availability-slots";
 import { bookingRepository } from "@/lib/mock/bookings";
+import { catalogRepository } from "@/lib/mock/catalog";
 import { conciergeRequestRepository } from "@/lib/mock/concierge-requests";
 import { conversationRepository } from "@/lib/mock/conversations";
 import { customerPriceRepository } from "@/lib/mock/customer-prices";
 import { customerRepository } from "@/lib/mock/customers";
+import { fxRateRepository } from "@/lib/mock/fx-rates";
 import { paymentRepository } from "@/lib/mock/payments";
 import { tripRepository } from "@/lib/mock/trips";
+import { vendorPayableRepository } from "@/lib/mock/vendor-payables";
 import { vendorRateRepository } from "@/lib/mock/vendor-rates";
 import { vendorStaffRepository } from "@/lib/mock/vendor-staff";
 import { vendorRepository } from "@/lib/mock/vendors";
@@ -55,9 +58,12 @@ export default function QAEnvironmentHub() {
     availabilitySlotRepository.resetDefaults();
     vendorRateRepository.resetDefaults();
     customerPriceRepository.resetDefaults();
+    vendorPayableRepository.resetDefaults();
+    fxRateRepository.resetDefaults();
+    catalogRepository.resetDefaults();
     setIsSimulatedFailure(false);
     setStatusMessage(
-      "Customer, Booking, Payment, Trip, Concierge, Vendor, Asset, Availability, Vendor Rates, and Customer Prices repositories reset to initial deterministic state",
+      "Customer, Booking, Payment, Trip, Concierge, Vendor, Asset, Availability, Pricing, Payables, FX, and Catalog repositories reset to initial deterministic state",
     );
   };
 
@@ -251,6 +257,47 @@ export default function QAEnvironmentHub() {
               >
                 Reset Pricing &amp; Rates to Initial Defaults
               </button>
+
+              <button
+                type="button"
+                onClick={handleReset}
+                className="w-full py-2.5 px-4 bg-[#0E7047] hover:bg-[#0B5A38] text-white rounded-md text-xs font-semibold text-center transition-colors"
+              >
+                Reset Finance, FX &amp; Catalog to Initial Defaults
+              </button>
+            </div>
+
+            <div className="border-t border-[#DDD8CF] pt-4 mt-4">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[#5B616B] mb-2">
+                Batch 9 Finance, FX &amp; Catalog Routes
+              </h3>
+              <ul className="text-xs space-y-1 text-[#164D53]">
+                <li>
+                  <Link href="/finance/vendor-payables" className="hover:underline">
+                    → CC-FIN-01: Vendor Payables (/finance/vendor-payables)
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/finance/vendor-payables/pay_018" className="hover:underline">
+                    → CC-FIN-02: Vendor Payable Detail (/finance/vendor-payables/pay_018)
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/finance/summary" className="hover:underline">
+                    → CC-FIN-03: Financial Summary (/finance/summary)
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/finance/fx-rates" className="hover:underline">
+                    → CC-FX-01: FX Rates &amp; Manual Override (/finance/fx-rates)
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/catalog" className="hover:underline">
+                    → CC-CAT-01: Catalog (/catalog)
+                  </Link>
+                </li>
+              </ul>
             </div>
 
             <div className="border-t border-[#DDD8CF] pt-4 mt-4">

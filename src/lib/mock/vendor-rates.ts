@@ -431,14 +431,10 @@ export class VendorRateRepository {
       throw new VendorRateValidationError("Vendor service is required.");
     }
 
-    if (params.assetId && params.assetId.trim()) {
+    if (params.assetId?.trim()) {
       try {
         const asset = assetRepository.getAssetById(validActor, params.assetId.trim());
-        if (
-          asset &&
-          asset.vendorId &&
-          asset.vendorId.toLowerCase() !== effectiveVendorId.toLowerCase()
-        ) {
+        if (asset?.vendorId && asset.vendorId.toLowerCase() !== effectiveVendorId.toLowerCase()) {
           throw new VendorRateValidationError(
             `Asset "${params.assetId}" belongs to vendor "${asset.vendorId}", not "${effectiveVendorId}". Asset compatibility check failed.`,
           );

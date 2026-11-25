@@ -55,7 +55,9 @@ export class PricingEvaluationService {
         }
         // 2. Vendor service match
         if (!customerPrice && vendorServiceId) {
-          customerPrice = validPrices.find((p) => p.vendorServiceId === vendorServiceId && !p.assetId);
+          customerPrice = validPrices.find(
+            (p) => p.vendorServiceId === vendorServiceId && !p.assetId,
+          );
         }
         // 3. Generic service match
         if (!customerPrice && serviceId) {

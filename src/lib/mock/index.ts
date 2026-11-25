@@ -65,3 +65,7 @@ export * from "./allocation";
 export * from "./vendor-rates";
 export * from "./customer-prices";
 export * from "./pricing-evaluation";
+export * from "./vendor-payables";
+export * from "./fx-rates";
+export * from "./financial-reporting";
+export * from "./catalog";

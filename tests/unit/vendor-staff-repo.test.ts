@@ -148,4 +148,23 @@ describe("VendorStaffRepository Scoped Multi-Tenant Authorization Tests", () => 
     const fetchedAgain = vendorStaffRepository.getStaffById(VENDOR_A_ACTOR, "stf_001");
     expect(fetchedAgain?.name).toBe("Marcus Vance");
   });
+
+  it("restricts operational identities directory access and denies unauthorized roles", () => {
+    const CONCIERGE_ACTOR: AuthorizedActor = {
+      id: "usr_concierge",
+      name: "Concierge Agent",
+      role: "CONCIERGE",
+    };
+
+    expect(() => vendorStaffRepository.listEligibleIdentities(CONCIERGE_ACTOR)).toThrow(
+      UnauthorizedStaffAccessError,
+    );
+    expect(() => vendorStaffRepository.getIdentityById(CONCIERGE_ACTOR, "ident_001")).toThrow(
+      UnauthorizedStaffAccessError,
+    );
+
+    // Admin and Vendor are authorized
+    expect(vendorStaffRepository.listEligibleIdentities(ADMIN_ACTOR).length).toBeGreaterThan(0);
+    expect(vendorStaffRepository.listEligibleIdentities(VENDOR_A_ACTOR).length).toBeGreaterThan(0);
+  });
 });

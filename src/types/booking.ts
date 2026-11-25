@@ -103,6 +103,13 @@ export interface Booking {
   updatedAt: string;
 }
 
+export interface AssetAllocationData {
+  assetId: string;
+  assetCode: string;
+  assetName: string;
+  notes?: string;
+}
+
 export interface CreateBookingParams {
   customerId: string;
   serviceId: string;

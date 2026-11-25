@@ -1,14 +1,17 @@
 import { customerRepository } from "@/lib/mock/customers";
-import type {
-  Booking,
-  BookingChangeRequest,
-  BookingFilterOptions,
-  BookingLifecycleStatus,
-  BookingListResult,
-  CreateBookingParams,
-  CreateChangeRequestParams,
-  ResolveChangeRequestParams,
-} from "@/types/booking";
+import {
+  type AssetAllocationData,
+  type AuthorizedActor,
+  type Booking,
+  type BookingChangeRequest,
+  type BookingFilterOptions,
+  type BookingLifecycleStatus,
+  type BookingListResult,
+  type CreateBookingParams,
+  type CreateChangeRequestParams,
+  type ResolveChangeRequestParams,
+  hasCommandCenterPermission,
+} from "@/types";
 
 export class StaleVersionConflictError extends Error {
   currentVersion: number;
@@ -21,6 +24,20 @@ export class StaleVersionConflictError extends Error {
     this.name = "StaleVersionConflictError";
     this.expectedVersion = expected;
     this.currentVersion = current;
+  }
+}
+
+export class UnauthorizedBookingAccessError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "UnauthorizedBookingAccessError";
+  }
+}
+
+export class BookingAllocationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "BookingAllocationError";
   }
 }
 
@@ -582,6 +599,68 @@ export class BookingRepository {
 
     this.notify();
     return { booking, changeRequest };
+  }
+
+  public allocateAssetToBooking(
+    actor: AuthorizedActor | null | undefined,
+    bookingId: string,
+    assetAllocationData: AssetAllocationData,
+    expectedVersion?: number,
+  ): Booking {
+    if (!actor || !actor.role) {
+      throw new UnauthorizedBookingAccessError("Authentication required: Actor context missing.");
+    }
+
+    if (
+      !hasCommandCenterPermission(actor.role, "manage:bookings") &&
+      !hasCommandCenterPermission(actor.role, "manage:assets") &&
+      actor.role !== "VENDOR"
+    ) {
+      throw new UnauthorizedBookingAccessError(
+        `Actor role "${actor.role}" does not have permission to allocate assets to bookings.`,
+      );
+    }
+
+    const booking = this.getBookingById(bookingId);
+    if (!booking) {
+      throw new BookingAllocationError(`Booking "${bookingId}" was not found.`);
+    }
+
+    const allowedStates: BookingLifecycleStatus[] = ["PENDING_ADMIN", "CONFIRMED", "IN_PROGRESS"];
+    if (!allowedStates.includes(booking.lifecycleStatus)) {
+      throw new BookingAllocationError(
+        `Cannot allocate asset to booking ${booking.reference} in lifecycle status "${booking.lifecycleStatus}". Allowed states: ${allowedStates.join(", ")}.`,
+      );
+    }
+
+    if (expectedVersion !== undefined && booking.version !== expectedVersion) {
+      throw new StaleVersionConflictError(expectedVersion, booking.version);
+    }
+
+    // Never silently overwrite an existing confirmed commitment to a different asset
+    if (
+      booking.dynamicFields?.allocatedAssetId &&
+      booking.dynamicFields.allocatedAssetId !== assetAllocationData.assetId &&
+      booking.lifecycleStatus === "CONFIRMED"
+    ) {
+      throw new BookingAllocationError(
+        `Booking ${booking.reference} already has a confirmed allocation to asset "${booking.dynamicFields.allocatedAssetCode || booking.dynamicFields.allocatedAssetId}". Existing commitments require explicit operations deallocation before reassignment.`,
+      );
+    }
+
+    const now = new Date().toISOString();
+    booking.dynamicFields = {
+      ...booking.dynamicFields,
+      allocatedAssetId: assetAllocationData.assetId,
+      allocatedAssetCode: assetAllocationData.assetCode,
+      allocatedAssetName: assetAllocationData.assetName,
+    };
+    booking.assignmentStatus = "ASSIGNED";
+    booking.version += 1;
+    booking.updatedAt = now;
+
+    this.notify();
+    return structuredClone(booking);
   }
 }
 

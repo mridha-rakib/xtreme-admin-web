@@ -281,9 +281,20 @@ export class VendorStaffRepository {
 
   /**
    * Retrieves verified eligible operational identities.
+   * Access is strictly restricted to Admin, Super Admin, or Vendor in scope.
+   * Concierge or unauthorized roles are denied.
    */
   public listEligibleIdentities(actor: AuthorizedActor | null | undefined): OperationalIdentity[] {
-    this.checkActor(actor);
+    const validActor = this.checkActor(actor);
+    if (
+      !hasCommandCenterPermission(validActor.role, "view:vendors") &&
+      !hasCommandCenterPermission(validActor.role, "manage:vendors") &&
+      validActor.role !== "VENDOR"
+    ) {
+      throw new UnauthorizedStaffAccessError(
+        `Actor role "${validActor.role}" does not have permission to view operational identities directory.`,
+      );
+    }
     return this.identities.map((i) => structuredClone(i));
   }
 
@@ -291,7 +302,16 @@ export class VendorStaffRepository {
     actor: AuthorizedActor | null | undefined,
     id: string,
   ): OperationalIdentity | undefined {
-    this.checkActor(actor);
+    const validActor = this.checkActor(actor);
+    if (
+      !hasCommandCenterPermission(validActor.role, "view:vendors") &&
+      !hasCommandCenterPermission(validActor.role, "manage:vendors") &&
+      validActor.role !== "VENDOR"
+    ) {
+      throw new UnauthorizedStaffAccessError(
+        `Actor role "${validActor.role}" does not have permission to view operational identity records.`,
+      );
+    }
     const found = this.identities.find(
       (i) => i.id.toLowerCase() === id.toLowerCase() || i.id === id,
     );

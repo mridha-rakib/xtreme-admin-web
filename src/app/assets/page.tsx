@@ -15,15 +15,20 @@ export default function AssetsListPage() {
   const [statusFilter, setStatusFilter] = useState<AssetStatus | "ALL">("ALL");
 
   useEffect(() => {
+    if (!user) return;
+
     const loadAssets = () => {
-      // Vendor isolation: When authenticated as VENDOR, strictly filter by vendorId
-      const vendorId = user?.role === "VENDOR" ? user.vendorId : undefined;
-      const filtered = assetRepository.listAssets({
-        vendorId,
-        status: statusFilter,
-        search,
-      });
-      setAssets(filtered);
+      try {
+        const vendorId = user.role === "VENDOR" ? user.vendorId : undefined;
+        const filtered = assetRepository.listAssets(user, {
+          vendorId,
+          status: statusFilter,
+          search,
+        });
+        setAssets(filtered);
+      } catch {
+        setAssets([]);
+      }
     };
 
     loadAssets();
@@ -71,7 +76,7 @@ export default function AssetsListPage() {
               Assets List
             </h1>
             <p className="text-[14px] text-[#5B616B] mt-[4px]">
-              Figma CC-AST-01 (Node 86:2147) · Fleet &amp; Physical Asset Inventory
+              Fleet &amp; Physical Asset Inventory
             </p>
           </div>
 

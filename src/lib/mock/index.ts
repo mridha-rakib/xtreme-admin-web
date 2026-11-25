@@ -59,3 +59,4 @@ export * from "./vendors";
 export * from "./vendor-staff";
 export * from "./assets";
 export * from "./availability";
+export * from "./allocation";

@@ -16,10 +16,12 @@ export default function VendorStaffPage() {
   const [activeNotice, setActiveNotice] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!user) return;
+
     // Resolve vendorId strictly for authenticated session
     const effectiveVendorId =
-      user?.vendorId ||
-      (user?.role === "ADMIN" || user?.role === "SUPER_ADMIN" ? "vnd_aerojet_99" : null);
+      user.vendorId ||
+      (user.role === "ADMIN" || user.role === "SUPER_ADMIN" ? "vnd_aerojet_99" : null);
 
     if (!effectiveVendorId) {
       setStaffList([]);
@@ -27,12 +29,20 @@ export default function VendorStaffPage() {
       return;
     }
 
-    const org = vendorRepository.getVendorById(effectiveVendorId);
-    setVendorName(org?.displayName || effectiveVendorId);
+    try {
+      const org = vendorRepository.getVendorById(user, effectiveVendorId);
+      setVendorName(org?.displayName || effectiveVendorId);
+    } catch {
+      setVendorName(effectiveVendorId);
+    }
 
     const loadStaff = () => {
-      const staff = vendorStaffRepository.listStaffByVendor(effectiveVendorId);
-      setStaffList(staff);
+      try {
+        const staff = vendorStaffRepository.listStaff(user, { vendorId: effectiveVendorId });
+        setStaffList(staff);
+      } catch {
+        setStaffList([]);
+      }
     };
 
     loadStaff();
@@ -67,7 +77,7 @@ export default function VendorStaffPage() {
               Vendor Staff
             </h1>
             <p className="text-[14px] text-[#5B616B] mt-[4px]">
-              Figma CC-VEN-05 (Node 86:1986) · Organization: {vendorName} (Scoped Workspace)
+              Organization: {vendorName} (Scoped Workspace)
             </p>
           </div>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { CommandCenterShell } from "@/components/layout/CommandCenterShell";
+import { useSession } from "@/lib/auth/session";
 import { assetRepository } from "@/lib/mock/assets";
 import type { Asset, AssetStatus } from "@/types/asset";
 import Link from "next/link";
@@ -11,24 +12,30 @@ export default function AssetDetailPage() {
   const router = useRouter();
   const params = useParams();
   const assetId = typeof params?.assetId === "string" ? params.assetId : "";
+  const { user } = useSession();
 
   const [asset, setAsset] = useState<Asset | null | undefined>(undefined);
 
   useEffect(() => {
-    if (!assetId) {
-      setAsset(null);
+    if (!assetId || !user) {
+      if (!user) setAsset(undefined);
+      else setAsset(null);
       return;
     }
 
     const loadAsset = () => {
-      const found = assetRepository.getAssetById(assetId);
-      setAsset(found || null);
+      try {
+        const found = assetRepository.getAssetById(user, assetId);
+        setAsset(found || null);
+      } catch {
+        setAsset(null);
+      }
     };
 
     loadAsset();
     const unsubscribe = assetRepository.subscribe(loadAsset);
     return () => unsubscribe();
-  }, [assetId]);
+  }, [assetId, user]);
 
   if (asset === undefined) {
     return (
@@ -42,7 +49,7 @@ export default function AssetDetailPage() {
     return (
       <CommandCenterShell>
         <div className="p-8 text-center text-[#DC2626] text-[14px]">
-          Asset with ID &quot;{assetId}&quot; was not found.
+          Asset with ID &quot;{assetId}&quot; was not found or is outside your organization scope.
           <div className="mt-4">
             <Link href="/assets" className="text-[#164D53] font-semibold underline text-sm">
               ← Back to Assets
@@ -112,7 +119,7 @@ export default function AssetDetailPage() {
               Asset Detail
             </h1>
             <p className="text-[14px] text-[#5B616B] mt-[4px]">
-              Figma CC-AST-02 (Node 86:2255) · Asset Record: {asset.name} ({asset.code})
+              Asset Record: {asset.name} ({asset.code})
             </p>
           </div>
         </div>

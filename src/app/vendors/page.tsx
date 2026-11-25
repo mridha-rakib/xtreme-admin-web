@@ -24,18 +24,24 @@ export default function VendorsListPage() {
   }, [user, router]);
 
   useEffect(() => {
+    if (!user) return;
+
     const loadVendors = () => {
-      const data = vendorRepository.listVendors({
-        status: statusFilter,
-        search: searchTerm,
-      });
-      setVendors(data);
+      try {
+        const data = vendorRepository.listVendors(user, {
+          status: statusFilter,
+          search: searchTerm,
+        });
+        setVendors(data);
+      } catch {
+        setVendors([]);
+      }
     };
 
     loadVendors();
     const unsubscribe = vendorRepository.subscribe(loadVendors);
     return () => unsubscribe();
-  }, [statusFilter, searchTerm]);
+  }, [user, statusFilter, searchTerm]);
 
   const getStatusBadge = (status: VendorOrganizationStatus) => {
     switch (status) {
@@ -67,7 +73,7 @@ export default function VendorsListPage() {
               Vendors List
             </h1>
             <p className="text-[14px] text-[#5B616B] mt-[4px]">
-              Figma CC-VEN-01 (Node 86:1679) · Partner vendor organizations directory
+              Partner vendor organizations directory
             </p>
           </div>
 

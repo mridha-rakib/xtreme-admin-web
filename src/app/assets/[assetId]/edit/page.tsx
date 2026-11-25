@@ -2,6 +2,7 @@
 
 import { CommandCenterShell } from "@/components/layout/CommandCenterShell";
 import { AssetForm } from "@/features/assets/AssetForm";
+import { useSession } from "@/lib/auth/session";
 import { assetRepository } from "@/lib/mock/assets";
 import type { Asset } from "@/types/asset";
 import Link from "next/link";
@@ -11,24 +12,30 @@ import React, { useEffect, useState } from "react";
 export default function EditAssetPage() {
   const params = useParams();
   const assetId = typeof params?.assetId === "string" ? params.assetId : "";
+  const { user } = useSession();
 
   const [asset, setAsset] = useState<Asset | null | undefined>(undefined);
 
   useEffect(() => {
-    if (!assetId) {
-      setAsset(null);
+    if (!assetId || !user) {
+      if (!user) setAsset(undefined);
+      else setAsset(null);
       return;
     }
 
     const loadAsset = () => {
-      const found = assetRepository.getAssetById(assetId);
-      setAsset(found || null);
+      try {
+        const found = assetRepository.getAssetById(user, assetId);
+        setAsset(found || null);
+      } catch {
+        setAsset(null);
+      }
     };
 
     loadAsset();
     const unsubscribe = assetRepository.subscribe(loadAsset);
     return () => unsubscribe();
-  }, [assetId]);
+  }, [assetId, user]);
 
   if (asset === undefined) {
     return (
@@ -42,7 +49,7 @@ export default function EditAssetPage() {
     return (
       <CommandCenterShell>
         <div className="p-8 text-center text-[#DC2626] text-[14px]">
-          Asset with ID &quot;{assetId}&quot; was not found.
+          Asset with ID &quot;{assetId}&quot; was not found or is outside your organization scope.
           <div className="mt-4">
             <Link href="/assets" className="text-[#164D53] font-semibold underline text-sm">
               ← Back to Assets

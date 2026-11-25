@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("Batch 6 E2E Integration: Asset Lifecycle & Availability Rules", () => {
+test.describe("Batch 6 E2E Integration: Scoped Authorization & Asset Lifecycle", () => {
   test.beforeEach(async ({ page }) => {
     // Deterministic reset to initial defaults
     await page.goto("/qa");
@@ -11,7 +11,7 @@ test.describe("Batch 6 E2E Integration: Asset Lifecycle & Availability Rules", (
     await page.getByRole("button", { name: "SUPER_ADMIN" }).click();
   });
 
-  test("Journey A: Asset Creation (CC-AST-01 -> CC-AST-03 -> CC-AST-02 -> CC-AST-01)", async ({
+  test("Journey A: Asset Creation with Validated Destination & Capacity (CC-AST-01 -> CC-AST-03 -> CC-AST-02 -> CC-AST-01)", async ({
     page,
   }) => {
     await page.goto("/assets");
@@ -25,10 +25,10 @@ test.describe("Batch 6 E2E Integration: Asset Lifecycle & Availability Rules", (
     await expect(page).toHaveURL("/assets/create");
     await expect(page.getByRole("heading", { name: "Create / Edit Asset" })).toBeVisible();
 
-    // Fill form
+    // Fill form with approved destination
     await page.getByLabel(/Asset Display Name/).fill("Dassault Falcon 8X");
     await page.getByLabel(/Internal Asset Code/).fill("AST-AJ-99");
-    await page.getByLabel(/Destination \/ Operating Area/).fill("Paris Le Bourget / Nice");
+    await page.getByLabel(/Destination \/ Operating Area/).selectOption("Paris Le Bourget / Nice");
     await page.getByLabel(/Asset Type \/ Category/).fill("Ultra Long Range Jet");
     await page.getByLabel(/Capacity/).fill("14");
     await page.getByLabel(/Description \/ Notes/).fill("Flagship tri-jet business aircraft.");
@@ -82,10 +82,10 @@ test.describe("Batch 6 E2E Integration: Asset Lifecycle & Availability Rules", (
     ).toBeVisible();
   });
 
-  test("Journey C: Vendor Staff Association & Edit (CC-VEN-05 -> CC-VEN-06 -> CC-VEN-05)", async ({
+  test("Journey C: Vendor Staff Association, Operational Identity & Cross-Tenant Boundary Enforcement", async ({
     page,
   }) => {
-    // Authenticate as Vendor A
+    // 1. Authenticate as Vendor A
     await page.goto("/qa");
     await page.getByRole("button", { name: "Vendor A: Arman K. (AeroJet Aviation)" }).click();
 
@@ -93,7 +93,23 @@ test.describe("Batch 6 E2E Integration: Asset Lifecycle & Availability Rules", (
     await expect(page.getByRole("heading", { name: "Vendor Staff" })).toBeVisible();
     await expect(page.getByText("Marcus Vance")).toBeVisible();
 
-    // Click View on Marcus Vance
+    // 2. Associate a new staff member from operational identities
+    await page.getByRole("link", { name: "Manage association" }).click();
+    await expect(page).toHaveURL("/vendor/staff/manage");
+    await expect(
+      page.getByRole("heading", { name: "Associate / Manage Vendor Staff" }),
+    ).toBeVisible();
+
+    await page.getByLabel(/Operational Identity/).selectOption("ident_010"); // Captain Henri Dubois
+    await page.getByLabel(/Staff Role \/ Type/).selectOption("PILOT");
+    await page.getByLabel(/Employee Code/).fill("AJ-9942");
+    await page.getByRole("button", { name: "Save changes" }).click();
+
+    await expect(page).toHaveURL("/vendor/staff");
+    await expect(page.getByText("Captain Henri Dubois")).toBeVisible();
+    await expect(page.getByText("AJ-9942")).toBeVisible();
+
+    // 3. Edit existing staff member (stf_001)
     await page
       .locator("tr", { hasText: "Marcus Vance" })
       .getByRole("link", { name: "View ›" })
@@ -111,15 +127,22 @@ test.describe("Batch 6 E2E Integration: Asset Lifecycle & Availability Rules", (
       ),
     ).toBeVisible();
 
-    // Update staff role to CAPTAIN and active status to No
     await page.getByLabel(/Staff Role \/ Type/).selectOption("CAPTAIN");
     await page.getByLabel(/Active Status/).selectOption("no");
-
     await page.getByRole("button", { name: "Save changes" }).click();
 
-    // Verify return to list with updated role and inactive indicator
     await expect(page).toHaveURL("/vendor/staff");
-    await expect(page.getByText("CAPTAIN")).toBeVisible();
+    await expect(page.getByText("CAPTAIN", { exact: true })).toBeVisible();
+
+    // 4. Cross-Tenant Direct URL Navigation Boundary Test:
+    // Vendor A navigates directly to stf_008 (owned by Vendor B - Côte d'Azur Marine)
+    await page.goto("/vendor/staff/stf_008/edit");
+    await expect(page.getByRole("heading", { name: "Unauthorized Staff Access" })).toBeVisible();
+    await expect(
+      page.getByText("Unauthorized: Cannot access staff record from another organization."),
+    ).toBeVisible();
+    // Verify no Vendor B data is leaked into the form
+    await expect(page.getByText("Claire Delacroix")).not.toBeVisible();
   });
 
   test("Journey D: Multi-Tenant Asset Isolation between Vendor A and Vendor B", async ({
@@ -159,7 +182,9 @@ test.describe("Batch 6 E2E Integration: Asset Lifecycle & Availability Rules", (
     await expect(page.getByText("AST-AJ-01")).not.toBeVisible();
   });
 
-  test("Journey E: Availability Rules Overview & Rule Creation (CC-AVL-01)", async ({ page }) => {
+  test("Journey E: Availability Rules Overview & Scope Guard Enforced (CC-AVL-01)", async ({
+    page,
+  }) => {
     await page.goto("/availability");
 
     await expect(page.getByRole("heading", { name: "Availability Rules" })).toBeVisible();
@@ -172,22 +197,21 @@ test.describe("Batch 6 E2E Integration: Asset Lifecycle & Availability Rules", (
     await expect(page.getByRole("cell", { name: "Mon - Fri" }).first()).toBeVisible();
     await expect(page.getByText("06:00 - 22:00")).toBeVisible();
 
-    // Click Create rule button
+    // Click Create rule button -> Displays Scope Guard banner
     await page.getByRole("button", { name: "Create rule" }).click();
+    await expect(
+      page.getByText(
+        "CC-AVL-02 Availability Rule Detail & Editor is scheduled for a future planned phase. Configuration overview only; active allocation write controls are not exposed.",
+      ),
+    ).toBeVisible();
 
-    // Verify modal appears
-    await expect(page.getByRole("heading", { name: "Create Availability Rule" })).toBeVisible();
-
-    // Fill rule form
-    await page.getByLabel(/Target Asset or Category/).fill("VIP Helicopter Shuttles");
-    await page.getByLabel(/Weekday/).fill("Saturday - Sunday");
-    await page.getByLabel(/Time Window/).fill("10:00 - 18:00");
-    await page.getByLabel(/Timezone/).fill("Europe/Paris (UTC+1)");
-    await page.getByLabel(/Capacity Window/).fill("4");
-    await page.getByRole("button", { name: "Save Rule" }).click();
-
-    // Verify modal closes and new rule appears
-    await expect(page.getByText("VIP Helicopter Shuttles")).toBeVisible();
-    await expect(page.getByRole("cell", { name: "Saturday - Sunday" }).first()).toBeVisible();
+    // Click Open on any row -> Displays Scope Guard banner
+    const openButtons = page.getByRole("button", { name: "Open ›" });
+    await openButtons.first().click();
+    await expect(
+      page.getByText(
+        "CC-AVL-02 Availability Rule Detail & Editor is scheduled for a future planned phase. Configuration overview only; active allocation write controls are not exposed.",
+      ),
+    ).toBeVisible();
   });
 });

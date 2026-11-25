@@ -2,13 +2,23 @@
 
 import { CommandCenterShell } from "@/components/layout/CommandCenterShell";
 import { useSession } from "@/lib/auth/session";
-import { AssetValidationError, assetRepository } from "@/lib/mock/assets";
+import {
+  AssetValidationError,
+  UnauthorizedAssetAccessError,
+  assetRepository,
+} from "@/lib/mock/assets";
 import { vendorRepository } from "@/lib/mock/vendors";
-import type { Asset, AssetOwnerType, AssetStatus } from "@/types/asset";
+import {
+  APPROVED_DESTINATIONS,
+  type Asset,
+  type AssetOwnerType,
+  type AssetStatus,
+} from "@/types/asset";
+import type { VendorOrganization } from "@/types/vendor";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface AssetFormProps {
   initialData?: Asset | null;
@@ -20,7 +30,18 @@ export function AssetForm({ initialData, mode, assetId }: AssetFormProps) {
   const router = useRouter();
   const { user } = useSession();
 
-  const vendors = vendorRepository.listVendors();
+  const [vendors, setVendors] = useState<VendorOrganization[]>([]);
+
+  useEffect(() => {
+    if (user) {
+      try {
+        const vList = vendorRepository.listVendors(user);
+        setVendors(vList);
+      } catch {
+        setVendors([]);
+      }
+    }
+  }, [user]);
 
   // If vendor persona, lock ownerType to VENDOR and vendorId to user.vendorId
   const isVendorPersona = user?.role === "VENDOR";
@@ -34,8 +55,10 @@ export function AssetForm({ initialData, mode, assetId }: AssetFormProps) {
   );
   const [name, setName] = useState(initialData?.name || "");
   const [code, setCode] = useState(initialData?.code || "");
-  const [destination, setDestination] = useState(initialData?.destination || "");
-  const [category, setCategory] = useState(initialData?.category || "");
+  const [destination, setDestination] = useState(
+    initialData?.destination || APPROVED_DESTINATIONS[0],
+  );
+  const [category, setCategory] = useState(initialData?.category || "Light Jet");
   const [capacity, setCapacity] = useState<string>(
     initialData?.capacity !== undefined ? String(initialData.capacity) : "6",
   );
@@ -53,6 +76,11 @@ export function AssetForm({ initialData, mode, assetId }: AssetFormProps) {
     setSuccessMessage(null);
     setOperationalNotice(null);
 
+    if (!user) {
+      setErrorMessage("Authentication session required.");
+      return;
+    }
+
     if (!name.trim()) {
       setErrorMessage("Asset display name is required.");
       return;
@@ -62,30 +90,24 @@ export function AssetForm({ initialData, mode, assetId }: AssetFormProps) {
       return;
     }
     const capNum = Number(capacity);
-    if (Number.isNaN(capNum) || capNum <= 0) {
-      setErrorMessage("Configured capacity must be a positive number.");
+    if (!Number.isInteger(capNum) || capNum <= 0 || !Number.isFinite(capNum)) {
+      setErrorMessage("Configured capacity must be a positive integer.");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const selectedVendor = vendors.find((v) => v.id === selectedVendorId);
-
       if (mode === "create") {
-        const created = assetRepository.createAsset({
+        const created = assetRepository.createAsset(user, {
           name: name.trim(),
           code: code.trim().toUpperCase(),
-          destination: destination.trim() || "Global / Unassigned",
+          destination: destination.trim(),
           category: category.trim() || "Charter Asset",
           capacity: capNum,
           status,
           ownerType: isVendorPersona ? "VENDOR" : ownerType,
           vendorId:
             (isVendorPersona ? "VENDOR" : ownerType) === "VENDOR" ? selectedVendorId : undefined,
-          vendorName:
-            (isVendorPersona ? "VENDOR" : ownerType) === "VENDOR"
-              ? selectedVendor?.displayName || "Vendor Organization"
-              : "XTREME Fleet",
           description: description.trim(),
         });
 
@@ -94,7 +116,7 @@ export function AssetForm({ initialData, mode, assetId }: AssetFormProps) {
           router.push(`/assets/${created.id}`);
         }, 500);
       } else if (assetId) {
-        const result = assetRepository.updateAsset(assetId, {
+        const result = assetRepository.updateAsset(user, assetId, {
           name: name.trim(),
           code: code.trim().toUpperCase(),
           destination: destination.trim(),
@@ -104,10 +126,6 @@ export function AssetForm({ initialData, mode, assetId }: AssetFormProps) {
           ownerType: isVendorPersona ? "VENDOR" : ownerType,
           vendorId:
             (isVendorPersona ? "VENDOR" : ownerType) === "VENDOR" ? selectedVendorId : undefined,
-          vendorName:
-            (isVendorPersona ? "VENDOR" : ownerType) === "VENDOR"
-              ? selectedVendor?.displayName || "Vendor Organization"
-              : "XTREME Fleet",
           description: description.trim(),
         });
 
@@ -121,7 +139,7 @@ export function AssetForm({ initialData, mode, assetId }: AssetFormProps) {
         }, 600);
       }
     } catch (err) {
-      if (err instanceof AssetValidationError) {
+      if (err instanceof AssetValidationError || err instanceof UnauthorizedAssetAccessError) {
         setErrorMessage(err.message);
       } else if (err instanceof Error) {
         setErrorMessage(err.message);
@@ -160,7 +178,6 @@ export function AssetForm({ initialData, mode, assetId }: AssetFormProps) {
               Create / Edit Asset
             </h1>
             <p className="text-[14px] text-[#5B616B] mt-[4px]">
-              Figma CC-AST-03 (Node 86:2320) ·{" "}
               {mode === "create" ? "New Asset Registration" : `Editing: ${initialData?.name}`}
             </p>
           </div>
@@ -266,7 +283,7 @@ export function AssetForm({ initialData, mode, assetId }: AssetFormProps) {
             </div>
           </div>
 
-          {/* Row 2: Input (86:2371) Internal Code & Input (86:2376) Destination / Area */}
+          {/* Row 2: Input (86:2371) Internal Code & Selection (86:2376) Destination / Area */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div data-node-id="86:2371">
               <label
@@ -296,15 +313,18 @@ export function AssetForm({ initialData, mode, assetId }: AssetFormProps) {
               >
                 Destination / Operating Area <span className="text-[#DC2626]">*</span>
               </label>
-              <input
+              <select
                 id="asset-destination"
-                type="text"
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
-                placeholder="e.g. Nice / Cannes / Monaco"
-                maxLength={180}
                 className="w-full h-[48px] px-3.5 bg-white border border-[#DDD8CF] rounded-[8px] text-[14px] text-[#0B0C0E] focus:outline-none focus:border-[#0B0C0E]"
-              />
+              >
+                {APPROVED_DESTINATIONS.map((dest) => (
+                  <option key={dest} value={dest}>
+                    {dest}
+                  </option>
+                ))}
+              </select>
               <p className="text-[12px] text-[#5B616B] mt-1">
                 Primary geographical hub or operational home port.
               </p>
@@ -345,6 +365,7 @@ export function AssetForm({ initialData, mode, assetId }: AssetFormProps) {
                 id="asset-capacity"
                 type="number"
                 min="1"
+                step="1"
                 max="500"
                 value={capacity}
                 onChange={(e) => setCapacity(e.target.value)}
@@ -352,7 +373,7 @@ export function AssetForm({ initialData, mode, assetId }: AssetFormProps) {
                 className="w-full h-[48px] px-3.5 bg-white border border-[#DDD8CF] rounded-[8px] text-[14px] text-[#0B0C0E] focus:outline-none focus:border-[#0B0C0E]"
               />
               <p className="text-[12px] text-[#5B616B] mt-1">
-                Maximum certified passenger capacity without crew.
+                Maximum certified passenger capacity (positive integer).
               </p>
             </div>
           </div>

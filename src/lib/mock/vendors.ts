@@ -1,9 +1,11 @@
-import type {
-  CreateVendorParams,
-  UpdateVendorParams,
-  VendorOrganization,
-  VendorOrganizationStatus,
-} from "@/types/vendor";
+import {
+  type AuthorizedActor,
+  type CreateVendorParams,
+  type UpdateVendorParams,
+  type VendorOrganization,
+  type VendorOrganizationStatus,
+  hasCommandCenterPermission,
+} from "@/types";
 
 export class VendorValidationError extends Error {
   constructor(message: string) {
@@ -92,6 +94,11 @@ export const INITIAL_VENDORS: VendorOrganization[] = [
   },
 ];
 
+export interface VendorFilterOptions {
+  status?: VendorOrganizationStatus | "ALL";
+  search?: string;
+}
+
 export class VendorRepository {
   private vendors: VendorOrganization[];
   private listeners: Set<() => void> = new Set();
@@ -111,31 +118,140 @@ export class VendorRepository {
     }
   }
 
-  public listVendors(filter?: {
-    status?: VendorOrganizationStatus | "ALL";
-    search?: string;
-  }): VendorOrganization[] {
-    return this.vendors.filter((v) => {
+  private checkActor(actor: AuthorizedActor | null | undefined): AuthorizedActor {
+    if (!actor || !actor.role) {
+      throw new UnauthorizedVendorAccessError("Authentication required: Actor context missing.");
+    }
+    return actor;
+  }
+
+  /**
+   * Lists vendor organizations within the actor's authorized scope.
+   * Administrative personas (Super Admin, Admin) view all matching organizations.
+   * Vendor personas view only their own organization.
+   */
+  public listVendors(
+    actor: AuthorizedActor | null | undefined,
+    filter?: VendorFilterOptions,
+  ): VendorOrganization[] {
+    const validActor = this.checkActor(actor);
+
+    // Administrative directory access
+    if (hasCommandCenterPermission(validActor.role, "view:vendors")) {
+      return this.vendors
+        .filter((v) => {
+          const matchSearch =
+            !filter?.search ||
+            v.displayName.toLowerCase().includes(filter.search.toLowerCase()) ||
+            v.legalName?.toLowerCase().includes(filter.search.toLowerCase()) ||
+            v.contactEmail?.toLowerCase().includes(filter.search.toLowerCase()) ||
+            v.contactPhone?.includes(filter.search);
+
+          const matchStatus =
+            !filter?.status || filter.status === "ALL" || v.status === filter.status;
+
+          return matchSearch && matchStatus;
+        })
+        .map((v) => structuredClone(v));
+    }
+
+    // Vendor self-service scope
+    if (validActor.role === "VENDOR") {
+      if (!validActor.vendorId) {
+        throw new UnauthorizedVendorAccessError(
+          "Vendor actor has no associated vendor organization membership.",
+        );
+      }
+      const ownOrg = this.vendors.find(
+        (v) => v.id.toLowerCase() === validActor.vendorId?.toLowerCase(),
+      );
+      if (!ownOrg) return [];
+
       const matchSearch =
         !filter?.search ||
-        v.displayName.toLowerCase().includes(filter.search.toLowerCase()) ||
-        v.legalName?.toLowerCase().includes(filter.search.toLowerCase()) ||
-        v.contactEmail?.toLowerCase().includes(filter.search.toLowerCase()) ||
-        v.contactPhone?.includes(filter.search);
+        ownOrg.displayName.toLowerCase().includes(filter.search.toLowerCase()) ||
+        ownOrg.legalName?.toLowerCase().includes(filter.search.toLowerCase());
 
-      const matchStatus = !filter?.status || filter.status === "ALL" || v.status === filter.status;
+      const matchStatus =
+        !filter?.status || filter.status === "ALL" || ownOrg.status === filter.status;
 
-      return matchSearch && matchStatus;
-    });
+      return matchSearch && matchStatus ? [structuredClone(ownOrg)] : [];
+    }
+
+    throw new UnauthorizedVendorAccessError(
+      `Actor role "${validActor.role}" does not have permission to view vendor directory.`,
+    );
   }
 
-  public getVendorById(id: string): VendorOrganization | undefined {
-    return this.vendors.find((v) => v.id.toLowerCase() === id.toLowerCase() || v.id === id);
+  /**
+   * Retrieves a vendor by ID with scope enforcement.
+   * Vendor actors may only retrieve their own organization.
+   */
+  public getVendorById(
+    actor: AuthorizedActor | null | undefined,
+    id: string,
+  ): VendorOrganization | undefined {
+    const validActor = this.checkActor(actor);
+
+    const vendor = this.vendors.find((v) => v.id.toLowerCase() === id.toLowerCase() || v.id === id);
+    if (!vendor) return undefined;
+
+    if (hasCommandCenterPermission(validActor.role, "view:vendors")) {
+      return structuredClone(vendor);
+    }
+
+    if (validActor.role === "VENDOR") {
+      if (!validActor.vendorId) {
+        throw new UnauthorizedVendorAccessError(
+          "Vendor actor has no associated vendor organization.",
+        );
+      }
+      if (vendor.id.toLowerCase() !== validActor.vendorId.toLowerCase()) {
+        throw new UnauthorizedVendorAccessError(
+          `Unauthorized: Vendor actor cannot access organization "${id}".`,
+        );
+      }
+      return structuredClone(vendor);
+    }
+
+    throw new UnauthorizedVendorAccessError(
+      `Actor role "${validActor.role}" does not have permission to view vendor records.`,
+    );
   }
 
-  public getAuthenticatedVendor(vendorId?: string): VendorOrganization | undefined {
-    if (!vendorId) return undefined;
-    return this.getVendorById(vendorId);
+  /**
+   * Resolves the authenticated vendor organization for the current actor.
+   */
+  public getAuthenticatedVendor(actor: AuthorizedActor | null | undefined): VendorOrganization {
+    const validActor = this.checkActor(actor);
+
+    if (validActor.role !== "VENDOR") {
+      // For Admin testing context, if vendorId is explicitly provided on the session, resolve it
+      if (validActor.vendorId) {
+        const org = this.vendors.find(
+          (v) => v.id.toLowerCase() === validActor.vendorId?.toLowerCase(),
+        );
+        if (org) return structuredClone(org);
+      }
+      throw new UnauthorizedVendorAccessError(
+        "Current actor is not in an authenticated Vendor organization role.",
+      );
+    }
+
+    if (!validActor.vendorId) {
+      throw new UnauthorizedVendorAccessError(
+        "Vendor actor is missing mandatory organization identifier.",
+      );
+    }
+
+    const org = this.vendors.find((v) => v.id.toLowerCase() === validActor.vendorId?.toLowerCase());
+    if (!org) {
+      throw new UnauthorizedVendorAccessError(
+        `Authenticated vendor organization "${validActor.vendorId}" was not found.`,
+      );
+    }
+
+    return structuredClone(org);
   }
 
   private validateFields(
@@ -174,7 +290,21 @@ export class VendorRepository {
     }
   }
 
-  public createVendor(params: CreateVendorParams): VendorOrganization {
+  /**
+   * Creates a new vendor organization. Requires manage:vendors permission.
+   */
+  public createVendor(
+    actor: AuthorizedActor | null | undefined,
+    params: CreateVendorParams,
+  ): VendorOrganization {
+    const validActor = this.checkActor(actor);
+
+    if (!hasCommandCenterPermission(validActor.role, "manage:vendors")) {
+      throw new UnauthorizedVendorAccessError(
+        `Actor role "${validActor.role}" does not have permission to create vendor organizations.`,
+      );
+    }
+
     this.validateFields(
       params.displayName,
       params.legalName,
@@ -200,35 +330,78 @@ export class VendorRepository {
 
     this.vendors.push(newVendor);
     this.notify();
-    return newVendor;
+    return structuredClone(newVendor);
   }
 
-  public updateVendor(id: string, params: UpdateVendorParams): VendorOrganization {
-    const existing = this.getVendorById(id);
-    if (!existing) {
+  /**
+   * Updates an existing vendor organization with authorization and complete candidate validation.
+   */
+  public updateVendor(
+    actor: AuthorizedActor | null | undefined,
+    id: string,
+    params: UpdateVendorParams,
+  ): VendorOrganization {
+    const validActor = this.checkActor(actor);
+
+    const index = this.vendors.findIndex(
+      (v) => v.id.toLowerCase() === id.toLowerCase() || v.id === id,
+    );
+    if (index === -1) {
       throw new VendorValidationError(`Vendor organization not found: ${id}`);
     }
+    const existing = this.vendors[index];
 
-    const displayName =
+    // Authorization check
+    if (validActor.role === "VENDOR") {
+      if (!validActor.vendorId || existing.id.toLowerCase() !== validActor.vendorId.toLowerCase()) {
+        throw new UnauthorizedVendorAccessError(
+          "Unauthorized: Vendor actors cannot modify other vendor organizations.",
+        );
+      }
+      if (params.status !== undefined) {
+        throw new UnauthorizedVendorAccessError(
+          "Unauthorized: Vendor actors cannot alter organization operational status.",
+        );
+      }
+    } else if (!hasCommandCenterPermission(validActor.role, "manage:vendors")) {
+      throw new UnauthorizedVendorAccessError(
+        `Actor role "${validActor.role}" does not have permission to update vendor organizations.`,
+      );
+    }
+
+    const candidateDisplayName =
       params.displayName !== undefined ? params.displayName : existing.displayName;
-    const legalName = params.legalName !== undefined ? params.legalName : existing.legalName;
-    const contactEmail =
+    const candidateLegalName =
+      params.legalName !== undefined ? params.legalName : existing.legalName;
+    const candidateContactEmail =
       params.contactEmail !== undefined ? params.contactEmail : existing.contactEmail;
-    const contactPhone =
+    const candidateContactPhone =
       params.contactPhone !== undefined ? params.contactPhone : existing.contactPhone;
-    const status = params.status !== undefined ? params.status : existing.status;
+    const candidateStatus = params.status !== undefined ? params.status : existing.status;
 
-    this.validateFields(displayName, legalName, contactEmail, contactPhone, status);
+    // Validate complete candidate before applying changes
+    this.validateFields(
+      candidateDisplayName,
+      candidateLegalName,
+      candidateContactEmail,
+      candidateContactPhone,
+      candidateStatus,
+    );
 
-    existing.displayName = displayName.trim();
-    existing.legalName = legalName?.trim() || undefined;
-    existing.contactEmail = contactEmail?.trim() || undefined;
-    existing.contactPhone = contactPhone?.trim() || undefined;
-    existing.status = status;
-    existing.updatedAt = new Date().toISOString();
+    // Apply mutation only after complete validation
+    const updatedRecord: VendorOrganization = {
+      ...existing,
+      displayName: candidateDisplayName.trim(),
+      legalName: candidateLegalName?.trim() || undefined,
+      contactEmail: candidateContactEmail?.trim() || undefined,
+      contactPhone: candidateContactPhone?.trim() || undefined,
+      status: candidateStatus,
+      updatedAt: new Date().toISOString(),
+    };
 
+    this.vendors[index] = updatedRecord;
     this.notify();
-    return existing;
+    return structuredClone(updatedRecord);
   }
 
   public resetDefaults(): void {

@@ -2,13 +2,22 @@
 
 import { CommandCenterShell } from "@/components/layout/CommandCenterShell";
 import { useSession } from "@/lib/auth/session";
-import { VendorStaffValidationError, vendorStaffRepository } from "@/lib/mock/vendor-staff";
+import {
+  UnauthorizedStaffAccessError,
+  VendorStaffValidationError,
+  vendorStaffRepository,
+} from "@/lib/mock/vendor-staff";
 import { vendorRepository } from "@/lib/mock/vendors";
-import type { VendorStaff, VendorStaffType } from "@/types/vendor";
+import {
+  APPROVED_VENDOR_STAFF_TYPES,
+  type OperationalIdentity,
+  type VendorStaff,
+  type VendorStaffType,
+} from "@/types/vendor";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface VendorStaffFormProps {
   initialData?: VendorStaff | null;
@@ -26,28 +35,62 @@ export function VendorStaffForm({ initialData, mode, staffId }: VendorStaffFormP
     user?.vendorId ||
     (user?.role === "ADMIN" || user?.role === "SUPER_ADMIN" ? "vnd_aerojet_99" : "");
 
-  const vendorOrg = effectiveVendorId ? vendorRepository.getVendorById(effectiveVendorId) : null;
+  const vendorOrg =
+    effectiveVendorId && user ? vendorRepository.getVendorById(user, effectiveVendorId) : null;
   const vendorName = vendorOrg?.displayName || "Vendor Organization";
 
-  const [name, setName] = useState(initialData?.name || "");
+  const [identities, setIdentities] = useState<OperationalIdentity[]>([]);
+  const [selectedIdentityId, setSelectedIdentityId] = useState<string>(
+    initialData?.identityId || "",
+  );
   const [employeeCode, setEmployeeCode] = useState(initialData?.employeeCode || "");
   const [staffType, setStaffType] = useState<VendorStaffType>(initialData?.staffType || "OPS");
-  const [email, setEmail] = useState(initialData?.email || "");
+  const [phone, setPhone] = useState(initialData?.phone || "");
   const [active, setActive] = useState<boolean>(initialData?.active ?? true);
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  useEffect(() => {
+    if (user && mode === "create") {
+      try {
+        const pool = vendorStaffRepository.listEligibleIdentities(user);
+        setIdentities(pool);
+        if (pool.length > 0 && !selectedIdentityId) {
+          setSelectedIdentityId(pool[0].id);
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          setErrorMessage(err.message);
+        }
+      }
+    }
+  }, [user, mode, selectedIdentityId]);
+
+  const selectedIdentity = useMemo(() => {
+    if (mode === "create") {
+      return identities.find((i) => i.id === selectedIdentityId);
+    }
+    return {
+      id: initialData?.identityId || "",
+      name: initialData?.name || "",
+      email: initialData?.email || "",
+      phone: initialData?.phone || "",
+      eligibleRoles: [initialData?.staffType || "OPS"],
+    };
+  }, [mode, identities, selectedIdentityId, initialData]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
     setSuccessMessage(null);
 
-    if (!name.trim()) {
-      setErrorMessage("Staff name is required.");
+    if (!user) {
+      setErrorMessage("Authentication session required.");
       return;
     }
+
     if (!employeeCode.trim()) {
       setErrorMessage("Employee code is required.");
       return;
@@ -59,12 +102,17 @@ export function VendorStaffForm({ initialData, mode, staffId }: VendorStaffFormP
         if (!effectiveVendorId) {
           throw new VendorStaffValidationError("A vendor scope is required to associate staff.");
         }
-        const created = vendorStaffRepository.createStaff({
+        if (!selectedIdentityId) {
+          throw new VendorStaffValidationError(
+            "Please select an operational identity to associate.",
+          );
+        }
+
+        const created = vendorStaffRepository.associateStaff(user, {
+          identityId: selectedIdentityId,
           vendorId: effectiveVendorId,
-          name: name.trim(),
-          employeeCode: employeeCode.trim(),
           staffType,
-          email: email.trim() || `${name.toLowerCase().replace(/\s+/g, ".")}@vendor.internal`,
+          employeeCode: employeeCode.trim(),
           active,
         });
 
@@ -73,11 +121,10 @@ export function VendorStaffForm({ initialData, mode, staffId }: VendorStaffFormP
           router.push("/vendor/staff");
         }, 500);
       } else if (staffId) {
-        const updated = vendorStaffRepository.updateStaff(staffId, {
-          name: name.trim(),
-          employeeCode: employeeCode.trim(),
+        const updated = vendorStaffRepository.updateStaff(user, staffId, {
           staffType,
-          email: email.trim(),
+          employeeCode: employeeCode.trim(),
+          phone: phone.trim() || undefined,
           active,
         });
 
@@ -87,7 +134,10 @@ export function VendorStaffForm({ initialData, mode, staffId }: VendorStaffFormP
         }, 500);
       }
     } catch (err) {
-      if (err instanceof VendorStaffValidationError) {
+      if (
+        err instanceof VendorStaffValidationError ||
+        err instanceof UnauthorizedStaffAccessError
+      ) {
         setErrorMessage(err.message);
       } else if (err instanceof Error) {
         setErrorMessage(err.message);
@@ -126,7 +176,7 @@ export function VendorStaffForm({ initialData, mode, staffId }: VendorStaffFormP
               Associate / Manage Vendor Staff
             </h1>
             <p className="text-[14px] text-[#5B616B] mt-[4px]">
-              Figma CC-VEN-06 (Node 86:2078) · Organization: {vendorName} (Scoped Workspace)
+              Organization: {vendorName} (Scoped Workspace)
             </p>
           </div>
         </div>
@@ -159,34 +209,34 @@ export function VendorStaffForm({ initialData, mode, staffId }: VendorStaffFormP
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div data-node-id="86:2118">
               <label
-                htmlFor="staff-name"
+                htmlFor="staff-identity"
                 className="block text-[14px] font-semibold text-[#0B0C0E] mb-1.5"
               >
-                Identity / Name / Code <span className="text-[#DC2626]">*</span>
+                Operational Identity <span className="text-[#DC2626]">*</span>
               </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <input
-                  id="staff-name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Full Name (e.g. Marcus Vance)"
-                  maxLength={180}
-                  className="w-full h-[48px] px-3.5 bg-white border border-[#DDD8CF] rounded-[8px] text-[14px] text-[#0B0C0E] focus:outline-none focus:border-[#0B0C0E]"
-                />
-                <input
-                  id="staff-code"
-                  type="text"
-                  value={employeeCode}
-                  onChange={(e) => setEmployeeCode(e.target.value)}
-                  placeholder="Employee Code (e.g. AJ-1042)"
-                  maxLength={50}
-                  className="w-full h-[48px] px-3.5 bg-white border border-[#DDD8CF] rounded-[8px] text-[14px] font-mono text-[#0B0C0E] focus:outline-none focus:border-[#0B0C0E]"
-                />
-              </div>
-              <p className="text-[12px] text-[#5B616B] mt-1">
-                Vendor internal operational identifier and identity.
-              </p>
+              {mode === "create" ? (
+                <div className="space-y-2">
+                  <select
+                    id="staff-identity"
+                    value={selectedIdentityId}
+                    onChange={(e) => setSelectedIdentityId(e.target.value)}
+                    className="w-full h-[48px] px-3.5 bg-white border border-[#DDD8CF] rounded-[8px] text-[14px] text-[#0B0C0E] focus:outline-none focus:border-[#0B0C0E]"
+                  >
+                    {identities.map((ident) => (
+                      <option key={ident.id} value={ident.id}>
+                        {ident.name} ({ident.email})
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-[12px] text-[#5B616B]">
+                    Pre-registered verified operational identities directory.
+                  </p>
+                </div>
+              ) : (
+                <div className="h-[48px] px-3.5 bg-[#FAF8F4] border border-[#DDD8CF] rounded-[8px] flex items-center text-[14px] font-semibold text-[#0B0C0E]">
+                  {selectedIdentity?.name || initialData?.name}
+                </div>
+              )}
             </div>
 
             <div data-node-id="86:2123">
@@ -199,16 +249,14 @@ export function VendorStaffForm({ initialData, mode, staffId }: VendorStaffFormP
               <select
                 id="staff-type"
                 value={staffType}
-                onChange={(e) => setStaffType(e.target.value)}
+                onChange={(e) => setStaffType(e.target.value as VendorStaffType)}
                 className="w-full h-[48px] px-3.5 bg-white border border-[#DDD8CF] rounded-[8px] text-[14px] text-[#0B0C0E] focus:outline-none focus:border-[#0B0C0E]"
               >
-                <option value="PILOT">PILOT · Flight Operations</option>
-                <option value="CAPTAIN">CAPTAIN · Marine Vessel Operations</option>
-                <option value="CHAUFFEUR">CHAUFFEUR · Executive Ground Transit</option>
-                <option value="OPS">OPS · Dispatch & Logistics</option>
-                <option value="MANAGER">MANAGER · Vendor Operations Lead</option>
-                <option value="COORDINATOR">COORDINATOR · Service Coordination</option>
-                <option value="SECURITY">SECURITY · Close Protection Specialist</option>
+                {APPROVED_VENDOR_STAFF_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
               </select>
               <p className="text-[12px] text-[#5B616B] mt-1">
                 Designates operational role and scheduling eligibility.
@@ -216,25 +264,73 @@ export function VendorStaffForm({ initialData, mode, staffId }: VendorStaffFormP
             </div>
           </div>
 
-          {/* Row 2: Contact Email / Phone (Node 86:2129) & Active Status (Node 86:2134) */}
+          {/* Row 2: Employee Code & Contact Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label
+                htmlFor="staff-code"
+                className="block text-[14px] font-semibold text-[#0B0C0E] mb-1.5"
+              >
+                Employee Code <span className="text-[#DC2626]">*</span>
+              </label>
+              <input
+                id="staff-code"
+                type="text"
+                value={employeeCode}
+                onChange={(e) => setEmployeeCode(e.target.value)}
+                placeholder="Employee Code (e.g. AJ-1042)"
+                maxLength={50}
+                className="w-full h-[48px] px-3.5 bg-white border border-[#DDD8CF] rounded-[8px] text-[14px] font-mono text-[#0B0C0E] focus:outline-none focus:border-[#0B0C0E]"
+              />
+              <p className="text-[12px] text-[#5B616B] mt-1">
+                Vendor internal operational identifier (must be unique per vendor).
+              </p>
+            </div>
+
             <div data-node-id="86:2129">
               <label
                 htmlFor="staff-email"
                 className="block text-[14px] font-semibold text-[#0B0C0E] mb-1.5"
               >
-                Contact Email / Phone
+                Canonical Email / Contact
               </label>
               <input
                 id="staff-email"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="staff.name@vendor.internal"
-                className="w-full h-[48px] px-3.5 bg-white border border-[#DDD8CF] rounded-[8px] text-[14px] text-[#0B0C0E] focus:outline-none focus:border-[#0B0C0E]"
+                readOnly
+                value={selectedIdentity?.email || initialData?.email || ""}
+                className="w-full h-[48px] px-3.5 bg-[#FAF8F4] border border-[#DDD8CF] rounded-[8px] text-[14px] text-[#5B616B] cursor-not-allowed"
               />
               <p className="text-[12px] text-[#5B616B] mt-1">
-                Dispatch notifications and assignment communications.
+                Verified canonical email from identity provider.
+              </p>
+            </div>
+          </div>
+
+          {/* Row 3: Phone (Edit mode) & Active Status (Node 86:2134) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label
+                htmlFor="staff-phone"
+                className="block text-[14px] font-semibold text-[#0B0C0E] mb-1.5"
+              >
+                Operational Phone
+              </label>
+              <input
+                id="staff-phone"
+                type="text"
+                value={mode === "create" ? selectedIdentity?.phone || "" : phone}
+                readOnly={mode === "create"}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+12125550142"
+                className={`w-full h-[48px] px-3.5 border border-[#DDD8CF] rounded-[8px] text-[14px] ${
+                  mode === "create"
+                    ? "bg-[#FAF8F4] text-[#5B616B] cursor-not-allowed"
+                    : "bg-white text-[#0B0C0E] focus:outline-none focus:border-[#0B0C0E]"
+                }`}
+              />
+              <p className="text-[12px] text-[#5B616B] mt-1">
+                Direct dispatch voice &amp; SMS coordination line.
               </p>
             </div>
 

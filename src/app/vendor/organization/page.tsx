@@ -15,25 +15,17 @@ export default function MyVendorOrganizationPage() {
 
   // Resolve vendor organization server-side/session-based
   useEffect(() => {
-    // If user is a VENDOR, resolve their bound vendorId
-    // If user is ADMIN/SUPER_ADMIN viewing this surface, resolve their selected/primary vendor (default: vnd_aerojet_99)
-    const effectiveVendorId =
-      user?.vendorId ||
-      (user?.role === "ADMIN" || user?.role === "SUPER_ADMIN" ? "vnd_aerojet_99" : null);
-
-    if (!effectiveVendorId) {
-      setVendor(null);
+    if (!user) {
+      setVendor(undefined);
       return;
     }
 
-    const loadData = () => {
-      const v = vendorRepository.getVendorById(effectiveVendorId);
+    try {
+      const v = vendorRepository.getAuthenticatedVendor(user);
       setVendor(v || null);
-    };
-
-    loadData();
-    const unsubscribe = vendorRepository.subscribe(loadData);
-    return () => unsubscribe();
+    } catch {
+      setVendor(null);
+    }
   }, [user]);
 
   if (vendor === undefined) {
@@ -85,7 +77,7 @@ export default function MyVendorOrganizationPage() {
               My Vendor Organization
             </h1>
             <p className="text-[14px] text-[#5B616B] mt-[4px]">
-              Figma CC-VEN-04 (Node 86:1917) · Authenticated Partner: {vendor.displayName}
+              Authenticated Partner: {vendor.displayName}
             </p>
           </div>
 
@@ -194,17 +186,12 @@ export default function MyVendorOrganizationPage() {
               {/* Assets */}
               <div className="flex items-center justify-between py-2 border-b border-[#FAF8F4]">
                 <span className="text-[14px] text-[#0B0C0E] font-medium">Assets</span>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setActiveNotice(
-                      "Vendor Asset Management is scheduled for Phase 4.6 (future scope).",
-                    )
-                  }
+                <Link
+                  href="/assets"
                   className="text-[13px] font-semibold text-[#164D53] hover:text-[#0B0C0E] transition-colors"
                 >
                   Open ›
-                </button>
+                </Link>
               </div>
 
               {/* Bookings */}
@@ -221,17 +208,12 @@ export default function MyVendorOrganizationPage() {
               {/* Availability */}
               <div className="flex items-center justify-between py-2 border-b border-[#FAF8F4]">
                 <span className="text-[14px] text-[#0B0C0E] font-medium">Availability</span>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setActiveNotice(
-                      "Vendor Availability Calendar is scheduled for Phase 4.7 (future scope).",
-                    )
-                  }
+                <Link
+                  href="/availability"
                   className="text-[13px] font-semibold text-[#164D53] hover:text-[#0B0C0E] transition-colors"
                 >
                   Open ›
-                </button>
+                </Link>
               </div>
 
               {/* Rates */}
@@ -240,7 +222,7 @@ export default function MyVendorOrganizationPage() {
                 <button
                   type="button"
                   onClick={() =>
-                    setActiveNotice("Vendor Rate Matrix is scheduled for Phase 4.8 (future scope).")
+                    setActiveNotice("Vendor Rate Matrix is scheduled for a future planned phase.")
                   }
                   className="text-[13px] font-semibold text-[#164D53] hover:text-[#0B0C0E] transition-colors"
                 >
@@ -255,7 +237,7 @@ export default function MyVendorOrganizationPage() {
                   type="button"
                   onClick={() =>
                     setActiveNotice(
-                      "Vendor Payables & Settlements is scheduled for Phase 4.9 (future scope).",
+                      "Vendor Payables & Settlements is scheduled for a future planned phase.",
                     )
                   }
                   className="text-[13px] font-semibold text-[#164D53] hover:text-[#0B0C0E] transition-colors"

@@ -2,6 +2,7 @@
 
 import { CommandCenterShell } from "@/components/layout/CommandCenterShell";
 import { VendorForm } from "@/features/vendors/VendorForm";
+import { useSession } from "@/lib/auth/session";
 import { vendorRepository } from "@/lib/mock/vendors";
 import type { VendorOrganization } from "@/types/vendor";
 import Link from "next/link";
@@ -11,15 +12,23 @@ import React, { useEffect, useState } from "react";
 export default function EditVendorPage() {
   const params = useParams();
   const vendorId = params?.vendorId as string;
+  const { user } = useSession();
 
   const [vendor, setVendor] = useState<VendorOrganization | null | undefined>(undefined);
 
   useEffect(() => {
-    if (!vendorId) return;
+    if (!vendorId || !user) {
+      if (!user) setVendor(undefined);
+      return;
+    }
 
-    const v = vendorRepository.getVendorById(vendorId);
-    setVendor(v || null);
-  }, [vendorId]);
+    try {
+      const v = vendorRepository.getVendorById(user, vendorId);
+      setVendor(v || null);
+    } catch {
+      setVendor(null);
+    }
+  }, [vendorId, user]);
 
   if (vendor === undefined) {
     return (
@@ -36,7 +45,8 @@ export default function EditVendorPage() {
           <div className="bg-white border border-[#DDD8CF] rounded-xl p-8 text-center space-y-4 shadow-card">
             <h2 className="text-xl font-bold text-[#0B0C0E]">Vendor Organization Not Found</h2>
             <p className="text-sm text-[#5B616B]">
-              Cannot edit vendor with identifier &ldquo;{vendorId}&rdquo; because it does not exist.
+              Cannot edit vendor with identifier &ldquo;{vendorId}&rdquo; because it does not exist
+              or you lack permission.
             </p>
             <Link
               href="/vendors"

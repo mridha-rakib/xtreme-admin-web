@@ -1,6 +1,7 @@
 "use client";
 
 import { CommandCenterShell } from "@/components/layout/CommandCenterShell";
+import { useSession } from "@/lib/auth/session";
 import { vendorRepository } from "@/lib/mock/vendors";
 import type { VendorOrganization } from "@/types/vendor";
 import Link from "next/link";
@@ -10,22 +11,30 @@ import React, { useEffect, useState } from "react";
 export default function VendorDetailPage() {
   const params = useParams();
   const vendorId = params?.vendorId as string;
+  const { user } = useSession();
 
   const [vendor, setVendor] = useState<VendorOrganization | null | undefined>(undefined);
   const [activeNotice, setActiveNotice] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!vendorId) return;
+    if (!vendorId || !user) {
+      if (!user) setVendor(undefined);
+      return;
+    }
 
     const loadData = () => {
-      const v = vendorRepository.getVendorById(vendorId);
-      setVendor(v || null);
+      try {
+        const v = vendorRepository.getVendorById(user, vendorId);
+        setVendor(v || null);
+      } catch {
+        setVendor(null);
+      }
     };
 
     loadData();
     const unsubscribe = vendorRepository.subscribe(loadData);
     return () => unsubscribe();
-  }, [vendorId]);
+  }, [vendorId, user]);
 
   if (vendor === undefined) {
     return (
@@ -42,7 +51,8 @@ export default function VendorDetailPage() {
           <div className="bg-white border border-[#DDD8CF] rounded-xl p-8 text-center space-y-4 shadow-card">
             <h2 className="text-xl font-bold text-[#0B0C0E]">Vendor Organization Not Found</h2>
             <p className="text-sm text-[#5B616B]">
-              No partner vendor organization record exists for identifier &ldquo;{vendorId}&rdquo;.
+              No partner vendor organization record exists for identifier &ldquo;{vendorId}&rdquo;
+              or you lack permission to view it.
             </p>
             <Link
               href="/vendors"
@@ -83,7 +93,7 @@ export default function VendorDetailPage() {
               Vendor Detail
             </h1>
             <p className="text-[14px] text-[#5B616B] mt-[4px]">
-              Figma CC-VEN-02 (Node 86:1779) · Organization: {vendor.displayName} ({vendor.id})
+              Organization: {vendor.displayName} ({vendor.id})
             </p>
           </div>
 
@@ -197,33 +207,23 @@ export default function VendorDetailPage() {
               {/* Assets */}
               <div className="flex items-center justify-between py-2 border-b border-[#FAF8F4]">
                 <span className="text-[14px] text-[#0B0C0E] font-medium">Assets</span>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setActiveNotice(
-                      "Vendor Asset Management is scheduled for Phase 4.6 (future scope).",
-                    )
-                  }
+                <Link
+                  href="/assets"
                   className="text-[13px] font-semibold text-[#164D53] hover:text-[#0B0C0E] transition-colors"
                 >
                   Open ›
-                </button>
+                </Link>
               </div>
 
               {/* Availability */}
               <div className="flex items-center justify-between py-2 border-b border-[#FAF8F4]">
                 <span className="text-[14px] text-[#0B0C0E] font-medium">Availability</span>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setActiveNotice(
-                      "Vendor Availability Calendar is scheduled for Phase 4.7 (future scope).",
-                    )
-                  }
+                <Link
+                  href="/availability"
                   className="text-[13px] font-semibold text-[#164D53] hover:text-[#0B0C0E] transition-colors"
                 >
                   Open ›
-                </button>
+                </Link>
               </div>
 
               {/* Vendor rates */}
@@ -233,7 +233,7 @@ export default function VendorDetailPage() {
                   type="button"
                   onClick={() =>
                     setActiveNotice(
-                      "Vendor Rate Matrix & Pricing is scheduled for Phase 4.8 (future scope).",
+                      "Vendor Rate Matrix & Pricing is scheduled for a future planned phase.",
                     )
                   }
                   className="text-[13px] font-semibold text-[#164D53] hover:text-[#0B0C0E] transition-colors"

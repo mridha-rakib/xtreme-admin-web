@@ -29,19 +29,38 @@ export interface UpdateVendorParams {
 
 export type VendorStaffType =
   | "PILOT"
+  | "CAPTAIN"
   | "CHAUFFEUR"
   | "OPS"
   | "MANAGER"
-  | "SECURITY"
   | "COORDINATOR"
-  | "CAPTAIN"
-  | string;
+  | "SECURITY";
+
+export const APPROVED_VENDOR_STAFF_TYPES: readonly VendorStaffType[] = [
+  "PILOT",
+  "CAPTAIN",
+  "CHAUFFEUR",
+  "OPS",
+  "MANAGER",
+  "COORDINATOR",
+  "SECURITY",
+] as const;
+
+export interface OperationalIdentity {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  eligibleRoles: VendorStaffType[];
+}
 
 export interface VendorStaff {
   id: string;
+  identityId: string;
   vendorId: string;
   name: string;
   email: string;
+  phone?: string;
   staffType: VendorStaffType;
   employeeCode: string;
   active: boolean;
@@ -49,19 +68,17 @@ export interface VendorStaff {
   updatedAt: string;
 }
 
-export interface CreateVendorStaffParams {
-  vendorId: string;
-  name: string;
-  email: string;
+export interface AssociateVendorStaffParams {
+  identityId: string;
+  vendorId?: string; // Derived from actor if actor is VENDOR
   staffType: VendorStaffType;
   employeeCode: string;
   active?: boolean;
 }
 
 export interface UpdateVendorStaffParams {
-  name?: string;
-  email?: string;
   staffType?: VendorStaffType;
   employeeCode?: string;
   active?: boolean;
+  phone?: string;
 }

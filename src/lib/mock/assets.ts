@@ -1,15 +1,26 @@
-import type {
-  Asset,
-  AssetOwnerType,
-  AssetStatus,
-  CreateAssetParams,
-  UpdateAssetParams,
-} from "@/types/asset";
+import {
+  APPROVED_DESTINATIONS,
+  type Asset,
+  type AssetOwnerType,
+  type AssetStatus,
+  type AuthorizedActor,
+  type CreateAssetParams,
+  type UpdateAssetParams,
+  hasCommandCenterPermission,
+} from "@/types";
+import { vendorRepository } from "./vendors";
 
 export class AssetValidationError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "AssetValidationError";
+  }
+}
+
+export class UnauthorizedAssetAccessError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "UnauthorizedAssetAccessError";
   }
 }
 
@@ -150,38 +161,17 @@ export class AssetRepository {
     }
   }
 
-  public listAssets(filters?: AssetFilterOptions): Asset[] {
-    return this.assets.filter((a) => {
-      // Vendor isolation: When vendorId filter is provided, strictly limit to that vendor
-      if (filters?.vendorId && a.vendorId !== filters.vendorId) {
-        return false;
-      }
-
-      if (filters?.ownerType && a.ownerType !== filters.ownerType) {
-        return false;
-      }
-
-      if (filters?.status && filters.status !== "ALL" && a.status !== filters.status) {
-        return false;
-      }
-
-      if (filters?.search?.trim()) {
-        const query = filters.search.toLowerCase().trim();
-        const matchName = a.name.toLowerCase().includes(query);
-        const matchCode = a.code.toLowerCase().includes(query);
-        const matchCategory = a.category.toLowerCase().includes(query);
-        const matchDest = a.destination.toLowerCase().includes(query);
-        const matchOwner = (a.vendorName || a.ownerType).toLowerCase().includes(query);
-        if (!matchName && !matchCode && !matchCategory && !matchDest && !matchOwner) {
-          return false;
-        }
-      }
-
-      return true;
-    });
+  private checkActor(actor: AuthorizedActor | null | undefined): AuthorizedActor {
+    if (!actor || !actor.role) {
+      throw new UnauthorizedAssetAccessError("Authentication required: Actor context missing.");
+    }
+    return actor;
   }
 
-  public getAssetById(id: string): Asset | undefined {
+  /**
+   * Internal lookup used exclusively for allocation service and integrity verification.
+   */
+  public getAssetByIdInternal(id: string): Asset | undefined {
     return this.assets.find(
       (a) =>
         a.id.toLowerCase() === id.toLowerCase() ||
@@ -190,135 +180,412 @@ export class AssetRepository {
     );
   }
 
-  public createAsset(params: CreateAssetParams): Asset {
+  /**
+   * Lists physical assets within the actor's authorized scope.
+   * Administrative personas view all assets across the global fleet.
+   * Vendor personas view strictly their own vendor assets.
+   */
+  public listAssets(
+    actor: AuthorizedActor | null | undefined,
+    filters?: AssetFilterOptions,
+  ): Asset[] {
+    const validActor = this.checkActor(actor);
+
+    // Vendor self-service scope
+    if (validActor.role === "VENDOR") {
+      if (!validActor.vendorId) {
+        throw new UnauthorizedAssetAccessError(
+          "Vendor actor has no associated vendor organization membership.",
+        );
+      }
+      if (
+        filters?.vendorId &&
+        filters.vendorId.toLowerCase() !== validActor.vendorId.toLowerCase()
+      ) {
+        throw new UnauthorizedAssetAccessError(
+          "Unauthorized: Cross-vendor asset directory access is prohibited.",
+        );
+      }
+      if (filters?.ownerType && filters.ownerType === "XTREME") {
+        throw new UnauthorizedAssetAccessError(
+          "Unauthorized: Vendor actors cannot query XTREME internal fleet assets.",
+        );
+      }
+
+      return this.assets
+        .filter((a) => {
+          if (
+            a.ownerType !== "VENDOR" ||
+            a.vendorId?.toLowerCase() !== validActor.vendorId?.toLowerCase()
+          ) {
+            return false;
+          }
+          if (filters?.status && filters.status !== "ALL" && a.status !== filters.status) {
+            return false;
+          }
+          if (filters?.search?.trim()) {
+            const query = filters.search.toLowerCase().trim();
+            const matchName = a.name.toLowerCase().includes(query);
+            const matchCode = a.code.toLowerCase().includes(query);
+            const matchCategory = a.category.toLowerCase().includes(query);
+            const matchDest = a.destination.toLowerCase().includes(query);
+            if (!matchName && !matchCode && !matchCategory && !matchDest) return false;
+          }
+          return true;
+        })
+        .map((a) => structuredClone(a));
+    }
+
+    // Administrative access
+    if (
+      hasCommandCenterPermission(validActor.role, "view:assets") ||
+      hasCommandCenterPermission(validActor.role, "manage:assets")
+    ) {
+      return this.assets
+        .filter((a) => {
+          if (filters?.vendorId && a.vendorId?.toLowerCase() !== filters.vendorId.toLowerCase()) {
+            return false;
+          }
+          if (filters?.ownerType && a.ownerType !== filters.ownerType) {
+            return false;
+          }
+          if (filters?.status && filters.status !== "ALL" && a.status !== filters.status) {
+            return false;
+          }
+          if (filters?.search?.trim()) {
+            const query = filters.search.toLowerCase().trim();
+            const matchName = a.name.toLowerCase().includes(query);
+            const matchCode = a.code.toLowerCase().includes(query);
+            const matchCategory = a.category.toLowerCase().includes(query);
+            const matchDest = a.destination.toLowerCase().includes(query);
+            const matchOwner = (a.vendorName || a.ownerType).toLowerCase().includes(query);
+            if (!matchName && !matchCode && !matchCategory && !matchDest && !matchOwner) {
+              return false;
+            }
+          }
+          return true;
+        })
+        .map((a) => structuredClone(a));
+    }
+
+    throw new UnauthorizedAssetAccessError(
+      `Actor role "${validActor.role}" does not have permission to view asset inventory.`,
+    );
+  }
+
+  /**
+   * Retrieves an asset by ID with scope enforcement.
+   */
+  public getAssetById(actor: AuthorizedActor | null | undefined, id: string): Asset | undefined {
+    const validActor = this.checkActor(actor);
+
+    const asset = this.getAssetByIdInternal(id);
+    if (!asset) return undefined;
+
+    if (validActor.role === "VENDOR") {
+      if (!validActor.vendorId) {
+        throw new UnauthorizedAssetAccessError(
+          "Vendor actor has no associated vendor organization.",
+        );
+      }
+      if (
+        asset.ownerType !== "VENDOR" ||
+        asset.vendorId?.toLowerCase() !== validActor.vendorId.toLowerCase()
+      ) {
+        throw new UnauthorizedAssetAccessError(
+          `Unauthorized: Vendor actor cannot access asset "${id}" belonging to another organization or XTREME fleet.`,
+        );
+      }
+    } else if (
+      !hasCommandCenterPermission(validActor.role, "view:assets") &&
+      !hasCommandCenterPermission(validActor.role, "manage:assets")
+    ) {
+      throw new UnauthorizedAssetAccessError(
+        `Actor role "${validActor.role}" does not have permission to access asset records.`,
+      );
+    }
+
+    return structuredClone(asset);
+  }
+
+  private validateCapacity(capacity: number | unknown): number {
+    if (typeof capacity !== "number" || !Number.isFinite(capacity) || !Number.isInteger(capacity)) {
+      throw new AssetValidationError("Asset capacity must be a positive finite integer.");
+    }
+    if (capacity <= 0) {
+      throw new AssetValidationError(
+        "Asset capacity must be a positive integer greater than zero.",
+      );
+    }
+    if (capacity > 500) {
+      throw new AssetValidationError(
+        "Asset capacity exceeds certified operational limits (maximum 500 passengers).",
+      );
+    }
+    return capacity;
+  }
+
+  private validateDestination(destination: string): string {
+    if (!destination || !destination.trim()) {
+      throw new AssetValidationError("Destination / operating area is required.");
+    }
+    const clean = destination.trim();
+    // Validate against approved destination list
+    const isApproved = APPROVED_DESTINATIONS.some((d) => d.toLowerCase() === clean.toLowerCase());
+    if (!isApproved) {
+      throw new AssetValidationError(
+        `Invalid destination: "${destination}". Approved destinations are: ${APPROVED_DESTINATIONS.join(", ")}.`,
+      );
+    }
+    return clean;
+  }
+
+  /**
+   * Creates a new physical asset with authorization, canonical vendor name resolution, and complete validation.
+   */
+  public createAsset(actor: AuthorizedActor | null | undefined, params: CreateAssetParams): Asset {
+    const validActor = this.checkActor(actor);
+
+    let effectiveOwnerType: AssetOwnerType;
+    let effectiveVendorId: string | undefined;
+    let resolvedVendorName: string;
+
+    if (validActor.role === "VENDOR") {
+      if (!validActor.vendorId) {
+        throw new UnauthorizedAssetAccessError(
+          "Vendor actor has no associated vendor organization.",
+        );
+      }
+      if (params.ownerType === "XTREME") {
+        throw new UnauthorizedAssetAccessError(
+          "Vendor actors cannot create assets owned by the internal XTREME fleet.",
+        );
+      }
+      effectiveOwnerType = "VENDOR";
+      effectiveVendorId = validActor.vendorId;
+
+      // Canonical lookup for vendor name
+      const vendorOrg = vendorRepository.getVendorById(validActor, validActor.vendorId);
+      resolvedVendorName = vendorOrg?.displayName || "Vendor Organization";
+    } else if (hasCommandCenterPermission(validActor.role, "manage:assets")) {
+      effectiveOwnerType = params.ownerType;
+      if (effectiveOwnerType === "VENDOR") {
+        if (!params.vendorId) {
+          throw new AssetValidationError(
+            "Target vendor organization ID is required for vendor-owned assets.",
+          );
+        }
+        effectiveVendorId = params.vendorId;
+        const vendorOrg = vendorRepository.getVendorById(validActor, params.vendorId);
+        if (!vendorOrg) {
+          throw new AssetValidationError(
+            `Vendor organization "${params.vendorId}" does not exist in registry.`,
+          );
+        }
+        resolvedVendorName = vendorOrg.displayName;
+      } else {
+        effectiveVendorId = undefined;
+        resolvedVendorName = "XTREME Fleet";
+      }
+    } else {
+      throw new UnauthorizedAssetAccessError(
+        `Actor role "${validActor.role}" does not have permission to create fleet assets.`,
+      );
+    }
+
+    // Validate string fields
     if (!params.name || !params.name.trim()) {
       throw new AssetValidationError("Asset display name is required.");
+    }
+    if (params.name.trim().length > 180) {
+      throw new AssetValidationError("Asset display name cannot exceed 180 characters.");
     }
     if (!params.code || !params.code.trim()) {
       throw new AssetValidationError("Asset code is required.");
     }
-    if (
-      params.capacity === undefined ||
-      params.capacity <= 0 ||
-      Number.isNaN(Number(params.capacity))
-    ) {
-      throw new AssetValidationError("Configured capacity must be a positive number.");
+
+    const cleanCode = params.code.trim().toUpperCase();
+    const cleanDestination = this.validateDestination(params.destination);
+    const validCapacity = this.validateCapacity(params.capacity);
+
+    // Code uniqueness check across entire fleet
+    const duplicate = this.assets.find((a) => a.code.toUpperCase() === cleanCode);
+    if (duplicate) {
+      throw new AssetValidationError(`Asset with code "${cleanCode}" already exists.`);
     }
 
-    // Check duplicate code
-    const duplicate = this.assets.find(
-      (a) => a.code.trim().toLowerCase() === params.code.trim().toLowerCase(),
-    );
-    if (duplicate) {
-      throw new AssetValidationError(`Asset with code "${params.code}" already exists.`);
+    const status: AssetStatus = params.status || "ACTIVE";
+    if (!["ACTIVE", "MAINTENANCE", "INACTIVE"].includes(status)) {
+      throw new AssetValidationError(`Invalid asset status: "${params.status}".`);
     }
 
     const now = new Date().toISOString();
     const id = `ast_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 6)}`;
 
-    const newAsset: Asset = {
+    const candidate: Asset = {
       id,
       name: params.name.trim(),
-      code: params.code.trim().toUpperCase(),
+      code: cleanCode,
       category: params.category?.trim() || "General Asset",
-      destination: params.destination?.trim() || "Global / Multiple",
-      capacity: Number(params.capacity),
-      status: params.status || "ACTIVE",
-      ownerType: params.ownerType,
-      vendorId: params.ownerType === "VENDOR" ? params.vendorId : undefined,
-      vendorName:
-        params.ownerType === "VENDOR"
-          ? params.vendorName ||
-            (params.vendorId === "vnd_aerojet_99"
-              ? "AeroJet Aviation Partners"
-              : "Vendor Organization")
-          : "XTREME Fleet",
+      destination: cleanDestination,
+      capacity: validCapacity,
+      status,
+      ownerType: effectiveOwnerType,
+      vendorId: effectiveVendorId,
+      vendorName: resolvedVendorName,
       description: params.description?.trim() || "",
       createdAt: now,
       updatedAt: now,
     };
 
-    this.assets.unshift(newAsset);
+    this.assets.unshift(candidate);
     this.notify();
-    return newAsset;
+    return structuredClone(candidate);
   }
 
+  /**
+   * Updates an existing physical asset with authorization, complete candidate validation,
+   * and operational preservation rule compliance.
+   */
   public updateAsset(
+    actor: AuthorizedActor | null | undefined,
     id: string,
     params: UpdateAssetParams,
   ): { asset: Asset; operationalNotice?: string } {
-    const existing = this.getAssetById(id);
-    if (!existing) {
+    const validActor = this.checkActor(actor);
+
+    const index = this.assets.findIndex(
+      (a) => a.id.toLowerCase() === id.toLowerCase() || a.id === id,
+    );
+    if (index === -1) {
       throw new AssetValidationError(`Asset with ID "${id}" was not found.`);
     }
+    const existing = this.assets[index];
 
+    // Authorization check
+    if (validActor.role === "VENDOR") {
+      if (
+        !validActor.vendorId ||
+        existing.ownerType !== "VENDOR" ||
+        existing.vendorId?.toLowerCase() !== validActor.vendorId.toLowerCase()
+      ) {
+        throw new UnauthorizedAssetAccessError(
+          "Unauthorized: Vendor actor cannot mutate assets belonging to other organizations or XTREME fleet.",
+        );
+      }
+      if (params.ownerType && params.ownerType !== "VENDOR") {
+        throw new UnauthorizedAssetAccessError(
+          "Unauthorized: Vendor actors cannot reassign asset ownership away from their vendor organization.",
+        );
+      }
+    } else if (!hasCommandCenterPermission(validActor.role, "manage:assets")) {
+      throw new UnauthorizedAssetAccessError(
+        `Actor role "${validActor.role}" does not have permission to update asset records.`,
+      );
+    }
+
+    // Construct and validate candidate
+    let candidateName = existing.name;
     if (params.name !== undefined) {
       if (!params.name.trim()) {
         throw new AssetValidationError("Asset display name cannot be empty.");
       }
-      existing.name = params.name.trim();
+      if (params.name.trim().length > 180) {
+        throw new AssetValidationError("Asset display name cannot exceed 180 characters.");
+      }
+      candidateName = params.name.trim();
     }
 
+    let candidateCode = existing.code;
     if (params.code !== undefined) {
       if (!params.code.trim()) {
         throw new AssetValidationError("Asset code cannot be empty.");
       }
+      const cleanCode = params.code.trim().toUpperCase();
       const duplicate = this.assets.find(
-        (a) => a.id !== existing.id && a.code.toLowerCase() === params.code?.trim().toLowerCase(),
+        (a) => a.id !== existing.id && a.code.toUpperCase() === cleanCode,
       );
       if (duplicate) {
-        throw new AssetValidationError(`Asset with code "${params.code}" is already in use.`);
+        throw new AssetValidationError(`Asset code "${cleanCode}" is already in use.`);
       }
-      existing.code = params.code.trim().toUpperCase();
+      candidateCode = cleanCode;
     }
 
+    let candidateCapacity = existing.capacity;
     if (params.capacity !== undefined) {
-      if (params.capacity <= 0 || Number.isNaN(Number(params.capacity))) {
-        throw new AssetValidationError("Capacity must be a positive number.");
-      }
-      existing.capacity = Number(params.capacity);
+      candidateCapacity = this.validateCapacity(params.capacity);
     }
 
-    if (params.category !== undefined) {
-      existing.category = params.category.trim();
-    }
-
+    let candidateDestination = existing.destination;
     if (params.destination !== undefined) {
-      existing.destination = params.destination.trim();
+      candidateDestination = this.validateDestination(params.destination);
     }
 
-    if (params.description !== undefined) {
-      existing.description = params.description.trim();
+    const candidateCategory =
+      params.category !== undefined ? params.category.trim() : existing.category;
+    const candidateDescription =
+      params.description !== undefined ? params.description.trim() : existing.description;
+
+    let candidateStatus = existing.status;
+    let operationalNotice: string | undefined;
+
+    if (params.status !== undefined) {
+      if (!["ACTIVE", "MAINTENANCE", "INACTIVE"].includes(params.status)) {
+        throw new AssetValidationError(`Invalid asset status: "${params.status}".`);
+      }
+      candidateStatus = params.status;
+
+      if (candidateStatus !== existing.status) {
+        if (candidateStatus === "MAINTENANCE" || candidateStatus === "INACTIVE") {
+          operationalNotice =
+            "Operational rule applied: Status change blocks new allocations. Existing confirmed commitments remain active and require explicit Operations resolution; they are never silently cancelled.";
+        }
+      }
     }
+
+    // Owner type resolution
+    let candidateOwnerType = existing.ownerType;
+    let candidateVendorId = existing.vendorId;
+    let candidateVendorName = existing.vendorName;
 
     if (params.ownerType !== undefined) {
-      existing.ownerType = params.ownerType;
+      candidateOwnerType = params.ownerType;
       if (params.ownerType === "XTREME") {
-        existing.vendorId = undefined;
-        existing.vendorName = "XTREME Fleet";
-      } else {
-        existing.vendorId = params.vendorId || existing.vendorId;
-        existing.vendorName = params.vendorName || existing.vendorName;
+        candidateVendorId = undefined;
+        candidateVendorName = "XTREME Fleet";
+      } else if (params.ownerType === "VENDOR") {
+        candidateVendorId = params.vendorId || existing.vendorId;
+        if (!candidateVendorId) {
+          throw new AssetValidationError("Target vendorId is required for vendor-owned assets.");
+        }
+        const vendorOrg = vendorRepository.getVendorById(validActor, candidateVendorId);
+        candidateVendorName =
+          vendorOrg?.displayName || existing.vendorName || "Vendor Organization";
       }
     }
 
-    let operationalNotice: string | undefined;
-    if (params.status !== undefined && params.status !== existing.status) {
-      const oldStatus = existing.status;
-      existing.status = params.status;
+    // Commit only after complete validation
+    const updatedRecord: Asset = {
+      ...existing,
+      name: candidateName,
+      code: candidateCode,
+      category: candidateCategory,
+      destination: candidateDestination,
+      capacity: candidateCapacity,
+      status: candidateStatus,
+      ownerType: candidateOwnerType,
+      vendorId: candidateVendorId,
+      vendorName: candidateVendorName,
+      description: candidateDescription,
+      updatedAt: new Date().toISOString(),
+    };
 
-      // Operational preservation rule:
-      // Status change to MAINTENANCE/INACTIVE blocks new allocations.
-      // Existing confirmed commitments remain and require explicit Operations resolution; they are never silently cancelled.
-      if (params.status === "MAINTENANCE" || params.status === "INACTIVE") {
-        operationalNotice =
-          "Operational rule applied: Status change blocks new allocations. Existing confirmed commitments remain active and require explicit Operations resolution; they are never silently cancelled.";
-      }
-    }
-
-    existing.updatedAt = new Date().toISOString();
+    this.assets[index] = updatedRecord;
     this.notify();
-    return { asset: existing, operationalNotice };
+    return {
+      asset: structuredClone(updatedRecord),
+      operationalNotice,
+    };
   }
 
   public resetDefaults(): void {

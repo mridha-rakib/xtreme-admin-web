@@ -1,6 +1,19 @@
 export type AssetStatus = "ACTIVE" | "MAINTENANCE" | "INACTIVE";
 export type AssetOwnerType = "XTREME" | "VENDOR";
 
+export const APPROVED_DESTINATIONS = [
+  "Nice / Cannes / Monaco",
+  "Geneva / Alps",
+  "Saint-Tropez / Monaco",
+  "Cannes / Antibes",
+  "Paris Metropolitan",
+  "Monaco / Nice Heliport",
+  "London / Mayfair",
+  "Paris Le Bourget / Nice",
+  "Zürich / St. Moritz",
+  "Milan / Lake Como",
+] as const;
+
 export interface Asset {
   id: string;
   name: string;
@@ -26,7 +39,6 @@ export interface CreateAssetParams {
   status?: AssetStatus;
   ownerType: AssetOwnerType;
   vendorId?: string;
-  vendorName?: string;
   description?: string;
 }
 
@@ -39,6 +51,5 @@ export interface UpdateAssetParams {
   status?: AssetStatus;
   ownerType?: AssetOwnerType;
   vendorId?: string;
-  vendorName?: string;
   description?: string;
 }

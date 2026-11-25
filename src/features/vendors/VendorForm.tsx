@@ -1,7 +1,12 @@
 "use client";
 
 import { CommandCenterShell } from "@/components/layout/CommandCenterShell";
-import { VendorValidationError, vendorRepository } from "@/lib/mock/vendors";
+import { useSession } from "@/lib/auth/session";
+import {
+  UnauthorizedVendorAccessError,
+  VendorValidationError,
+  vendorRepository,
+} from "@/lib/mock/vendors";
 import type { VendorOrganization, VendorOrganizationStatus } from "@/types/vendor";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,6 +21,7 @@ interface VendorFormProps {
 
 export function VendorForm({ initialData, mode, vendorId }: VendorFormProps) {
   const router = useRouter();
+  const { user } = useSession();
 
   const [displayName, setDisplayName] = useState(initialData?.displayName || "");
   const [legalName, setLegalName] = useState(initialData?.legalName || "");
@@ -32,6 +38,11 @@ export function VendorForm({ initialData, mode, vendorId }: VendorFormProps) {
     setErrorMessage(null);
     setSuccessMessage(null);
 
+    if (!user) {
+      setErrorMessage("Authentication session required.");
+      return;
+    }
+
     if (!displayName.trim()) {
       setErrorMessage("Display name is required.");
       return;
@@ -40,7 +51,7 @@ export function VendorForm({ initialData, mode, vendorId }: VendorFormProps) {
     setIsSubmitting(true);
     try {
       if (mode === "create") {
-        const created = vendorRepository.createVendor({
+        const created = vendorRepository.createVendor(user, {
           displayName: displayName.trim(),
           legalName: legalName.trim() || undefined,
           contactEmail: contactEmail.trim() || undefined,
@@ -53,7 +64,7 @@ export function VendorForm({ initialData, mode, vendorId }: VendorFormProps) {
           router.push(`/vendors/${created.id}`);
         }, 500);
       } else if (vendorId) {
-        const updated = vendorRepository.updateVendor(vendorId, {
+        const updated = vendorRepository.updateVendor(user, vendorId, {
           displayName: displayName.trim(),
           legalName: legalName.trim() || undefined,
           contactEmail: contactEmail.trim() || undefined,
@@ -67,7 +78,7 @@ export function VendorForm({ initialData, mode, vendorId }: VendorFormProps) {
         }, 500);
       }
     } catch (err) {
-      if (err instanceof VendorValidationError) {
+      if (err instanceof VendorValidationError || err instanceof UnauthorizedVendorAccessError) {
         setErrorMessage(err.message);
       } else if (err instanceof Error) {
         setErrorMessage(err.message);
@@ -106,7 +117,6 @@ export function VendorForm({ initialData, mode, vendorId }: VendorFormProps) {
               Create / Edit Vendor
             </h1>
             <p className="text-[14px] text-[#5B616B] mt-[4px]">
-              Figma CC-VEN-03 (Node 86:1846) ·{" "}
               {mode === "create"
                 ? "New Organization Onboarding"
                 : `Edit Context: ${initialData?.displayName}`}

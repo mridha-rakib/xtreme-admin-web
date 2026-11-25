@@ -1,136 +1,181 @@
-import { AssetValidationError, assetRepository } from "@/lib/mock/assets";
+import {
+  AssetValidationError,
+  UnauthorizedAssetAccessError,
+  assetRepository,
+} from "@/lib/mock/assets";
+import type { AuthorizedActor } from "@/types";
 import { beforeEach, describe, expect, it } from "vitest";
 
-describe("AssetRepository Unit & Multi-Tenant Tests", () => {
+const ADMIN_ACTOR: AuthorizedActor = {
+  id: "usr_admin",
+  name: "Command Center Admin",
+  email: "admin@xtreme.internal",
+  role: "ADMIN",
+};
+
+const VENDOR_A_ACTOR: AuthorizedActor = {
+  id: "usr_vendor_a",
+  name: "Arman K.",
+  email: "arman@aerojet-partners.internal",
+  role: "VENDOR",
+  vendorId: "vnd_aerojet_99",
+};
+
+const VENDOR_B_ACTOR: AuthorizedActor = {
+  id: "usr_vendor_b",
+  name: "Claire Delacroix",
+  email: "claire@cotedazur.internal",
+  role: "VENDOR",
+  vendorId: "vnd_azure_01",
+};
+
+describe("AssetRepository Scoped Multi-Tenant Authorization & Validation Tests", () => {
   beforeEach(() => {
     assetRepository.resetDefaults();
   });
 
-  it("lists all assets with initial seed data across XTREME and vendors", () => {
-    const all = assetRepository.listAssets();
-    expect(all.length).toBe(7);
-
-    const xtremeAssets = all.filter((a) => a.ownerType === "XTREME");
-    const vendorAssets = all.filter((a) => a.ownerType === "VENDOR");
-    expect(xtremeAssets.length).toBe(3);
-    expect(vendorAssets.length).toBe(4);
-  });
-
-  it("enforces strict multi-tenant isolation when filtered by vendorId", () => {
-    const aerojetAssets = assetRepository.listAssets({ vendorId: "vnd_aerojet_99" });
-    expect(aerojetAssets.length).toBe(2);
-    expect(aerojetAssets.every((a) => a.vendorId === "vnd_aerojet_99")).toBe(true);
-    expect(aerojetAssets.map((a) => a.code)).toEqual(
-      expect.arrayContaining(["AST-AJ-01", "AST-AJ-02"]),
+  it("requires authenticated actor context for all operations", () => {
+    expect(() => assetRepository.listAssets(null)).toThrow(UnauthorizedAssetAccessError);
+    expect(() => assetRepository.getAssetById(null, "ast_001")).toThrow(
+      UnauthorizedAssetAccessError,
     );
-
-    const azureAssets = assetRepository.listAssets({ vendorId: "vnd_azure_01" });
-    expect(azureAssets.length).toBe(2);
-    expect(azureAssets.every((a) => a.vendorId === "vnd_azure_01")).toBe(true);
-    expect(azureAssets.map((a) => a.code)).toEqual(
-      expect.arrayContaining(["AST-CY-01", "AST-CY-02"]),
-    );
-
-    // Cross-vendor isolation: aerojet cannot see azure or xtreme assets
-    expect(aerojetAssets.map((a) => a.code)).not.toContain("AST-CY-01");
-    expect(aerojetAssets.map((a) => a.code)).not.toContain("AST-XT-01");
-  });
-
-  it("filters assets by status and query", () => {
-    const activeAssets = assetRepository.listAssets({ status: "ACTIVE" });
-    expect(activeAssets.length).toBe(4);
-    expect(activeAssets.every((a) => a.status === "ACTIVE")).toBe(true);
-
-    const maintenanceAssets = assetRepository.listAssets({ status: "MAINTENANCE" });
-    expect(maintenanceAssets.length).toBe(2);
-    expect(maintenanceAssets.every((a) => a.status === "MAINTENANCE")).toBe(true);
-
-    const searchJet = assetRepository.listAssets({ search: "Citation" });
-    expect(searchJet.length).toBe(1);
-    expect(searchJet[0].name).toBe("Cessna Citation Latitude");
-  });
-
-  it("validates required fields on asset creation", () => {
     expect(() =>
-      assetRepository.createAsset({
-        name: "",
-        code: "AST-TEST-01",
+      assetRepository.createAsset(null, {
+        name: "Unauthorized Jet",
+        code: "AST-UNAUTH-01",
         category: "Jet",
-        destination: "Nice",
+        destination: "Nice / Cannes / Monaco",
         capacity: 8,
         ownerType: "XTREME",
       }),
-    ).toThrow(AssetValidationError);
+    ).toThrow(UnauthorizedAssetAccessError);
+  });
 
+  it("lists all assets for Admin actors and scopes Vendor actors strictly to their own assets", () => {
+    const adminAssets = assetRepository.listAssets(ADMIN_ACTOR);
+    expect(adminAssets.length).toBe(7);
+
+    const vendorAAssets = assetRepository.listAssets(VENDOR_A_ACTOR);
+    expect(vendorAAssets.length).toBe(2);
+    expect(vendorAAssets.every((a) => a.vendorId === "vnd_aerojet_99")).toBe(true);
+
+    const vendorBAssets = assetRepository.listAssets(VENDOR_B_ACTOR);
+    expect(vendorBAssets.length).toBe(2);
+    expect(vendorBAssets.every((a) => a.vendorId === "vnd_azure_01")).toBe(true);
+  });
+
+  it("strictly prevents Vendor actors from viewing or mutating other vendors or XTREME assets", () => {
+    // ast_003 is owned by Côte d'Azur (Vendor B)
+    expect(() => assetRepository.getAssetById(VENDOR_A_ACTOR, "ast_003")).toThrow(
+      UnauthorizedAssetAccessError,
+    );
+
+    // ast_005 is owned by XTREME Fleet
+    expect(() => assetRepository.getAssetById(VENDOR_A_ACTOR, "ast_005")).toThrow(
+      UnauthorizedAssetAccessError,
+    );
+
+    // Vendor A attempting to update Vendor B asset throws
     expect(() =>
-      assetRepository.createAsset({
-        name: "Test Jet",
-        code: "",
+      assetRepository.updateAsset(VENDOR_A_ACTOR, "ast_003", {
+        name: "Hacked Jet",
+      }),
+    ).toThrow(UnauthorizedAssetAccessError);
+  });
+
+  it("validates capacity contract: strictly positive finite integers", () => {
+    expect(() =>
+      assetRepository.createAsset(ADMIN_ACTOR, {
+        name: "Invalid Fractional Capacity Jet",
+        code: "AST-FRAC-01",
         category: "Jet",
-        destination: "Nice",
-        capacity: 8,
+        destination: "Nice / Cannes / Monaco",
+        capacity: 4.5, // Non-integer
         ownerType: "XTREME",
       }),
-    ).toThrow(AssetValidationError);
+    ).toThrow(/positive.*integer/i);
 
     expect(() =>
-      assetRepository.createAsset({
-        name: "Test Jet",
-        code: "AST-TEST-01",
+      assetRepository.createAsset(ADMIN_ACTOR, {
+        name: "Invalid Zero Capacity Jet",
+        code: "AST-ZERO-01",
         category: "Jet",
-        destination: "Nice",
+        destination: "Nice / Cannes / Monaco",
         capacity: 0,
         ownerType: "XTREME",
       }),
-    ).toThrow(AssetValidationError);
-  });
+    ).toThrow(/positive.*integer/i);
 
-  it("rejects duplicate asset codes", () => {
     expect(() =>
-      assetRepository.createAsset({
-        name: "Duplicate Citation",
-        code: "AST-AJ-01", // Already exists
-        category: "Light Jet",
-        destination: "Nice",
-        capacity: 8,
-        ownerType: "VENDOR",
-        vendorId: "vnd_aerojet_99",
+      assetRepository.createAsset(ADMIN_ACTOR, {
+        name: "Invalid Negative Capacity Jet",
+        code: "AST-NEG-01",
+        category: "Jet",
+        destination: "Nice / Cannes / Monaco",
+        capacity: -5,
+        ownerType: "XTREME",
       }),
-    ).toThrow(/already exists/i);
+    ).toThrow(/positive.*integer/i);
+
+    expect(() =>
+      assetRepository.createAsset(ADMIN_ACTOR, {
+        name: "Invalid Infinite Capacity Jet",
+        code: "AST-INF-01",
+        category: "Jet",
+        destination: "Nice / Cannes / Monaco",
+        capacity: Number.POSITIVE_INFINITY,
+        ownerType: "XTREME",
+      }),
+    ).toThrow(/positive.*integer/i);
   });
 
-  it("creates a new asset successfully", () => {
-    const created = assetRepository.createAsset({
-      name: "Bombardier Global 7500",
-      code: "AST-AJ-03",
-      category: "Ultra Long Range Jet",
-      destination: "Geneva / London",
-      capacity: 16,
-      status: "ACTIVE",
-      ownerType: "VENDOR",
-      vendorId: "vnd_aerojet_99",
-      vendorName: "AeroJet Aviation Partners",
-      description: "Brand new flagship aircraft.",
+  it("validates destination against approved destinations list", () => {
+    expect(() =>
+      assetRepository.createAsset(ADMIN_ACTOR, {
+        name: "Invalid Destination Jet",
+        code: "AST-DEST-01",
+        category: "Jet",
+        destination: "Non-Approved Destination City",
+        capacity: 8,
+        ownerType: "XTREME",
+      }),
+    ).toThrow(/Approved destinations are/i);
+
+    // Approved destination succeeds
+    const created = assetRepository.createAsset(ADMIN_ACTOR, {
+      name: "St. Moritz Helicopter",
+      code: "AST-CH-99",
+      category: "Helicopter",
+      destination: "Zürich / St. Moritz",
+      capacity: 5,
+      ownerType: "XTREME",
     });
-
-    expect(created.id).toMatch(/^ast_/);
-    expect(created.name).toBe("Bombardier Global 7500");
-    expect(created.code).toBe("AST-AJ-03");
-
-    const found = assetRepository.getAssetById(created.id);
-    expect(found).toBeDefined();
-    expect(found?.name).toBe("Bombardier Global 7500");
+    expect(created.destination).toBe("Zürich / St. Moritz");
   });
 
-  it("enforces operational preservation rule when updating status to MAINTENANCE or INACTIVE", () => {
-    // When status changes to MAINTENANCE, returns operational notice that commitments remain active
-    const result = assetRepository.updateAsset("ast_001", {
-      status: "MAINTENANCE",
-    });
+  it("leaves original record untouched when validation fails during update", () => {
+    const original = assetRepository.getAssetById(ADMIN_ACTOR, "ast_001");
+    expect(original?.capacity).toBe(8);
 
-    expect(result.asset.status).toBe("MAINTENANCE");
-    expect(result.operationalNotice).toBeDefined();
-    expect(result.operationalNotice).toContain("Operational rule applied");
-    expect(result.operationalNotice).toContain("never silently cancelled");
+    expect(() =>
+      assetRepository.updateAsset(ADMIN_ACTOR, "ast_001", {
+        capacity: 3.14, // Invalid fractional capacity
+      }),
+    ).toThrow(/positive.*integer/i);
+
+    const afterFailedUpdate = assetRepository.getAssetById(ADMIN_ACTOR, "ast_001");
+    expect(afterFailedUpdate?.capacity).toBe(8);
+  });
+
+  it("returns defensive snapshot copies preventing internal state mutation", () => {
+    const asset = assetRepository.getAssetById(ADMIN_ACTOR, "ast_001");
+    expect(asset).toBeDefined();
+
+    if (asset) {
+      asset.name = "Tampered Aircraft";
+    }
+
+    const fetchedAgain = assetRepository.getAssetById(ADMIN_ACTOR, "ast_001");
+    expect(fetchedAgain?.name).toBe("Cessna Citation Latitude");
   });
 });

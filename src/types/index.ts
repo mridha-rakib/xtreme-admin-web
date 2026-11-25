@@ -92,6 +92,14 @@ export interface CommandCenterUser {
   vendorId?: string;
 }
 
+export interface AuthorizedActor {
+  id?: string;
+  name?: string;
+  email?: string;
+  role: CommandCenterRole;
+  vendorId?: string;
+}
+
 export interface CommandCenterSession {
   user: CommandCenterUser | null;
   isAuthenticated: boolean;

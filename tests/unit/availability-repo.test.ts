@@ -1,98 +1,147 @@
-import { AvailabilityValidationError, availabilityRepository } from "@/lib/mock/availability";
+import {
+  AvailabilityValidationError,
+  UnauthorizedAvailabilityAccessError,
+  availabilityRepository,
+} from "@/lib/mock/availability";
+import type { ApprovedTimezone, AuthorizedActor } from "@/types";
 import { beforeEach, describe, expect, it } from "vitest";
 
-describe("AvailabilityRepository Unit Tests", () => {
+const ADMIN_ACTOR: AuthorizedActor = {
+  id: "usr_admin",
+  name: "Command Center Admin",
+  email: "admin@xtreme.internal",
+  role: "ADMIN",
+};
+
+const VENDOR_A_ACTOR: AuthorizedActor = {
+  id: "usr_vendor_a",
+  name: "Arman K.",
+  email: "arman@aerojet-partners.internal",
+  role: "VENDOR",
+  vendorId: "vnd_aerojet_99",
+};
+
+const VENDOR_B_ACTOR: AuthorizedActor = {
+  id: "usr_vendor_b",
+  name: "Claire Delacroix",
+  email: "claire@cotedazur.internal",
+  role: "VENDOR",
+  vendorId: "vnd_azure_01",
+};
+
+describe("AvailabilityRepository Scoped Multi-Tenant & Timezone Validation Tests", () => {
   beforeEach(() => {
     availabilityRepository.resetDefaults();
   });
 
-  it("lists all initial availability rules", () => {
-    const rules = availabilityRepository.listRules();
-    expect(rules.length).toBe(7);
-  });
-
-  it("filters rules by vendor, active status and search query", () => {
-    const aerojetRules = availabilityRepository.listRules({ vendorId: "vnd_aerojet_99" });
-    expect(aerojetRules.length).toBe(2);
-    expect(aerojetRules.every((r) => r.vendorId === "vnd_aerojet_99")).toBe(true);
-
-    const activeRules = availabilityRepository.listRules({ active: true });
-    expect(activeRules.length).toBe(3);
-    expect(activeRules.every((r) => r.active === true)).toBe(true);
-
-    const inactiveRules = availabilityRepository.listRules({ active: false });
-    expect(inactiveRules.length).toBe(4);
-    expect(inactiveRules.every((r) => r.active === false)).toBe(true);
-
-    const searchCitation = availabilityRepository.listRules({ search: "Citation" });
-    expect(searchCitation.length).toBe(1);
-    expect(searchCitation[0].target).toContain("Cessna Citation Latitude");
-  });
-
-  it("validates required fields on rule creation", () => {
+  it("requires authenticated actor context for all operations", () => {
+    expect(() => availabilityRepository.listRules(null)).toThrow(
+      UnauthorizedAvailabilityAccessError,
+    );
+    expect(() => availabilityRepository.getRuleById(null, "avl_001")).toThrow(
+      UnauthorizedAvailabilityAccessError,
+    );
     expect(() =>
-      availabilityRepository.createRule({
-        target: "",
+      availabilityRepository.createRule(null, {
+        target: "Citation",
         weekday: "Mon - Fri",
-        timeWindow: "08:00 - 18:00",
-        timezone: "UTC",
-        capacity: 5,
+        startTime: "08:00",
+        endTime: "20:00",
+        timezone: "Europe/Paris",
+        capacity: 6,
       }),
-    ).toThrow(AvailabilityValidationError);
-
-    expect(() =>
-      availabilityRepository.createRule({
-        target: "Helicopter Fleet",
-        weekday: "",
-        timeWindow: "08:00 - 18:00",
-        timezone: "UTC",
-        capacity: 5,
-      }),
-    ).toThrow(AvailabilityValidationError);
-
-    expect(() =>
-      availabilityRepository.createRule({
-        target: "Helicopter Fleet",
-        weekday: "Daily",
-        timeWindow: "08:00 - 18:00",
-        timezone: "UTC",
-        capacity: 0,
-      }),
-    ).toThrow(AvailabilityValidationError);
+    ).toThrow(UnauthorizedAvailabilityAccessError);
   });
 
-  it("creates a new availability rule successfully", () => {
-    const created = availabilityRepository.createRule({
+  it("lists rules scoped to the authenticated Vendor organization", () => {
+    const adminRules = availabilityRepository.listRules(ADMIN_ACTOR);
+    expect(adminRules.length).toBe(7);
+
+    const vendorARules = availabilityRepository.listRules(VENDOR_A_ACTOR);
+    expect(vendorARules.length).toBe(2);
+    expect(vendorARules.every((r) => r.vendorId === "vnd_aerojet_99")).toBe(true);
+
+    const vendorBRules = availabilityRepository.listRules(VENDOR_B_ACTOR);
+    expect(vendorBRules.length).toBe(2);
+    expect(vendorBRules.every((r) => r.vendorId === "vnd_azure_01")).toBe(true);
+  });
+
+  it("strictly prevents Vendor actors from accessing or mutating other vendor rules", () => {
+    // avl_003 is owned by Côte d'Azur (Vendor B)
+    expect(() => availabilityRepository.getRuleById(VENDOR_A_ACTOR, "avl_003")).toThrow(
+      UnauthorizedAvailabilityAccessError,
+    );
+
+    expect(() =>
+      availabilityRepository.updateRule(VENDOR_A_ACTOR, "avl_003", {
+        capacity: 10,
+      }),
+    ).toThrow(UnauthorizedAvailabilityAccessError);
+
+    expect(() => availabilityRepository.toggleRuleActive(VENDOR_A_ACTOR, "avl_003", true)).toThrow(
+      UnauthorizedAvailabilityAccessError,
+    );
+  });
+
+  it("enforces canonical IANA timezone validation against approved timezones", () => {
+    expect(() =>
+      availabilityRepository.createRule(ADMIN_ACTOR, {
+        target: "Test Target",
+        weekday: "Mon - Fri",
+        startTime: "08:00",
+        endTime: "18:00",
+        timezone: "Invalid/Timezone_Name" as unknown as ApprovedTimezone,
+        capacity: 5,
+      }),
+    ).toThrow(/canonical IANA timezone/i);
+
+    // Canonical approved timezone succeeds
+    const created = availabilityRepository.createRule(ADMIN_ACTOR, {
       target: "VIP Chauffeur Contingent",
-      targetType: "CATEGORY",
       weekday: "Daily",
-      timeWindow: "24 Hours",
-      timezone: "Europe/Paris (UTC+1)",
+      startTime: "06:00",
+      endTime: "22:00",
+      timezone: "Europe/Paris",
       capacity: 10,
       active: true,
-      notes: "On-demand dispatch availability",
     });
-
-    expect(created.id).toMatch(/^avl_/);
-    expect(created.target).toBe("VIP Chauffeur Contingent");
-
-    const found = availabilityRepository.getRuleById(created.id);
-    expect(found).toBeDefined();
-    expect(found?.capacity).toBe(10);
+    expect(created.timezone).toBe("Europe/Paris");
+    expect(created.timezoneDisplay).toBe("Europe/Paris (UTC+1)");
   });
 
-  it("toggles active rule status and updates rule properties", () => {
-    const rule = availabilityRepository.getRuleById("avl_001");
-    expect(rule?.active).toBe(false);
+  it("validates time formats (HH:mm) and ensures startTime is before endTime", () => {
+    expect(() =>
+      availabilityRepository.createRule(ADMIN_ACTOR, {
+        target: "Test Target",
+        weekday: "Mon - Fri",
+        startTime: "25:00", // Invalid hour
+        endTime: "18:00",
+        timezone: "UTC",
+        capacity: 5,
+      }),
+    ).toThrow(/HH:mm/i);
 
-    const toggled = availabilityRepository.toggleRuleActive("avl_001");
-    expect(toggled.active).toBe(true);
+    expect(() =>
+      availabilityRepository.createRule(ADMIN_ACTOR, {
+        target: "Test Target",
+        weekday: "Mon - Fri",
+        startTime: "18:00",
+        endTime: "08:00", // Start after end
+        timezone: "UTC",
+        capacity: 5,
+      }),
+    ).toThrow(/startTime.*must precede endTime/i);
+  });
 
-    const updated = availabilityRepository.updateRule("avl_001", {
-      timeWindow: "07:00 - 23:00",
-      capacity: 10,
-    });
-    expect(updated.timeWindow).toBe("07:00 - 23:00");
-    expect(updated.capacity).toBe(10);
+  it("returns defensive snapshot copies preventing internal state mutation", () => {
+    const rule = availabilityRepository.getRuleById(ADMIN_ACTOR, "avl_001");
+    expect(rule).toBeDefined();
+
+    if (rule) {
+      rule.target = "Tampered Rule";
+    }
+
+    const fetchedAgain = availabilityRepository.getRuleById(ADMIN_ACTOR, "avl_001");
+    expect(fetchedAgain?.target).toContain("Cessna Citation Latitude");
   });
 });

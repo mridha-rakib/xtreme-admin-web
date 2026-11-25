@@ -16,6 +16,10 @@ export interface VendorPayable {
   payoutReference?: string;
   payoutMethod?: string;
   notes?: string;
+  snapshotFxRate?: number;
+  snapshotFxPair?: string;
+  amountDueXof?: number;
+  amountPaidXof?: number;
   version: number;
   createdAt: string;
   updatedAt: string;
@@ -45,6 +49,8 @@ export interface FinancialSummaryMetrics {
   refundsIssuedXof: number;
   outstandingCustomerBalanceXof: number;
   vendorAmountDueXof: number;
+  incompleteData?: boolean;
+  dateRange?: FinancialDateRange;
 }
 
 export type FinancialDateRange =

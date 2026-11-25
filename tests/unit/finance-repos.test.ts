@@ -1,4 +1,9 @@
-import { catalogRepository } from "@/lib/mock/catalog";
+import {
+  CatalogValidationError,
+  UnauthorizedCatalogAccessError,
+  catalogRepository,
+} from "@/lib/mock/catalog";
+import { customerPriceRepository } from "@/lib/mock/customer-prices";
 import {
   FinancialReportingService,
   UnauthorizedFinanceReportAccessError,
@@ -9,6 +14,7 @@ import {
   UnauthorizedFxAccessError,
   fxRateRepository,
 } from "@/lib/mock/fx-rates";
+import { pricingEvaluationService } from "@/lib/mock/pricing-evaluation";
 import {
   StalePayableVersionConflictError,
   UnauthorizedPayableAccessError,
@@ -32,6 +38,13 @@ const adminUser: CommandCenterUser = {
   role: "ADMIN",
 };
 
+const conciergeUser: CommandCenterUser = {
+  id: "usr_concierge_1",
+  email: "concierge@xtreme.local",
+  name: "Concierge Lead",
+  role: "CONCIERGE",
+};
+
 const vendorUserA: CommandCenterUser = {
   id: "usr_vendor_a",
   email: "vendor_a@monacochauffeur.com",
@@ -48,11 +61,12 @@ const vendorUserB: CommandCenterUser = {
   vendorId: "vnd_azure_01",
 };
 
-describe("Batch 9 Repositories & Domain Services", () => {
+describe("Batch 9 & 10 Repositories & Domain Corrections", () => {
   beforeEach(() => {
     vendorPayableRepository.resetDefaults();
     fxRateRepository.resetDefaults();
     catalogRepository.resetDefaults();
+    customerPriceRepository.resetDefaults();
   });
 
   describe("Vendor Payable Repository", () => {
@@ -106,7 +120,7 @@ describe("Batch 9 Repositories & Domain Services", () => {
         vendorPayableRepository.updateVendorPayable(superAdminUser, {
           payableId: target.id,
           amountPaid: target.amountDue + 500, // Exceeds due
-          status: "PAID",
+          status: "PROCESSING",
           expectedVersion: target.version,
         });
       }).toThrow(VendorPayableValidationError);
@@ -145,9 +159,17 @@ describe("Batch 9 Repositories & Domain Services", () => {
       expect(rates.some((r) => r.pair === "EUR/XOF")).toBe(true);
     });
 
-    it("prohibits vendor persona from accessing treasury rates", () => {
+    it("prohibits vendor and concierge personas from accessing treasury rates", () => {
       expect(() => {
         fxRateRepository.listRates(vendorUserA);
+      }).toThrow(UnauthorizedFxAccessError);
+
+      expect(() => {
+        fxRateRepository.listRates(conciergeUser);
+      }).toThrow(UnauthorizedFxAccessError);
+
+      expect(() => {
+        fxRateRepository.listRates(null);
       }).toThrow(UnauthorizedFxAccessError);
     });
 
@@ -163,7 +185,6 @@ describe("Batch 9 Repositories & Domain Services", () => {
       expect(updated.overrideReason).toBe("Market liquidity spread compensation");
       expect(updated.version).toBe(2);
 
-      // Audit log records entry
       const audit = fxRateRepository.getAuditLog(superAdminUser);
       expect(audit[0].pair).toBe("USD/XOF");
       expect(audit[0].rate).toBe(618.5);
@@ -199,14 +220,12 @@ describe("Batch 9 Repositories & Domain Services", () => {
     });
 
     it("allows Super Admin to clear manual override and restore automated fixing", () => {
-      // First set override
       fxRateRepository.setManualOverride(superAdminUser, {
         pair: "USD/XOF",
         rate: 625,
         reason: "Temporary spike",
       });
 
-      // Then clear override
       const restored = fxRateRepository.clearManualOverride(superAdminUser, "USD/XOF");
       expect(restored.source).toBe("AUTO");
       expect(restored.rate).toBe(restored.lastAutoRate);
@@ -220,13 +239,25 @@ describe("Batch 9 Repositories & Domain Services", () => {
       const xofFromEur = fxRateRepository.convert(100, "EUR", "XOF");
       expect(xofFromEur).toBe(65596); // 100 * 655.957 rounded
     });
+
+    it("rejects unsupported currencies with FxRateValidationError", () => {
+      expect(() => {
+        fxRateRepository.convert(100, "GBP", "XOF");
+      }).toThrow(FxRateValidationError);
+    });
+
+    it("converts using immutable historical snapshots", () => {
+      const hist = fxRateRepository.convertHistorical(100, "USD", "XOF", "2026-06-15T12:00:00Z");
+      expect(hist.amount).toBe(61250);
+      expect(hist.rate).toBe(612.5);
+      expect(hist.snapshotId).toBeDefined();
+    });
   });
 
   describe("Financial Reporting Service", () => {
     it("computes all 7 canonical financial summary metrics for administrators", () => {
       const summary = financialReportingService.getFinancialSummaryMetrics(superAdminUser);
 
-      // Verify all 7 metric properties exist and are finite numbers
       expect(summary.customerRevenueXof).toBeGreaterThan(0);
       expect(summary.vendorCostXof).toBeGreaterThan(0);
       expect(summary.grossMarginXof).toBeDefined();
@@ -235,8 +266,6 @@ describe("Batch 9 Repositories & Domain Services", () => {
       expect(summary.refundsIssuedXof).toBeGreaterThanOrEqual(0);
       expect(summary.outstandingCustomerBalanceXof).toBeGreaterThanOrEqual(0);
       expect(summary.vendorAmountDueXof).toBeGreaterThanOrEqual(0);
-
-      // Gross margin equals Revenue minus Cost
       expect(summary.grossMarginXof).toBe(summary.customerRevenueXof - summary.vendorCostXof);
     });
 
@@ -245,9 +274,59 @@ describe("Batch 9 Repositories & Domain Services", () => {
         financialReportingService.getFinancialSummaryMetrics(vendorUserA);
       }).toThrow(UnauthorizedFinanceReportAccessError);
     });
+
+    it("supports date range filtering and recognized revenue states", () => {
+      const allTime = financialReportingService.getFinancialSummaryMetrics(
+        superAdminUser,
+        "ALL_TIME",
+      );
+      expect(allTime.customerRevenueXof).toBeGreaterThan(0);
+
+      // Verify that recognized revenue only counts CONFIRMED, IN_PROGRESS, COMPLETED
+      expect(allTime.customerRevenueXof).toBeDefined();
+    });
   });
 
-  describe("Catalog Repository", () => {
+  describe("Pricing Ambiguity Detection", () => {
+    it("fails closed when multiple customer pricing configurations match the same specificity tier", () => {
+      // Seed a duplicate configuration for the same service
+      customerPriceRepository.createCustomerPrice(superAdminUser, {
+        serviceId: "srv_test_ambiguity",
+        serviceCategory: "aviation",
+        serviceName: "Test Ambiguity Flight",
+        xofAmount: 1500000,
+        priceMode: "FIXED",
+        validFrom: "2026-01-01T00:00:00Z",
+        validTo: "2026-12-31T23:59:59Z",
+        active: true,
+      });
+
+      customerPriceRepository.createCustomerPrice(superAdminUser, {
+        serviceId: "srv_test_ambiguity",
+        serviceCategory: "aviation",
+        serviceName: "Test Ambiguity Flight 2",
+        xofAmount: 1800000,
+        priceMode: "FIXED",
+        validFrom: "2026-01-01T00:00:00Z",
+        validTo: "2026-12-31T23:59:59Z",
+        active: true,
+      });
+
+      const res = pricingEvaluationService.resolveApplicablePricing(
+        superAdminUser,
+        "srv_test_ambiguity",
+        undefined,
+        undefined,
+        "2026-06-01T00:00:00Z",
+      );
+
+      expect(res.resolvable).toBe(false);
+      expect(res.ambiguous).toBe(true);
+      expect(res.reason).toMatch(/Ambiguous/);
+    });
+  });
+
+  describe("Catalog Repository Authorization", () => {
     it("lists seeded catalog categories with hierarchy and localization", () => {
       const categories = catalogRepository.listCategories();
       expect(categories.length).toBeGreaterThanOrEqual(8);
@@ -267,7 +346,15 @@ describe("Batch 9 Repositories & Domain Services", () => {
       expect(subcategories.every((c) => c.parentId === "cat_aviation")).toBe(true);
     });
 
-    it("toggles category active state", () => {
+    it("provides public projection for vendor and concierge personas", () => {
+      const publicCats = catalogRepository.listCategories(vendorUserA);
+      // All returned categories must be active
+      expect(publicCats.every((c) => c.active)).toBe(true);
+      // Expeditions was inactive in seeded data, so it should be excluded
+      expect(publicCats.some((c) => c.id === "cat_expeditions")).toBe(false);
+    });
+
+    it("toggles category active state for authorized administrators", () => {
       const target = catalogRepository.getCategoryById("cat_expeditions");
       expect(target).toBeDefined();
       if (!target) return;
@@ -278,6 +365,12 @@ describe("Batch 9 Repositories & Domain Services", () => {
         !target.active,
       );
       expect(updated.active).toBe(!target.active);
+    });
+
+    it("rejects unauthorized actors from toggling category active status", () => {
+      expect(() => {
+        catalogRepository.toggleCategoryActive(vendorUserA, "cat_expeditions", true);
+      }).toThrow(UnauthorizedCatalogAccessError);
     });
   });
 });

@@ -5,6 +5,7 @@ import { vendorRateRepository } from "./vendor-rates";
 
 export interface PricingEvaluationResult {
   resolvable: boolean;
+  ambiguous?: boolean;
   reason?: string;
   vendorRate?: VendorRate;
   customerPrice?: CustomerPriceConfig;
@@ -24,7 +25,8 @@ export class PricingEvaluationService {
    * 2. Vendor rate validity interval (validFrom <= effectiveDate <= validTo).
    * 3. Only ACTIVE customer price configurations are eligible.
    * 4. Customer price validity interval.
-   * 5. If no applicable approved price is found, fails closed with resolvable=false (no fabricated fallback prices).
+   * 5. Ambiguity detection: If multiple active configurations match at the same specificity tier,
+   *    fails closed with ambiguous=true and resolvable=false (no arbitrary first-match selection).
    * 6. Multi-tenant boundary: Vendors cannot see customer selling prices or margins.
    */
   public resolveApplicablePricing(
@@ -48,22 +50,54 @@ export class PricingEvaluationService {
           return targetDateMs >= fromMs && targetDateMs <= toMs;
         });
 
-        // Deterministic specificity precedence:
-        // 1. Exact asset match
+        // Deterministic specificity precedence with strict ambiguity detection:
+        // Tier 1: Exact asset match
         if (assetId) {
-          customerPrice = validPrices.find((p) => p.assetId === assetId);
+          const matches = validPrices.filter((p) => p.assetId === assetId);
+          if (matches.length > 1) {
+            return {
+              resolvable: false,
+              ambiguous: true,
+              reason: `Ambiguous customer pricing: ${matches.length} active matching configurations detected for asset "${assetId}".`,
+            };
+          }
+          if (matches.length === 1) {
+            customerPrice = matches[0];
+          }
         }
-        // 2. Vendor service match
+
+        // Tier 2: Vendor service match
         if (!customerPrice && vendorServiceId) {
-          customerPrice = validPrices.find(
+          const matches = validPrices.filter(
             (p) => p.vendorServiceId === vendorServiceId && !p.assetId,
           );
+          if (matches.length > 1) {
+            return {
+              resolvable: false,
+              ambiguous: true,
+              reason: `Ambiguous customer pricing: ${matches.length} active matching configurations detected for vendor service "${vendorServiceId}".`,
+            };
+          }
+          if (matches.length === 1) {
+            customerPrice = matches[0];
+          }
         }
-        // 3. Generic service match
+
+        // Tier 3: Generic service match
         if (!customerPrice && serviceId) {
-          customerPrice = validPrices.find(
+          const matches = validPrices.filter(
             (p) => p.serviceId === serviceId && !p.assetId && !p.vendorServiceId,
           );
+          if (matches.length > 1) {
+            return {
+              resolvable: false,
+              ambiguous: true,
+              reason: `Ambiguous customer pricing: ${matches.length} active matching configurations detected for service "${serviceId}".`,
+            };
+          }
+          if (matches.length === 1) {
+            customerPrice = matches[0];
+          }
         }
       } catch {
         // Actor unauthorized for customer prices
@@ -81,14 +115,37 @@ export class PricingEvaluationService {
         return targetDateMs >= fromMs && targetDateMs <= toMs;
       });
 
-      // Deterministic specificity precedence:
-      // 1. Exact asset match
+      // Deterministic specificity precedence with strict ambiguity detection:
+      // Tier 1: Exact asset match
       if (assetId) {
-        vendorRate = validRates.find((r) => r.assetId === assetId);
+        const matches = validRates.filter((r) => r.assetId === assetId);
+        if (matches.length > 1) {
+          return {
+            resolvable: false,
+            ambiguous: true,
+            reason: `Ambiguous vendor rate: ${matches.length} approved matching rates detected for asset "${assetId}".`,
+          };
+        }
+        if (matches.length === 1) {
+          vendorRate = matches[0];
+        }
       }
-      // 2. Vendor service match
+
+      // Tier 2: Vendor service match
       if (!vendorRate && vendorServiceId) {
-        vendorRate = validRates.find((r) => r.vendorServiceId === vendorServiceId && !r.assetId);
+        const matches = validRates.filter(
+          (r) => r.vendorServiceId === vendorServiceId && !r.assetId,
+        );
+        if (matches.length > 1) {
+          return {
+            resolvable: false,
+            ambiguous: true,
+            reason: `Ambiguous vendor rate: ${matches.length} approved matching rates detected for vendor service "${vendorServiceId}".`,
+          };
+        }
+        if (matches.length === 1) {
+          vendorRate = matches[0];
+        }
       }
     } catch {
       // Actor unauthorized for vendor rates
@@ -179,19 +236,13 @@ export function evaluateBookingPricing(
 
   // Calculate estimated margin only if admin and currencies permit
   let estimatedMarginXof: number | undefined;
-  if (!isVendor && customerPrice?.xofAmount && vendorRate) {
-    if (vendorRate.currency === "XOF") {
-      estimatedMarginXof = customerPrice.xofAmount - vendorRate.amount;
-    } else {
-      // Cross-currency margin requires an approved FX rate snapshot.
-      // Until an approved snapshot is resolved, report margin as unavailable.
-      estimatedMarginXof = undefined;
-    }
+  if (!isVendor && customerPrice && vendorRate && vendorRate.currency === "XOF") {
+    estimatedMarginXof = customerPrice.xofAmount - vendorRate.amount;
   }
 
   return {
-    customerSellingPriceXof: isVendor ? undefined : customerPrice?.xofAmount,
-    appliedCustomerPriceId: isVendor ? undefined : customerPrice?.id,
+    customerSellingPriceXof: !isVendor ? customerPrice?.xofAmount : undefined,
+    appliedCustomerPriceId: !isVendor ? customerPrice?.id : undefined,
     vendorRateApplied: !!vendorRate,
     activeVendorRate: vendorRate,
     vendorCostAmount: vendorRate?.amount,

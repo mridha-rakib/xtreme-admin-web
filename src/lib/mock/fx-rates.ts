@@ -20,6 +20,47 @@ export class UnauthorizedFxAccessError extends Error {
   }
 }
 
+export interface HistoricalFxSnapshot {
+  snapshotId: string;
+  pair: FxPair;
+  baseCurrency: string;
+  quoteCurrency: string;
+  rate: number;
+  validFrom: string;
+  validTo: string;
+  notes?: string;
+}
+
+/**
+ * Authoritative immutable historical exchange rate snapshots used for
+ * historical revenue recognition and financial reporting.
+ */
+export const INITIAL_HISTORICAL_SNAPSHOTS: HistoricalFxSnapshot[] = [
+  {
+    snapshotId: "fx_snap_usd_2025_2026",
+    pair: "USD/XOF",
+    baseCurrency: "USD",
+    quoteCurrency: "XOF",
+    rate: 612.5,
+    validFrom: "2025-01-01T00:00:00Z",
+    validTo: "2026-12-31T23:59:59Z",
+    notes: "Authoritative historical fixing benchmark (USD/XOF)",
+  },
+  {
+    snapshotId: "fx_snap_eur_2025_2026",
+    pair: "EUR/XOF",
+    baseCurrency: "EUR",
+    quoteCurrency: "XOF",
+    rate: 655.957,
+    validFrom: "2025-01-01T00:00:00Z",
+    validTo: "2026-12-31T23:59:59Z",
+    notes: "Authoritative historical BCEAO statutory peg (EUR/XOF)",
+  },
+];
+
+/**
+ * Note: Initial AUTO rates represent simulated fictional development market data feed.
+ */
 export const INITIAL_FX_RATES: FxRateRecord[] = [
   {
     id: "fx_usd_xof",
@@ -73,6 +114,7 @@ export const INITIAL_FX_AUDIT: FxRateAuditEntry[] = [
 export class FxRateRepository {
   private rates: FxRateRecord[] = [];
   private auditLog: FxRateAuditEntry[] = [];
+  private historicalSnapshots: HistoricalFxSnapshot[] = [];
   private listeners: Set<() => void> = new Set();
 
   constructor() {
@@ -82,6 +124,7 @@ export class FxRateRepository {
   public resetDefaults(): void {
     this.rates = JSON.parse(JSON.stringify(INITIAL_FX_RATES));
     this.auditLog = JSON.parse(JSON.stringify(INITIAL_FX_AUDIT));
+    this.historicalSnapshots = JSON.parse(JSON.stringify(INITIAL_HISTORICAL_SNAPSHOTS));
     this.notify();
   }
 
@@ -104,33 +147,27 @@ export class FxRateRepository {
     if (!actor || !actor.role) {
       throw new UnauthorizedFxAccessError("Authentication required: Actor context missing.");
     }
-    if (actor.role === "VENDOR") {
+    if (actor.role === "VENDOR" || actor.role === "CONCIERGE") {
       throw new UnauthorizedFxAccessError(
-        "Unauthorized: Vendor partners do not have access to FX treasury configurations.",
+        `Unauthorized: Role "${actor.role}" does not have access to FX treasury configurations.`,
       );
     }
     return actor;
   }
 
   public listRates(actor?: AuthorizedActor | null): FxRateRecord[] {
-    if (actor) {
-      this.checkActor(actor);
-    }
+    this.checkActor(actor);
     return this.rates.map((r) => structuredClone(r));
   }
 
   public getRateByPair(pair: FxPair, actor?: AuthorizedActor | null): FxRateRecord | undefined {
-    if (actor) {
-      this.checkActor(actor);
-    }
+    this.checkActor(actor);
     const record = this.rates.find((r) => r.pair === pair);
     return record ? structuredClone(record) : undefined;
   }
 
   public getAuditLog(actor?: AuthorizedActor | null): FxRateAuditEntry[] {
-    if (actor) {
-      this.checkActor(actor);
-    }
+    this.checkActor(actor);
     return structuredClone(this.auditLog);
   }
 
@@ -235,33 +272,126 @@ export class FxRateRepository {
     return structuredClone(record);
   }
 
+  /**
+   * Real-time rate conversion using currently active rate records.
+   * Rejects unsupported currencies with FxRateValidationError (no silent raw amount returns).
+   */
   public convert(amount: number, fromCurrency: string, toCurrency: string): number {
     const from = fromCurrency.toUpperCase().trim();
     const to = toCurrency.toUpperCase().trim();
     if (from === to) return amount;
 
+    const SUPPORTED = ["USD", "EUR", "XOF"];
+    if (!SUPPORTED.includes(from) || !SUPPORTED.includes(to)) {
+      throw new FxRateValidationError(
+        `Unsupported FX currency conversion from "${from}" to "${to}". Supported currencies: ${SUPPORTED.join(", ")}.`,
+      );
+    }
+
     if (from === "USD" && to === "XOF") {
       const record = this.rates.find((r) => r.pair === "USD/XOF");
-      const rate = record ? record.rate : 612.5;
-      return Math.round(amount * rate);
+      if (!record) {
+        throw new FxRateValidationError("Missing authoritative active FX rate for USD/XOF.");
+      }
+      return Math.round(amount * record.rate);
     }
     if (from === "EUR" && to === "XOF") {
       const record = this.rates.find((r) => r.pair === "EUR/XOF");
-      const rate = record ? record.rate : 655.957;
-      return Math.round(amount * rate);
+      if (!record) {
+        throw new FxRateValidationError("Missing authoritative active FX rate for EUR/XOF.");
+      }
+      return Math.round(amount * record.rate);
     }
     if (from === "XOF" && to === "USD") {
       const record = this.rates.find((r) => r.pair === "USD/XOF");
-      const rate = record ? record.rate : 612.5;
-      return Number((amount / rate).toFixed(2));
+      if (!record) {
+        throw new FxRateValidationError("Missing authoritative active FX rate for USD/XOF.");
+      }
+      return Number((amount / record.rate).toFixed(2));
     }
     if (from === "XOF" && to === "EUR") {
       const record = this.rates.find((r) => r.pair === "EUR/XOF");
-      const rate = record ? record.rate : 655.957;
-      return Number((amount / rate).toFixed(2));
+      if (!record) {
+        throw new FxRateValidationError("Missing authoritative active FX rate for EUR/XOF.");
+      }
+      return Number((amount / record.rate).toFixed(2));
     }
 
-    return amount;
+    throw new FxRateValidationError(
+      `Unsupported FX conversion path between "${from}" and "${to}".`,
+    );
+  }
+
+  /**
+   * Historical rate conversion against immutable historical exchange rate snapshots.
+   */
+  public convertHistorical(
+    amount: number,
+    fromCurrency: string,
+    toCurrency: string,
+    timestampIso?: string,
+  ): { amount: number; rate: number; snapshotId?: string } {
+    const from = fromCurrency.toUpperCase().trim();
+    const to = toCurrency.toUpperCase().trim();
+    if (from === to) {
+      return { amount, rate: 1 };
+    }
+
+    const SUPPORTED = ["USD", "EUR", "XOF"];
+    if (!SUPPORTED.includes(from) || !SUPPORTED.includes(to)) {
+      throw new FxRateValidationError(
+        `Unsupported FX currency conversion from "${from}" to "${to}". Supported currencies: ${SUPPORTED.join(", ")}.`,
+      );
+    }
+
+    const tMs = timestampIso ? Date.parse(timestampIso) : Date.now();
+    const pair = (from === "XOF" ? `${to}/XOF` : `${from}/XOF`) as FxPair;
+
+    const snapshot = this.historicalSnapshots.find((s) => {
+      if (s.pair !== pair) return false;
+      const fromMs = Date.parse(s.validFrom);
+      const toMs = Date.parse(s.validTo);
+      return tMs >= fromMs && tMs <= toMs;
+    });
+
+    if (!snapshot) {
+      throw new FxRateValidationError(
+        `No authoritative historical FX snapshot found for pair "${pair}" at timestamp "${timestampIso || "now"}".`,
+      );
+    }
+
+    if (from === "USD" && to === "XOF") {
+      return {
+        amount: Math.round(amount * snapshot.rate),
+        rate: snapshot.rate,
+        snapshotId: snapshot.snapshotId,
+      };
+    }
+    if (from === "EUR" && to === "XOF") {
+      return {
+        amount: Math.round(amount * snapshot.rate),
+        rate: snapshot.rate,
+        snapshotId: snapshot.snapshotId,
+      };
+    }
+    if (from === "XOF" && to === "USD") {
+      return {
+        amount: Number((amount / snapshot.rate).toFixed(2)),
+        rate: snapshot.rate,
+        snapshotId: snapshot.snapshotId,
+      };
+    }
+    if (from === "XOF" && to === "EUR") {
+      return {
+        amount: Number((amount / snapshot.rate).toFixed(2)),
+        rate: snapshot.rate,
+        snapshotId: snapshot.snapshotId,
+      };
+    }
+
+    throw new FxRateValidationError(
+      `Unsupported conversion path "${from}" -> "${to}" at timestamp "${timestampIso}".`,
+    );
   }
 }
 

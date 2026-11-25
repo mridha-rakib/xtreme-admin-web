@@ -5,6 +5,7 @@ import type {
   VendorPayable,
   VendorPayableFilterOptions,
 } from "@/types";
+import { hasCommandCenterPermission } from "@/types";
 
 export class VendorPayableValidationError extends Error {
   constructor(message: string) {
@@ -46,6 +47,10 @@ export const INITIAL_VENDOR_PAYABLES: VendorPayable[] = [
     payoutReference: "WIRE-20261123-018",
     payoutMethod: "Bank Wire / SWIFT",
     notes: "Settled via corporate wire upon passenger trip completion verification.",
+    snapshotFxRate: 612.5,
+    snapshotFxPair: "USD/XOF",
+    amountDueXof: 85750,
+    amountPaidXof: 85750,
     version: 1,
     createdAt: "2026-11-23T18:30:00Z",
     updatedAt: "2026-11-23T19:00:00Z",
@@ -66,6 +71,10 @@ export const INITIAL_VENDOR_PAYABLES: VendorPayable[] = [
     payoutReference: "SEPA-20261122-017",
     payoutMethod: "SEPA Corporate Transfer",
     notes: "Initial deposit disbursement released. Balance queued for final kitchen close-out.",
+    snapshotFxRate: 655.957,
+    snapshotFxPair: "EUR/XOF",
+    amountDueXof: 341098,
+    amountPaidXof: 163989,
     version: 1,
     createdAt: "2026-11-22T15:00:00Z",
     updatedAt: "2026-11-22T16:00:00Z",
@@ -85,6 +94,10 @@ export const INITIAL_VENDOR_PAYABLES: VendorPayable[] = [
     status: "PENDING",
     payoutMethod: "Direct Wire",
     notes: "Awaiting customer final invoice settlement before payout release.",
+    snapshotFxRate: 612.5,
+    snapshotFxPair: "USD/XOF",
+    amountDueXof: 1163750,
+    amountPaidXof: 0,
     version: 1,
     createdAt: "2026-11-23T09:30:00Z",
     updatedAt: "2026-11-23T09:30:00Z",
@@ -105,6 +118,10 @@ export const INITIAL_VENDOR_PAYABLES: VendorPayable[] = [
     payoutReference: "WIRE-20261121-015",
     payoutMethod: "Bank Wire / SWIFT",
     notes: "Ramp handling and ground handling fees verified and disbursed.",
+    snapshotFxRate: 612.5,
+    snapshotFxPair: "USD/XOF",
+    amountDueXof: 171500,
+    amountPaidXof: 171500,
     version: 1,
     createdAt: "2026-11-21T12:00:00Z",
     updatedAt: "2026-11-21T14:00:00Z",
@@ -124,11 +141,23 @@ export const INITIAL_VENDOR_PAYABLES: VendorPayable[] = [
     status: "ON_HOLD",
     payoutMethod: "Bank Wire / SWIFT",
     notes: "Payout held pending fuel surcharge reconciliation against aircraft flight log.",
+    snapshotFxRate: 612.5,
+    snapshotFxPair: "USD/XOF",
+    amountDueXof: 2143750,
+    amountPaidXof: 0,
     version: 1,
     createdAt: "2026-11-20T10:00:00Z",
     updatedAt: "2026-11-20T10:00:00Z",
   },
 ];
+
+const ALLOWED_STATUS_TRANSITIONS: Record<PayableStatus, PayableStatus[]> = {
+  PENDING: ["PROCESSING", "ON_HOLD"],
+  PROCESSING: ["PAID", "FAILED", "ON_HOLD"],
+  ON_HOLD: ["PENDING", "PROCESSING"],
+  FAILED: ["PENDING", "PROCESSING"],
+  PAID: [], // Terminal state
+};
 
 export class VendorPayableRepository {
   private payables: VendorPayable[] = [];
@@ -273,14 +302,40 @@ export class VendorPayableRepository {
       );
     }
 
-    const payable = this.payables.find((p) => p.id === params.payableId);
-    if (!payable) {
+    if (
+      !hasCommandCenterPermission(validActor.role, "manage:finance") &&
+      validActor.role !== "SUPER_ADMIN" &&
+      validActor.role !== "ADMIN"
+    ) {
+      throw new UnauthorizedPayableAccessError(
+        `Role "${validActor.role}" is not authorized to update vendor payables. Financial management permissions required.`,
+      );
+    }
+
+    const payableIndex = this.payables.findIndex((p) => p.id === params.payableId);
+    if (payableIndex === -1) {
       throw new VendorPayableValidationError(`Payable not found: "${params.payableId}".`);
     }
 
+    const currentPayable = this.payables[payableIndex];
+
     // Optimistic concurrency check
-    if (params.expectedVersion !== undefined && payable.version !== params.expectedVersion) {
-      throw new StalePayableVersionConflictError(params.expectedVersion, payable.version);
+    if (params.expectedVersion !== undefined && currentPayable.version !== params.expectedVersion) {
+      throw new StalePayableVersionConflictError(params.expectedVersion, currentPayable.version);
+    }
+
+    // Atomic mutation: clone candidate first
+    const candidate: VendorPayable = structuredClone(currentPayable);
+
+    // Status transition validation
+    if (params.status && params.status !== candidate.status) {
+      const allowed = ALLOWED_STATUS_TRANSITIONS[candidate.status] || [];
+      if (!allowed.includes(params.status)) {
+        throw new VendorPayableValidationError(
+          `Illegal status transition from "${candidate.status}" to "${params.status}". Allowed next statuses: ${allowed.length ? allowed.join(", ") : "none (terminal state)"}.`,
+        );
+      }
+      candidate.status = params.status;
     }
 
     if (params.amountPaid !== undefined) {
@@ -294,27 +349,29 @@ export class VendorPayableRepository {
       if (params.amountPaid < 0) {
         throw new VendorPayableValidationError("Amount paid cannot be negative.");
       }
-      if (params.amountPaid > payable.amountDue) {
+      if (params.amountPaid > candidate.amountDue) {
         throw new VendorPayableValidationError(
-          `Amount paid (${params.amountPaid} ${payable.currency}) exceeds total amount due (${payable.amountDue} ${payable.currency}).`,
+          `Amount paid (${params.amountPaid} ${candidate.currency}) exceeds total amount due (${candidate.amountDue} ${candidate.currency}).`,
         );
       }
-      payable.amountPaid = params.amountPaid;
+      candidate.amountPaid = params.amountPaid;
+      candidate.amountPaidXof = Math.round(params.amountPaid * (candidate.snapshotFxRate || 1));
     }
 
-    payable.status = params.status;
     if (params.payoutReference !== undefined) {
-      payable.payoutReference = params.payoutReference.trim() || undefined;
+      candidate.payoutReference = params.payoutReference.trim() || undefined;
     }
     if (params.notes !== undefined) {
-      payable.notes = params.notes.trim() || undefined;
+      candidate.notes = params.notes.trim() || undefined;
     }
 
-    payable.version += 1;
-    payable.updatedAt = new Date().toISOString();
+    candidate.version += 1;
+    candidate.updatedAt = new Date().toISOString();
 
+    // Replace atomically
+    this.payables[payableIndex] = candidate;
     this.notify();
-    return structuredClone(payable);
+    return structuredClone(candidate);
   }
 }
 

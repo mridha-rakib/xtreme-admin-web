@@ -1,9 +1,17 @@
 import type { AuthorizedActor, CatalogCategory, CatalogFilterOptions } from "@/types";
+import { hasCommandCenterPermission } from "@/types";
 
 export class CatalogValidationError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "CatalogValidationError";
+  }
+}
+
+export class UnauthorizedCatalogAccessError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "UnauthorizedCatalogAccessError";
   }
 }
 
@@ -179,7 +187,57 @@ export class CatalogRepository {
     }
   }
 
-  public listCategories(filters?: CatalogFilterOptions): CatalogCategory[] {
+  /**
+   * Public active categories projection accessible without administrative privileges.
+   */
+  public listPublicCategories(filters?: CatalogFilterOptions): CatalogCategory[] {
+    return this.categories
+      .filter((c) => {
+        if (!c.active) return false;
+        if (filters?.parentId && filters.parentId !== "ALL") {
+          if (filters.parentId === "ROOT") {
+            if (c.parentId) return false;
+          } else if (c.parentId !== filters.parentId) {
+            return false;
+          }
+        }
+        if (filters?.search?.trim()) {
+          const q = filters.search.toLowerCase().trim();
+          const matchName = c.name.toLowerCase().includes(q);
+          const matchSlug = c.slug.toLowerCase().includes(q);
+          const matchEn = c.localizedNames.en.toLowerCase().includes(q);
+          const matchFr = c.localizedNames.fr.toLowerCase().includes(q);
+          if (!matchName && !matchSlug && !matchEn && !matchFr) return false;
+        }
+        return true;
+      })
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .map((c) => structuredClone(c));
+  }
+
+  /**
+   * List categories with role authorization checks.
+   * Administrative personas receive full catalog management visibility.
+   * Vendor and Concierge personas receive only the public active categories projection.
+   */
+  public listCategories(
+    actorOrFilters?: AuthorizedActor | CatalogFilterOptions | null,
+    maybeFilters?: CatalogFilterOptions,
+  ): CatalogCategory[] {
+    let actor: AuthorizedActor | null | undefined;
+    let filters: CatalogFilterOptions | undefined;
+
+    if (actorOrFilters && "role" in actorOrFilters) {
+      actor = actorOrFilters as AuthorizedActor;
+      filters = maybeFilters;
+    } else {
+      filters = actorOrFilters as CatalogFilterOptions;
+    }
+
+    if (actor && (actor.role === "VENDOR" || actor.role === "CONCIERGE")) {
+      return this.listPublicCategories(filters);
+    }
+
     return this.categories
       .filter((c) => {
         if (filters?.parentId && filters.parentId !== "ALL") {
@@ -209,7 +267,6 @@ export class CatalogRepository {
         if (filters?.sort === "updated") {
           return Date.parse(b.updatedAt) - Date.parse(a.updatedAt);
         }
-        // default "order"
         return a.sortOrder - b.sortOrder;
       })
       .map((c) => structuredClone(c));
@@ -223,10 +280,24 @@ export class CatalogRepository {
   }
 
   public toggleCategoryActive(
-    _actor: AuthorizedActor | null | undefined,
+    actor: AuthorizedActor | null | undefined,
     id: string,
     active?: boolean,
   ): CatalogCategory {
+    if (!actor || !actor.role) {
+      throw new UnauthorizedCatalogAccessError("Authentication required: Actor context missing.");
+    }
+
+    if (
+      !hasCommandCenterPermission(actor.role, "manage:assets") &&
+      actor.role !== "SUPER_ADMIN" &&
+      actor.role !== "ADMIN"
+    ) {
+      throw new UnauthorizedCatalogAccessError(
+        `Role "${actor.role}" is not authorized to modify catalog categories. Permission "manage:assets" or administrative authority required.`,
+      );
+    }
+
     const cat = this.categories.find((item) => item.id === id);
     if (!cat) {
       throw new CatalogValidationError(`Category not found: "${id}".`);

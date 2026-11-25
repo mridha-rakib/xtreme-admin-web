@@ -92,6 +92,26 @@ export default function VendorPayablesListPage() {
         {/* Finance Sub-navigation Tabs */}
         <FinanceNavigationTabs />
 
+        {/* UI-API-02 Notice for Admins */}
+        {!isVendor && (
+          <div className="mb-6 p-4 rounded-xl bg-[#EFF8FF] border border-[#B2DDFF] flex items-start gap-3">
+            <div className="w-5 h-5 rounded-full bg-[#175CD3] text-white flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">
+              i
+            </div>
+            <div className="text-sm text-[#1E40AF]">
+              <div className="font-semibold text-[#1E3A8A]">
+                UI-API-02 Reconciliation Notice: Administrative Payable Directory Scope
+              </div>
+              <p className="mt-0.5 text-[#1E40AF] leading-relaxed">
+                Command Center Vendor Payables displays verified vendor disbursement obligations.
+                Full cross-vendor administrative ledger browsing and automated bank settlement are
+                pending backend accounting ledger reconciliation. Individual vendor accounts and
+                known payable records can be audited below.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Summary KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <div className="bg-white border border-[#DDD8CF] rounded-xl p-4 shadow-sm">

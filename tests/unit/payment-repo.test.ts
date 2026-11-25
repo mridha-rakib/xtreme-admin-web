@@ -1,9 +1,28 @@
 import {
   PaymentValidationError,
+  UnauthorizedPaymentAccessError,
   UnauthorizedRefundRoleError,
   paymentRepository,
 } from "@/lib/mock/payments";
+import type { AuthorizedActor } from "@/types";
 import { beforeEach, describe, expect, it } from "vitest";
+
+const adminActor: AuthorizedActor = {
+  id: "usr_admin",
+  role: "ADMIN",
+};
+
+const vendorActorA: AuthorizedActor = {
+  id: "usr_vendor_a",
+  role: "VENDOR",
+  vendorId: "vnd_005",
+};
+
+const vendorActorB: AuthorizedActor = {
+  id: "usr_vendor_b",
+  role: "VENDOR",
+  vendorId: "vnd_azure_01",
+};
 
 describe("PaymentRepository Unit & Domain Model Tests", () => {
   beforeEach(() => {
@@ -133,5 +152,57 @@ describe("PaymentRepository Unit & Domain Model Tests", () => {
     expect(updated?.refundedAmount).toBe(185);
     expect(updated?.refundableRemainder).toBe(0);
     expect(updated?.status).toBe("REFUNDED");
+  });
+
+  it("enforces tenant isolation: vendor only sees payments for own bookings", () => {
+    // bkg_018 belongs to vnd_aerojet_99
+    const vendorAPayments = paymentRepository.listPayments(vendorActorA);
+    expect(vendorAPayments.length).toBeGreaterThan(0);
+    expect(vendorAPayments.every((p) => p.bookingId === "bkg_018")).toBe(true);
+
+    // Vendor B cannot access Vendor A payment
+    expect(() => {
+      paymentRepository.getPaymentById("pmt_018_1", vendorActorB);
+    }).toThrow(UnauthorizedPaymentAccessError);
+  });
+
+  it("accounts for pendingRefundAmount in eligible refundable remainder calculation", () => {
+    const payment = paymentRepository.getPaymentById("pmt_018_1");
+    expect(payment).toBeDefined();
+    if (payment) {
+      payment.pendingRefundAmount = 50; // 185 total - 50 pending = 135 remainder
+      payment.refundableRemainder = 135;
+
+      // Requesting 150 exceeds 135 eligible remainder
+      expect(() => {
+        paymentRepository.initiateRefund({
+          paymentId: "pmt_018_1",
+          amount: 150,
+          reason: "Over limit test",
+          requestedByRole: "ADMIN",
+        });
+      }).toThrow(/exceeds eligible refundable remainder/);
+
+      // Requesting 100 succeeds
+      const ref = paymentRepository.initiateRefund({
+        paymentId: "pmt_018_1",
+        amount: 100,
+        reason: "Valid partial",
+        requestedByRole: "ADMIN",
+      });
+      expect(ref.amount).toBe(100);
+      expect(payment.refundableRemainder).toBe(35); // 185 - 100 - 50
+    }
+  });
+
+  it("validates currency precision on refund requests", () => {
+    expect(() => {
+      paymentRepository.initiateRefund({
+        paymentId: "pmt_018_1",
+        amount: 50.125, // USD supports max 2 decimal places
+        reason: "Invalid decimals",
+        requestedByRole: "ADMIN",
+      });
+    }).toThrow(/maximum of 2 decimal places/);
   });
 });

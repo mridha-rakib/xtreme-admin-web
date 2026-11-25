@@ -209,6 +209,9 @@ export class CustomerPriceRepository {
     if (amount <= 0) {
       throw new CustomerPriceValidationError("XOF amount must be greater than zero.");
     }
+    if (amount > Number.MAX_SAFE_INTEGER) {
+      throw new CustomerPriceValidationError("XOF amount exceeds maximum safe numerical limit.");
+    }
     if (!Number.isInteger(amount)) {
       throw new CustomerPriceValidationError(
         "XOF is a zero-decimal integer currency. Fractional minor units are not permitted.",

@@ -230,12 +230,13 @@ export class AssetAllocationService {
     if (activeRules.length > 0 && hasInterval) {
       if (!hasAvailableOverride) {
         for (const rule of activeRules) {
-          const { weekday, time } = getLocalWeekdayAndTimeString(reqStart, rule.timezone);
+          const startParts = getLocalWeekdayAndTimeString(reqStart, rule.timezone);
+          const endParts = getLocalWeekdayAndTimeString(reqEnd, rule.timezone);
 
-          if (!isWeekdayInApprovedWindow(rule.weekday, weekday)) {
+          if (!isWeekdayInApprovedWindow(rule.weekday, startParts.weekday)) {
             return {
               eligible: false,
-              reason: `Requested allocation day (${weekday}) is outside approved recurring schedule ("${rule.weekday}") for asset "${asset.name}".`,
+              reason: `Requested allocation day (${startParts.weekday}) is outside approved recurring schedule ("${rule.weekday}") for asset "${asset.name}".`,
               asset,
             };
           }
@@ -244,10 +245,17 @@ export class AssetAllocationService {
             rule.timeWindow !== "24 Hours" &&
             !(rule.startTime === "00:00" && (rule.endTime === "24:00" || rule.endTime === "23:59"))
           ) {
-            if (time < rule.startTime || time > rule.endTime) {
+            if (startParts.time < rule.startTime || startParts.time > rule.endTime) {
               return {
                 eligible: false,
-                reason: `Requested allocation time (${time} in ${rule.timezone}) is outside approved operating hours (${rule.timeWindow}) for asset "${asset.name}".`,
+                reason: `Requested allocation time (${startParts.time} in ${rule.timezone}) is outside approved operating hours (${rule.timeWindow}) for asset "${asset.name}".`,
+                asset,
+              };
+            }
+            if (endParts.time < rule.startTime || endParts.time > rule.endTime) {
+              return {
+                eligible: false,
+                reason: `Requested allocation completion time (${endParts.time} in ${rule.timezone}) is outside approved operating hours (${rule.timeWindow}) for asset "${asset.name}".`,
                 asset,
               };
             }
@@ -301,6 +309,8 @@ export class AssetAllocationService {
         }
 
         const isAllocated =
+          b.allocation?.assetId === asset.id ||
+          b.allocation?.assetCode === asset.code ||
           b.dynamicFields?.allocatedAssetId === asset.id ||
           b.dynamicFields?.allocatedAssetCode === asset.code;
         if (!isAllocated) continue;
@@ -309,7 +319,10 @@ export class AssetAllocationService {
         let bStart = Number.NaN;
         let bEnd = Number.NaN;
 
-        if (b.dynamicFields?.allocatedStartsAt && b.dynamicFields?.allocatedEndsAt) {
+        if (b.allocation?.allocatedStartsAt && b.allocation?.allocatedEndsAt) {
+          bStart = parseIsoTimestamp(b.allocation.allocatedStartsAt);
+          bEnd = parseIsoTimestamp(b.allocation.allocatedEndsAt);
+        } else if (b.dynamicFields?.allocatedStartsAt && b.dynamicFields?.allocatedEndsAt) {
           bStart = parseIsoTimestamp(b.dynamicFields.allocatedStartsAt);
           bEnd = parseIsoTimestamp(b.dynamicFields.allocatedEndsAt);
         } else if (b.schedule) {
@@ -376,6 +389,8 @@ export class AssetAllocationService {
     return result.items
       .filter((b: Booking) => {
         const matchAsset =
+          b.allocation?.assetId === asset.id ||
+          b.allocation?.assetCode === asset.code ||
           b.dynamicFields?.allocatedAssetId === asset.id ||
           b.dynamicFields?.allocatedAssetCode === asset.code;
 
@@ -386,17 +401,23 @@ export class AssetAllocationService {
 
         return matchAsset && isCommitted;
       })
-      .map((b: Booking) => ({
-        bookingId: b.id,
-        reference: b.reference,
-        customerName: b.customerName,
-        schedule: b.schedule,
-        lifecycleStatus: b.lifecycleStatus,
-        paymentStatus: b.paymentStatus,
-        assetId: asset.id,
-        assetCode: asset.code,
-        preserved: true,
-      }));
+      .map((b: Booking) => {
+        const isPreserved =
+          b.lifecycleStatus === "CONFIRMED" ||
+          b.lifecycleStatus === "IN_PROGRESS" ||
+          b.lifecycleStatus === "PENDING_ADMIN";
+        return {
+          bookingId: b.id,
+          reference: b.reference,
+          customerName: b.customerName,
+          schedule: b.schedule,
+          lifecycleStatus: b.lifecycleStatus,
+          paymentStatus: b.paymentStatus,
+          assetId: asset.id,
+          assetCode: asset.code,
+          preserved: isPreserved,
+        };
+      });
   }
 
   /**

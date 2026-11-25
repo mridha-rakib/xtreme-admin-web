@@ -1,3 +1,5 @@
+import { bookingRepository, getVendorIdForBooking } from "@/lib/mock/bookings";
+import type { AuthorizedActor } from "@/types";
 import type { InitiateRefundParams, PaymentRecord, RefundRecord } from "@/types/payment";
 
 export class PaymentValidationError extends Error {
@@ -13,6 +15,13 @@ export class UnauthorizedRefundRoleError extends Error {
       `Role '${role}' is not authorized to initiate refunds. Refund management requires Admin or Super Admin privileges.`,
     );
     this.name = "UnauthorizedRefundRoleError";
+  }
+}
+
+export class UnauthorizedPaymentAccessError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "UnauthorizedPaymentAccessError";
   }
 }
 
@@ -110,28 +119,70 @@ export class PaymentRepository {
     }
   }
 
-  public listPayments(): PaymentRecord[] {
+  public listPayments(actor?: AuthorizedActor): PaymentRecord[] {
+    if (actor?.role === "VENDOR") {
+      if (!actor.vendorId) {
+        throw new UnauthorizedPaymentAccessError(
+          "Vendor actor has no associated vendor organization membership.",
+        );
+      }
+      return this.payments.filter((p) => {
+        const b = bookingRepository.getBookingById(p.bookingId);
+        if (!b) return false;
+        const vendorId = getVendorIdForBooking(b);
+        return vendorId.toLowerCase() === actor.vendorId?.toLowerCase();
+      });
+    }
     return [...this.payments];
   }
 
-  public getPaymentById(paymentId: string): PaymentRecord | undefined {
-    return this.payments.find((p) => p.id === paymentId);
+  public getPaymentById(paymentId: string, actor?: AuthorizedActor): PaymentRecord | undefined {
+    const p = this.payments.find((item) => item.id === paymentId);
+    if (!p) return undefined;
+    if (actor?.role === "VENDOR") {
+      if (!actor.vendorId) {
+        throw new UnauthorizedPaymentAccessError(
+          "Vendor actor has no associated vendor organization membership.",
+        );
+      }
+      const b = bookingRepository.getBookingById(p.bookingId);
+      if (!b || getVendorIdForBooking(b).toLowerCase() !== actor.vendorId.toLowerCase()) {
+        throw new UnauthorizedPaymentAccessError(
+          "Unauthorized: Cannot access payment belonging to another vendor organization.",
+        );
+      }
+    }
+    return p;
   }
 
-  public listPaymentsByBooking(bookingId: string): PaymentRecord[] {
+  public listPaymentsByBooking(bookingId: string, actor?: AuthorizedActor): PaymentRecord[] {
+    if (actor?.role === "VENDOR") {
+      if (!actor.vendorId) {
+        throw new UnauthorizedPaymentAccessError(
+          "Vendor actor has no associated vendor organization membership.",
+        );
+      }
+      const b = bookingRepository.getBookingById(bookingId);
+      if (!b || getVendorIdForBooking(b).toLowerCase() !== actor.vendorId.toLowerCase()) {
+        throw new UnauthorizedPaymentAccessError(
+          "Unauthorized: Cannot access payments for another vendor organization.",
+        );
+      }
+    }
     return this.payments.filter((p) => p.bookingId === bookingId);
   }
 
-  public initiateRefund(params: InitiateRefundParams): RefundRecord {
-    const payment = this.getPaymentById(params.paymentId);
+  public initiateRefund(params: InitiateRefundParams, actor?: AuthorizedActor): RefundRecord {
+    const payment = this.getPaymentById(params.paymentId, actor);
     if (!payment) {
       throw new PaymentValidationError(`Payment not found: ${params.paymentId}`);
     }
 
     // Role check: Only ADMIN or SUPER_ADMIN may initiate refunds
     const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
-    if (!allowedRoles.includes(params.requestedByRole)) {
-      throw new UnauthorizedRefundRoleError(params.requestedByRole);
+    const effectiveRole = actor?.role || params.requestedByRole;
+    if (!allowedRoles.includes(effectiveRole)) {
+      throw new UnauthorizedRefundRoleError(effectiveRole);
     }
 
     if (payment.status !== "CAPTURED" && payment.settledAmount <= 0) {
@@ -140,13 +191,40 @@ export class PaymentRepository {
       );
     }
 
-    if (params.amount <= 0) {
-      throw new PaymentValidationError("Refund amount must be strictly greater than 0.");
+    if (
+      typeof params.amount !== "number" ||
+      !Number.isFinite(params.amount) ||
+      params.amount <= 0
+    ) {
+      throw new PaymentValidationError(
+        "Refund amount must be a finite number strictly greater than 0.",
+      );
     }
 
-    if (params.amount > payment.refundableRemainder) {
+    if (params.amount > Number.MAX_SAFE_INTEGER) {
+      throw new PaymentValidationError("Refund amount exceeds maximum safe numerical limit.");
+    }
+
+    const cur = payment.currency.toUpperCase().trim();
+    if (cur === "XOF" && !Number.isInteger(params.amount)) {
       throw new PaymentValidationError(
-        `Refund amount (${params.amount} ${payment.currency}) exceeds eligible refundable remainder (${payment.refundableRemainder} ${payment.currency}).`,
+        "XOF is a zero-decimal integer currency. Fractional refund amounts are not permitted.",
+      );
+    }
+    const str = params.amount.toString();
+    const dotIdx = str.indexOf(".");
+    if (dotIdx !== -1 && str.length - dotIdx - 1 > 2) {
+      throw new PaymentValidationError(`Currency ${cur} supports a maximum of 2 decimal places.`);
+    }
+
+    const effectiveRefundable = Math.max(
+      0,
+      payment.settledAmount - payment.refundedAmount - payment.pendingRefundAmount,
+    );
+
+    if (params.amount > effectiveRefundable) {
+      throw new PaymentValidationError(
+        `Refund amount (${params.amount} ${payment.currency}) exceeds eligible refundable remainder (${effectiveRefundable} ${payment.currency}).`,
       );
     }
 
@@ -161,7 +239,7 @@ export class PaymentRepository {
       currency: payment.currency,
       reason: params.reason || "Operational adjustment / customer cancellation",
       status: "COMPLETED",
-      requestedByRole: params.requestedByRole,
+      requestedByRole: effectiveRole,
       createdAt: now,
       completedAt: now,
       reconciliationNotes: "Simulated gateway refund settlement completed",
@@ -169,10 +247,13 @@ export class PaymentRepository {
 
     payment.refunds.unshift(newRefund);
     payment.refundedAmount += params.amount;
-    payment.refundableRemainder = Math.max(0, payment.settledAmount - payment.refundedAmount);
+    payment.refundableRemainder = Math.max(
+      0,
+      payment.settledAmount - payment.refundedAmount - payment.pendingRefundAmount,
+    );
     payment.updatedAt = now;
 
-    if (payment.refundableRemainder === 0) {
+    if (payment.refundableRemainder === 0 && payment.pendingRefundAmount === 0) {
       payment.status = "REFUNDED";
     }
 

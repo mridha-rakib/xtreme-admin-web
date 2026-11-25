@@ -41,18 +41,28 @@ export class PricingEvaluationService {
     if (actor?.role !== "VENDOR") {
       try {
         const prices = customerPriceRepository.listCustomerPrices(actor, { active: true });
-        // Specific asset match has highest priority, then vendorService match, then serviceId
-        customerPrice = prices.find((p) => {
+        const validPrices = prices.filter((p) => {
           if (!p.active) return false;
           const fromMs = Date.parse(p.validFrom);
           const toMs = Date.parse(p.validTo);
-          if (targetDateMs < fromMs || targetDateMs > toMs) return false;
-
-          if (assetId && p.assetId === assetId) return true;
-          if (vendorServiceId && p.vendorServiceId === vendorServiceId) return true;
-          if (p.serviceId === serviceId) return true;
-          return false;
+          return targetDateMs >= fromMs && targetDateMs <= toMs;
         });
+
+        // Deterministic specificity precedence:
+        // 1. Exact asset match
+        if (assetId) {
+          customerPrice = validPrices.find((p) => p.assetId === assetId);
+        }
+        // 2. Vendor service match
+        if (!customerPrice && vendorServiceId) {
+          customerPrice = validPrices.find((p) => p.vendorServiceId === vendorServiceId && !p.assetId);
+        }
+        // 3. Generic service match
+        if (!customerPrice && serviceId) {
+          customerPrice = validPrices.find(
+            (p) => p.serviceId === serviceId && !p.assetId && !p.vendorServiceId,
+          );
+        }
       } catch {
         // Actor unauthorized for customer prices
       }
@@ -62,16 +72,22 @@ export class PricingEvaluationService {
     let vendorRate: VendorRate | undefined;
     try {
       const rates = vendorRateRepository.listVendorRates(actor, { status: "APPROVED" });
-      vendorRate = rates.find((r) => {
+      const validRates = rates.filter((r) => {
         if (r.status !== "APPROVED") return false;
         const fromMs = Date.parse(r.validFrom);
         const toMs = Date.parse(r.validTo);
-        if (targetDateMs < fromMs || targetDateMs > toMs) return false;
-
-        if (assetId && r.assetId === assetId) return true;
-        if (vendorServiceId && r.vendorServiceId === vendorServiceId) return true;
-        return false;
+        return targetDateMs >= fromMs && targetDateMs <= toMs;
       });
+
+      // Deterministic specificity precedence:
+      // 1. Exact asset match
+      if (assetId) {
+        vendorRate = validRates.find((r) => r.assetId === assetId);
+      }
+      // 2. Vendor service match
+      if (!vendorRate && vendorServiceId) {
+        vendorRate = validRates.find((r) => r.vendorServiceId === vendorServiceId && !r.assetId);
+      }
     } catch {
       // Actor unauthorized for vendor rates
     }
@@ -164,10 +180,10 @@ export function evaluateBookingPricing(
   if (!isVendor && customerPrice?.xofAmount && vendorRate) {
     if (vendorRate.currency === "XOF") {
       estimatedMarginXof = customerPrice.xofAmount - vendorRate.amount;
-    } else if (vendorRate.currency === "USD") {
-      // Estimated 1 USD ~ 600 XOF conversion for internal margin reference
-      const approximateVendorXof = vendorRate.amount * 600;
-      estimatedMarginXof = customerPrice.xofAmount - approximateVendorXof;
+    } else {
+      // Cross-currency margin requires an approved FX rate snapshot.
+      // Until an approved snapshot is resolved, report margin as unavailable.
+      estimatedMarginXof = undefined;
     }
   }
 

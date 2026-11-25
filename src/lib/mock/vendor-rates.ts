@@ -6,6 +6,7 @@ import {
   type VendorRateStatus,
   hasCommandCenterPermission,
 } from "@/types";
+import { assetRepository } from "./assets";
 
 export class VendorRateValidationError extends Error {
   constructor(message: string) {
@@ -233,6 +234,9 @@ export class VendorRateRepository {
     if (amount <= 0) {
       throw new VendorRateValidationError("Rate amount must be greater than zero.");
     }
+    if (amount > Number.MAX_SAFE_INTEGER) {
+      throw new VendorRateValidationError("Rate amount exceeds maximum safe numerical limit.");
+    }
 
     const cur = currency.toUpperCase().trim();
     if (cur === "XOF") {
@@ -242,7 +246,7 @@ export class VendorRateRepository {
         );
       }
     } else {
-      // 2 decimal places max for USD, EUR, GBP
+      // 2 decimal places max for USD, EUR
       const str = amount.toString();
       const dotIdx = str.indexOf(".");
       if (dotIdx !== -1 && str.length - dotIdx - 1 > 2) {
@@ -256,11 +260,11 @@ export class VendorRateRepository {
   }
 
   private validateCurrency(currency: string): string {
-    const supported = ["USD", "EUR", "XOF", "GBP"];
+    const supported = ["USD", "EUR", "XOF"];
     const cur = (currency || "").toUpperCase().trim();
     if (!supported.includes(cur)) {
       throw new VendorRateValidationError(
-        `Unsupported currency "${currency}". Supported currencies: ${supported.join(", ")}.`,
+        `Unsupported currency "${currency}". Supported canonical currencies: ${supported.join(", ")}.`,
       );
     }
     return cur;
@@ -425,6 +429,23 @@ export class VendorRateRepository {
 
     if (!params.vendorServiceId || !params.vendorServiceId.trim()) {
       throw new VendorRateValidationError("Vendor service is required.");
+    }
+
+    if (params.assetId && params.assetId.trim()) {
+      try {
+        const asset = assetRepository.getAssetById(validActor, params.assetId.trim());
+        if (
+          asset &&
+          asset.vendorId &&
+          asset.vendorId.toLowerCase() !== effectiveVendorId.toLowerCase()
+        ) {
+          throw new VendorRateValidationError(
+            `Asset "${params.assetId}" belongs to vendor "${asset.vendorId}", not "${effectiveVendorId}". Asset compatibility check failed.`,
+          );
+        }
+      } catch (err) {
+        if (err instanceof VendorRateValidationError) throw err;
+      }
     }
 
     const cleanCurrency = this.validateCurrency(params.currency);

@@ -246,13 +246,15 @@ const INITIAL_CHANGE_REQUESTS: BookingChangeRequest[] = [
 
 export function getVendorIdForBooking(booking: Booking): string {
   if (booking.dynamicFields?.vendorId) return booking.dynamicFields.vendorId;
+  if (booking.allocation?.vendorId) return booking.allocation.vendorId;
   if (booking.dynamicFields?.allocatedAssetVendorId)
     return booking.dynamicFields.allocatedAssetVendorId;
   const vs = (booking.vendorServiceId || "").toLowerCase();
-  if (vs.includes("aerojet")) return "vnd_aerojet_99";
-  if (vs.includes("azure")) return "vnd_azure_01";
-  if (vs.includes("alps")) return "vnd_alps_02";
-  if (vs.includes("monaco")) return "vnd_005";
+  if (vs.includes("aerojet") || vs.includes("tarmac")) return "vnd_aerojet_99";
+  if (vs.includes("azure") || vs.includes("cruise") || vs.includes("yacht")) return "vnd_azure_01";
+  if (vs.includes("sedan") || vs.includes("monaco") || vs.includes("chauffeur")) return "vnd_005";
+  if (vs.includes("dinner") || vs.includes("chef") || vs.includes("villa")) return "vnd_riviera_02";
+  if (vs.includes("alps") || vs.includes("heli") || vs.includes("ski")) return "vnd_alps_02";
   return "vnd_aerojet_99";
 }
 
@@ -696,6 +698,16 @@ export class BookingRepository {
     }
 
     const now = new Date().toISOString();
+    booking.allocation = {
+      assetId: assetAllocationData.assetId,
+      assetCode: assetAllocationData.assetCode,
+      assetName: assetAllocationData.assetName,
+      vendorId: assetAllocationData.vendorId || bookingVendorId,
+      allocatedStartsAt: assetAllocationData.allocatedStartsAt,
+      allocatedEndsAt: assetAllocationData.allocatedEndsAt,
+      requestedCapacity: assetAllocationData.requestedCapacity || 1,
+      notes: assetAllocationData.notes,
+    };
     booking.dynamicFields = {
       ...booking.dynamicFields,
       allocatedAssetId: assetAllocationData.assetId,

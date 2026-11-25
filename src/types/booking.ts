@@ -94,6 +94,9 @@ export interface Booking {
   currency: string;
   paymentSummaryDisplay: string;
 
+  // Authoritative physical asset allocation
+  allocation?: AssetAllocationData;
+
   // Dynamic service details
   dynamicFields: Record<string, string>;
   customerNotes?: string;

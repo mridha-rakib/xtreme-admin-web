@@ -5,6 +5,8 @@
 **Remote Repository:** `https://github.com/mridha-rakib/xtreme-admin-web.git`  
 **Independently Verified Baseline Commit:** `120b410474ee94e63f99bf61f7e2d3b0c71abb71`  
 **Successful Baseline CI Run:** https://github.com/mridha-rakib/xtreme-admin-web/actions/runs/45584014917  
+**Delivered Verification Commit:** `6ae772658fa1a7b3db18fa0995a9a14df35860d5`  
+**Successful Delivery CI Run:** https://github.com/mridha-rakib/xtreme-admin-web/actions/runs/45596130939  
 **Target Coverage:** Exactly 5 new screens implemented (**45 / 64** total Command Center screens).  
 **Batch Scope:** Finance, FX Rates & Catalog (Vendor Payables List, Vendor Payable Detail / Update, Financial Summary, FX Rates & Manual Override, Catalog Directory).
 

@@ -1,0 +1,66 @@
+    <frame id="88:2960" name="CC-PRC-03__Admin__Ready" x="2980" y="190" width="1440" height="900">
+      <frame id="88:2961" name="Command Center rail" x="0" y="0" width="240" height="900">
+        <frame id="88:2964" name="Frame" x="16" y="110" width="208" height="36">
+          <text id="88:2965" name="Home" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2966" name="Frame" x="16" y="153" width="208" height="36">
+          <text id="88:2967" name="Customers" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2968" name="Frame" x="16" y="196" width="208" height="36">
+          <text id="88:2969" name="Bookings" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2970" name="Frame" x="16" y="239" width="208" height="36">
+          <text id="88:2971" name="Trips" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2972" name="Frame" x="16" y="282" width="208" height="36">
+          <text id="88:2973" name="Concierge" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2974" name="Frame" x="16" y="325" width="208" height="36">
+          <text id="88:2975" name="Vendors" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2976" name="Frame" x="16" y="368" width="208" height="36">
+          <text id="88:2977" name="Assets" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2978" name="Frame" x="16" y="411" width="208" height="36">
+          <text id="88:2979" name="Availability" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2980" name="Frame" x="16" y="454" width="208" height="36">
+          <text id="88:2981" name="Pricing" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2982" name="Frame" x="16" y="497" width="208" height="36">
+          <text id="88:2983" name="Finance" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2984" name="Frame" x="16" y="540" width="208" height="36">
+          <text id="88:2985" name="Catalog" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2986" name="Frame" x="16" y="583" width="208" height="36" hidden="true">
+          <text id="88:2987" name="Geography" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2988" name="Frame" x="16" y="583" width="208" height="36">
+          <text id="88:2989" name="Assignments" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2990" name="Frame" x="16" y="669" width="208" height="36" hidden="true">
+          <text id="88:2991" name="Access" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2992" name="Frame" x="16" y="626" width="208" height="36">
+          <text id="88:2993" name="Support &amp; Legal" x="12" y="9" width="180" height="18" />
+        </frame>
+        <text id="88:2994" name="Admin" x="24" y="842" width="190" height="16" />
+        <rounded-rectangle id="120:7618" name="Brand/Logo/Sidebar Dark" x="16" y="16" width="208" height="88" />
+      </frame>
+      <frame id="88:2995" name="Frame" x="240" y="0" width="1200" height="72">
+        <frame id="88:2996" name="Frame" x="32" y="16" width="360" height="40">
+          <text id="88:2997" name="Search / command" x="14" y="10" width="320" height="22" />
+        </frame>
+        <text id="88:2998" name="User menu" x="1070" y="26" width="100" height="18" />
+      </frame>
+      <text id="88:2999" name="Submit Vendor Rate" x="280" y="104" width="920" height="36" />
+      <instance id="88:3000" name="Input" x="280" y="176" width="500" height="96" />
+      <instance id="88:3005" name="Input" x="820" y="176" width="500" height="96" />
+      <instance id="88:3010" name="Input" x="280" y="298" width="500" height="96" />
+      <instance id="88:3015" name="Selection" x="820" y="298" width="500" height="96" />
+      <instance id="88:3021" name="DateTime" x="280" y="420" width="500" height="96" />
+      <instance id="88:3027" name="Button/Primary" x="820" y="438" width="180" height="48" />
+      <instance id="88:3029" name="Button/Secondary" x="1016" y="438" width="160" height="48" />
+      <text id="88:3031" name="Submission creates a PENDING version and is not active until authorized approval." x="280" y="550" width="1040" height="16" />
+    </frame>

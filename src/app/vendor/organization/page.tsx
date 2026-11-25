@@ -219,15 +219,12 @@ export default function MyVendorOrganizationPage() {
               {/* Rates */}
               <div className="flex items-center justify-between py-2 border-b border-[#FAF8F4]">
                 <span className="text-[14px] text-[#0B0C0E] font-medium">Rates</span>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setActiveNotice("Vendor Rate Matrix is scheduled for a future planned phase.")
-                  }
+                <Link
+                  href="/pricing/vendor-rates"
                   className="text-[13px] font-semibold text-[#164D53] hover:text-[#0B0C0E] transition-colors"
                 >
                   Open ›
-                </button>
+                </Link>
               </div>
 
               {/* Payables */}

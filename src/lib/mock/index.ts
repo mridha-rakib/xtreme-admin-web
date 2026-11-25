@@ -62,3 +62,6 @@ export * from "./availability";
 export * from "./availability-exceptions";
 export * from "./availability-slots";
 export * from "./allocation";
+export * from "./vendor-rates";
+export * from "./customer-prices";
+export * from "./pricing-evaluation";

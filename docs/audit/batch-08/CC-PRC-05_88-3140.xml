@@ -1,0 +1,67 @@
+    <frame id="88:3140" name="CC-PRC-05__Admin__Ready" x="1500" y="1150" width="1440" height="900">
+      <frame id="88:3141" name="Command Center rail" x="0" y="0" width="240" height="900">
+        <frame id="88:3144" name="Frame" x="16" y="110" width="208" height="36">
+          <text id="88:3145" name="Home" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:3146" name="Frame" x="16" y="153" width="208" height="36">
+          <text id="88:3147" name="Customers" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:3148" name="Frame" x="16" y="196" width="208" height="36">
+          <text id="88:3149" name="Bookings" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:3150" name="Frame" x="16" y="239" width="208" height="36">
+          <text id="88:3151" name="Trips" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:3152" name="Frame" x="16" y="282" width="208" height="36">
+          <text id="88:3153" name="Concierge" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:3154" name="Frame" x="16" y="325" width="208" height="36">
+          <text id="88:3155" name="Vendors" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:3156" name="Frame" x="16" y="368" width="208" height="36">
+          <text id="88:3157" name="Assets" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:3158" name="Frame" x="16" y="411" width="208" height="36">
+          <text id="88:3159" name="Availability" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:3160" name="Frame" x="16" y="454" width="208" height="36">
+          <text id="88:3161" name="Pricing" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:3162" name="Frame" x="16" y="497" width="208" height="36">
+          <text id="88:3163" name="Finance" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:3164" name="Frame" x="16" y="540" width="208" height="36">
+          <text id="88:3165" name="Catalog" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:3166" name="Frame" x="16" y="583" width="208" height="36" hidden="true">
+          <text id="88:3167" name="Geography" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:3168" name="Frame" x="16" y="583" width="208" height="36">
+          <text id="88:3169" name="Assignments" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:3170" name="Frame" x="16" y="669" width="208" height="36" hidden="true">
+          <text id="88:3171" name="Access" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:3172" name="Frame" x="16" y="626" width="208" height="36">
+          <text id="88:3173" name="Support &amp; Legal" x="12" y="9" width="180" height="18" />
+        </frame>
+        <text id="88:3174" name="Admin" x="24" y="842" width="190" height="16" />
+        <rounded-rectangle id="120:7620" name="Brand/Logo/Sidebar Dark" x="16" y="16" width="208" height="88" />
+      </frame>
+      <frame id="88:3175" name="Frame" x="240" y="0" width="1200" height="72">
+        <frame id="88:3176" name="Frame" x="32" y="16" width="360" height="40">
+          <text id="88:3177" name="Search / command" x="14" y="10" width="320" height="22" />
+        </frame>
+        <text id="88:3178" name="User menu" x="1070" y="26" width="100" height="18" />
+      </frame>
+      <text id="88:3179" name="Create Customer Price Configuration" x="280" y="104" width="920" height="36" />
+      <instance id="88:3180" name="Input" x="280" y="176" width="500" height="96" />
+      <instance id="88:3185" name="Input" x="820" y="176" width="500" height="96" />
+      <instance id="88:3190" name="Selection" x="280" y="298" width="500" height="96" />
+      <instance id="88:3196" name="Input" x="820" y="298" width="500" height="96" />
+      <instance id="88:3201" name="DateTime" x="280" y="420" width="500" height="96" />
+      <instance id="88:3207" name="Selection" x="820" y="420" width="500" height="96" />
+      <instance id="88:3213" name="Button/Primary" x="280" y="558" width="220" height="48" />
+      <instance id="88:3215" name="Button/Secondary" x="516" y="558" width="160" height="48" />
+      <text id="88:3217" name="No custom-field-driven pricing formula builder is introduced." x="280" y="650" width="1040" height="16" />
+    </frame>

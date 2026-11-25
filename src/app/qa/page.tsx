@@ -8,9 +8,11 @@ import { availabilitySlotRepository } from "@/lib/mock/availability-slots";
 import { bookingRepository } from "@/lib/mock/bookings";
 import { conciergeRequestRepository } from "@/lib/mock/concierge-requests";
 import { conversationRepository } from "@/lib/mock/conversations";
+import { customerPriceRepository } from "@/lib/mock/customer-prices";
 import { customerRepository } from "@/lib/mock/customers";
 import { paymentRepository } from "@/lib/mock/payments";
 import { tripRepository } from "@/lib/mock/trips";
+import { vendorRateRepository } from "@/lib/mock/vendor-rates";
 import { vendorStaffRepository } from "@/lib/mock/vendor-staff";
 import { vendorRepository } from "@/lib/mock/vendors";
 import type { CommandCenterRole } from "@/types";
@@ -51,9 +53,11 @@ export default function QAEnvironmentHub() {
     availabilityRepository.resetDefaults();
     availabilityExceptionRepository.resetDefaults();
     availabilitySlotRepository.resetDefaults();
+    vendorRateRepository.resetDefaults();
+    customerPriceRepository.resetDefaults();
     setIsSimulatedFailure(false);
     setStatusMessage(
-      "Customer, Booking, Payment, Trip, Concierge, Vendor, Asset, Availability Rules, Exceptions, and Slots repositories reset to initial deterministic state",
+      "Customer, Booking, Payment, Trip, Concierge, Vendor, Asset, Availability, Vendor Rates, and Customer Prices repositories reset to initial deterministic state",
     );
   };
 
@@ -239,6 +243,47 @@ export default function QAEnvironmentHub() {
               >
                 Reset Assets &amp; Availability to Initial Defaults
               </button>
+
+              <button
+                type="button"
+                onClick={handleReset}
+                className="w-full py-2.5 px-4 bg-[#164D53] hover:bg-[#113E43] text-white rounded-md text-xs font-semibold text-center transition-colors"
+              >
+                Reset Pricing &amp; Rates to Initial Defaults
+              </button>
+            </div>
+
+            <div className="border-t border-[#DDD8CF] pt-4 mt-4">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[#5B616B] mb-2">
+                Batch 8 Pricing Routes
+              </h3>
+              <ul className="text-xs space-y-1 text-[#164D53]">
+                <li>
+                  <Link href="/pricing/vendor-rates" className="hover:underline">
+                    → CC-PRC-01: Vendor Rates List (/pricing/vendor-rates)
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/pricing/vendor-rates/rate_aj_01" className="hover:underline">
+                    → CC-PRC-02: Vendor Rate Detail (/pricing/vendor-rates/rate_aj_01)
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/pricing/vendor-rates/submit" className="hover:underline">
+                    → CC-PRC-03: Submit Vendor Rate (/pricing/vendor-rates/submit)
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/pricing/customer-prices" className="hover:underline">
+                    → CC-PRC-04: Customer Price Configurations (/pricing/customer-prices)
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/pricing/customer-prices/create" className="hover:underline">
+                    → CC-PRC-05: Create Customer Price (/pricing/customer-prices/create)
+                  </Link>
+                </li>
+              </ul>
             </div>
 
             <div className="border-t border-[#DDD8CF] pt-4 mt-4">

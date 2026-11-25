@@ -1,0 +1,134 @@
+    <frame id="88:2783" name="CC-PRC-01__Admin__Ready" x="20" y="190" width="1440" height="900">
+      <frame id="88:2784" name="Command Center rail" x="0" y="0" width="240" height="900">
+        <frame id="88:2787" name="Frame" x="16" y="110" width="208" height="36">
+          <text id="88:2788" name="Home" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2789" name="Frame" x="16" y="153" width="208" height="36">
+          <text id="88:2790" name="Customers" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2791" name="Frame" x="16" y="196" width="208" height="36">
+          <text id="88:2792" name="Bookings" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2793" name="Frame" x="16" y="239" width="208" height="36">
+          <text id="88:2794" name="Trips" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2795" name="Frame" x="16" y="282" width="208" height="36">
+          <text id="88:2796" name="Concierge" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2797" name="Frame" x="16" y="325" width="208" height="36">
+          <text id="88:2798" name="Vendors" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2799" name="Frame" x="16" y="368" width="208" height="36">
+          <text id="88:2800" name="Assets" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2801" name="Frame" x="16" y="411" width="208" height="36">
+          <text id="88:2802" name="Availability" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2803" name="Frame" x="16" y="454" width="208" height="36">
+          <text id="88:2804" name="Pricing" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2805" name="Frame" x="16" y="497" width="208" height="36">
+          <text id="88:2806" name="Finance" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2807" name="Frame" x="16" y="540" width="208" height="36">
+          <text id="88:2808" name="Catalog" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2809" name="Frame" x="16" y="583" width="208" height="36" hidden="true">
+          <text id="88:2810" name="Geography" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2811" name="Frame" x="16" y="583" width="208" height="36">
+          <text id="88:2812" name="Assignments" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2813" name="Frame" x="16" y="669" width="208" height="36" hidden="true">
+          <text id="88:2814" name="Access" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2815" name="Frame" x="16" y="626" width="208" height="36">
+          <text id="88:2816" name="Support &amp; Legal" x="12" y="9" width="180" height="18" />
+        </frame>
+        <text id="88:2817" name="Admin" x="24" y="842" width="190" height="16" />
+        <rounded-rectangle id="120:7616" name="Brand/Logo/Sidebar Dark" x="16" y="16" width="208" height="88" />
+      </frame>
+      <frame id="88:2818" name="Frame" x="240" y="0" width="1200" height="72">
+        <frame id="88:2819" name="Frame" x="32" y="16" width="360" height="40">
+          <text id="88:2820" name="Search / command" x="14" y="10" width="320" height="22" />
+        </frame>
+        <text id="88:2821" name="User menu" x="1070" y="26" width="100" height="18" />
+      </frame>
+      <text id="88:2822" name="Vendor Rates List" x="280" y="104" width="920" height="36" />
+      <instance id="88:2823" name="Button/Primary" x="1090" y="158" width="270" height="48" />
+      <frame id="88:2825" name="Frame" x="280" y="176" width="1080" height="458">
+        <frame id="88:2826" name="Frame" x="0" y="0" width="1080" height="52">
+          <text id="88:2827" name="Vendor service" x="16" y="17" width="139.42857360839844" height="18" />
+          <text id="88:2828" name="Asset" x="167.42857360839844" y="17" width="139.42857360839844" height="18" />
+          <text id="88:2829" name="Version" x="318.8571472167969" y="17" width="139.42855834960938" height="18" />
+          <text id="88:2830" name="Amount" x="470.28570556640625" y="17" width="139.42855834960938" height="18" />
+          <text id="88:2831" name="Validity" x="621.7142333984375" y="17" width="139.42855834960938" height="18" />
+          <text id="88:2832" name="Status" x="773.142822265625" y="17" width="139.42855834960938" height="18" />
+          <text id="88:2833" name="Actions" x="924.5714111328125" y="17" width="139.42855834960938" height="18" />
+        </frame>
+        <frame id="88:2834" name="Frame" x="0" y="52" width="1080" height="58">
+          <text id="88:2835" name="Value" x="16" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2836" name="Value" x="167.42857360839844" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2837" name="v1" x="318.8571472167969" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2838" name="XOF / currency" x="470.28570556640625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2839" name="Date range" x="621.7142333984375" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2840" name="CLOSED" x="773.142822265625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2841" name="Open ›" x="924.5714111328125" y="17.5" width="139.42855834960938" height="22" />
+        </frame>
+        <frame id="88:2842" name="Frame" x="0" y="110" width="1080" height="58">
+          <text id="88:2843" name="Value" x="16" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2844" name="Value" x="167.42857360839844" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2845" name="v2" x="318.8571472167969" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2846" name="XOF / currency" x="470.28570556640625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2847" name="Date range" x="621.7142333984375" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2848" name="OPEN" x="773.142822265625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2849" name="Open ›" x="924.5714111328125" y="17.5" width="139.42855834960938" height="22" />
+        </frame>
+        <frame id="88:2850" name="Frame" x="0" y="168" width="1080" height="58">
+          <text id="88:2851" name="Value" x="16" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2852" name="Value" x="167.42857360839844" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2853" name="v3" x="318.8571472167969" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2854" name="XOF / currency" x="470.28570556640625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2855" name="Date range" x="621.7142333984375" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2856" name="CLOSED" x="773.142822265625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2857" name="Open ›" x="924.5714111328125" y="17.5" width="139.42855834960938" height="22" />
+        </frame>
+        <frame id="88:2858" name="Frame" x="0" y="226" width="1080" height="58">
+          <text id="88:2859" name="Value" x="16" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2860" name="Value" x="167.42857360839844" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2861" name="v4" x="318.8571472167969" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2862" name="XOF / currency" x="470.28570556640625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2863" name="Date range" x="621.7142333984375" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2864" name="OPEN" x="773.142822265625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2865" name="Open ›" x="924.5714111328125" y="17.5" width="139.42855834960938" height="22" />
+        </frame>
+        <frame id="88:2866" name="Frame" x="0" y="284" width="1080" height="58">
+          <text id="88:2867" name="Value" x="16" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2868" name="Value" x="167.42857360839844" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2869" name="v5" x="318.8571472167969" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2870" name="XOF / currency" x="470.28570556640625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2871" name="Date range" x="621.7142333984375" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2872" name="CLOSED" x="773.142822265625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2873" name="Open ›" x="924.5714111328125" y="17.5" width="139.42855834960938" height="22" />
+        </frame>
+        <frame id="88:2874" name="Frame" x="0" y="342" width="1080" height="58">
+          <text id="88:2875" name="Value" x="16" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2876" name="Value" x="167.42857360839844" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2877" name="v6" x="318.8571472167969" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2878" name="XOF / currency" x="470.28570556640625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2879" name="Date range" x="621.7142333984375" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2880" name="OPEN" x="773.142822265625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2881" name="Open ›" x="924.5714111328125" y="17.5" width="139.42855834960938" height="22" />
+        </frame>
+        <frame id="88:2882" name="Frame" x="0" y="400" width="1080" height="58">
+          <text id="88:2883" name="Value" x="16" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2884" name="Value" x="167.42857360839844" y="17.5" width="139.42857360839844" height="22" />
+          <text id="88:2885" name="v7" x="318.8571472167969" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2886" name="XOF / currency" x="470.28570556640625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2887" name="Date range" x="621.7142333984375" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2888" name="CLOSED" x="773.142822265625" y="17.5" width="139.42855834960938" height="22" />
+          <text id="88:2889" name="Open ›" x="924.5714111328125" y="17.5" width="139.42855834960938" height="22" />
+        </frame>
+      </frame>
+      <text id="88:2890" name="PENDING is not active operational pricing. Customer-facing price/margin is not shown here." x="280" y="664" width="1080" height="16" />
+    </frame>

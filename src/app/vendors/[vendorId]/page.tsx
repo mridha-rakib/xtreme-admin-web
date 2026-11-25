@@ -229,17 +229,12 @@ export default function VendorDetailPage() {
               {/* Vendor rates */}
               <div className="flex items-center justify-between py-2">
                 <span className="text-[14px] text-[#0B0C0E] font-medium">Vendor rates</span>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setActiveNotice(
-                      "Vendor Rate Matrix & Pricing is scheduled for a future planned phase.",
-                    )
-                  }
+                <Link
+                  href={`/pricing/vendor-rates?vendorId=${vendor.id}`}
                   className="text-[13px] font-semibold text-[#164D53] hover:text-[#0B0C0E] transition-colors"
                 >
                   Open ›
-                </button>
+                </Link>
               </div>
             </div>
           </div>

@@ -1,0 +1,80 @@
+    <frame id="88:2891" name="CC-PRC-02__Admin__Ready" x="1500" y="190" width="1440" height="900">
+      <frame id="88:2892" name="Command Center rail" x="0" y="0" width="240" height="900">
+        <frame id="88:2895" name="Frame" x="16" y="110" width="208" height="36">
+          <text id="88:2896" name="Home" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2897" name="Frame" x="16" y="153" width="208" height="36">
+          <text id="88:2898" name="Customers" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2899" name="Frame" x="16" y="196" width="208" height="36">
+          <text id="88:2900" name="Bookings" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2901" name="Frame" x="16" y="239" width="208" height="36">
+          <text id="88:2902" name="Trips" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2903" name="Frame" x="16" y="282" width="208" height="36">
+          <text id="88:2904" name="Concierge" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2905" name="Frame" x="16" y="325" width="208" height="36">
+          <text id="88:2906" name="Vendors" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2907" name="Frame" x="16" y="368" width="208" height="36">
+          <text id="88:2908" name="Assets" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2909" name="Frame" x="16" y="411" width="208" height="36">
+          <text id="88:2910" name="Availability" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2911" name="Frame" x="16" y="454" width="208" height="36">
+          <text id="88:2912" name="Pricing" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2913" name="Frame" x="16" y="497" width="208" height="36">
+          <text id="88:2914" name="Finance" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2915" name="Frame" x="16" y="540" width="208" height="36">
+          <text id="88:2916" name="Catalog" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2917" name="Frame" x="16" y="583" width="208" height="36" hidden="true">
+          <text id="88:2918" name="Geography" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2919" name="Frame" x="16" y="583" width="208" height="36">
+          <text id="88:2920" name="Assignments" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2921" name="Frame" x="16" y="669" width="208" height="36" hidden="true">
+          <text id="88:2922" name="Access" x="12" y="9" width="180" height="18" />
+        </frame>
+        <frame id="88:2923" name="Frame" x="16" y="626" width="208" height="36">
+          <text id="88:2924" name="Support &amp; Legal" x="12" y="9" width="180" height="18" />
+        </frame>
+        <text id="88:2925" name="Admin" x="24" y="842" width="190" height="16" />
+        <rounded-rectangle id="120:7617" name="Brand/Logo/Sidebar Dark" x="16" y="16" width="208" height="88" />
+      </frame>
+      <frame id="88:2926" name="Frame" x="240" y="0" width="1200" height="72">
+        <frame id="88:2927" name="Frame" x="32" y="16" width="360" height="40">
+          <text id="88:2928" name="Search / command" x="14" y="10" width="320" height="22" />
+        </frame>
+        <text id="88:2929" name="User menu" x="1070" y="26" width="100" height="18" />
+      </frame>
+      <text id="88:2930" name="Vendor Rate Detail / Approval" x="280" y="104" width="920" height="36" />
+      <instance id="88:2931" name="Status/Vendor Rate" x="280" y="160" width="92" height="28" />
+      <frame id="88:2934" name="Frame" x="280" y="210" width="620" height="310">
+        <text id="88:2935" name="Rate version" x="16" y="14" width="588" height="26" />
+        <text id="88:2936" name="Vendor service" x="16" y="58" width="170" height="18" />
+        <text id="88:2937" name="Vendor service" x="190" y="58" width="414" height="22" />
+        <text id="88:2938" name="Asset" x="16" y="98" width="170" height="18" />
+        <text id="88:2939" name="Optional asset" x="190" y="98" width="414" height="22" />
+        <text id="88:2940" name="Version" x="16" y="138" width="170" height="18" />
+        <text id="88:2941" name="Version number" x="190" y="138" width="414" height="22" />
+        <text id="88:2942" name="Amount" x="16" y="178" width="170" height="18" />
+        <text id="88:2943" name="Amount / currency" x="190" y="178" width="414" height="22" />
+        <text id="88:2944" name="Validity" x="16" y="218" width="170" height="18" />
+        <text id="88:2945" name="Valid from / to" x="190" y="218" width="414" height="22" />
+      </frame>
+      <frame id="88:2946" name="Frame" x="940" y="210" width="420" height="310">
+        <text id="88:2947" name="Decision" x="16" y="14" width="388" height="26" />
+        <instance id="88:2948" name="Input" x="16" y="58" width="388" height="96" />
+        <instance id="88:2953" name="Button/Primary" x="16" y="196" width="150" height="48" />
+        <instance id="88:2955" name="Button/Secondary" x="182" y="196" width="150" height="48" />
+        <text id="88:2957" name="Vendor may view own rate but cannot approve/reject it." x="16" y="260" width="388" height="16" />
+      </frame>
+      <instance id="88:2958" name="Button/Tertiary" x="280" y="560" width="160" height="48" />
+    </frame>

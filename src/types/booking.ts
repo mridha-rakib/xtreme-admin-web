@@ -107,6 +107,10 @@ export interface AssetAllocationData {
   assetId: string;
   assetCode: string;
   assetName: string;
+  vendorId?: string;
+  allocatedStartsAt: string;
+  allocatedEndsAt: string;
+  requestedCapacity?: number;
   notes?: string;
 }
 

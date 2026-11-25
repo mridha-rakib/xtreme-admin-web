@@ -500,6 +500,15 @@ export class AvailabilityRepository {
     return this.updateRule(actor, id, { active: nextActive });
   }
 
+  public listRulesInternal(targetId?: string): AvailabilityRule[] {
+    return this.rules
+      .filter((r) => {
+        if (!targetId) return true;
+        return r.targetId === targetId || r.target.toLowerCase().includes(targetId.toLowerCase());
+      })
+      .map((r) => structuredClone(r));
+  }
+
   public resetDefaults(): void {
     this.rules = JSON.parse(JSON.stringify(INITIAL_AVAILABILITY_RULES));
     this.notify();

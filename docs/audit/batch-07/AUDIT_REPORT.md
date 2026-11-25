@@ -38,16 +38,16 @@ Total Command Center screens implemented across Batches 1–7: **35 / 64** (stri
 | 2 | **CC-BKG-03** | Create Booking on Behalf | `81:450` | Verified Clean |
 | 2 | **CC-BKG-04** | Booking Change Requests | `81:542` | Verified Clean |
 | 2 | **CC-BKG-05** | Resolve Modification / Cancellation | `81:642` | Verified Clean |
-| 3 | **CC-BKG-06** | Booking Change Request History | `81:708` | Verified Clean |
+| 3 | **CC-BKG-06** | Create Change / Cancellation Request on Behalf | `81:708` | Verified Clean |
 | 3 | **CC-PAY-01** | Payment Audit & Ledger Detail | `81:777` | Verified Clean |
 | 3 | **CC-TRIP-01** | Trips Directory | `83:1108` | Verified Clean |
 | 3 | **CC-TRIP-02** | Trip Detail & Itinerary Timeline | `83:1208` | Verified Clean |
 | 3 | **CC-TRIP-03** | Create / Edit Expedition Trip | `83:1275` | Verified Clean |
 | 4 | **CC-CON-01** | Concierge Requests Directory | `83:1347` | Verified Clean |
 | 4 | **CC-CON-02** | Concierge Request Detail | `83:1455` | Verified Clean |
-| 4 | **CC-CON-03** | Create Request on Behalf | `83:1533` | Verified Clean |
-| 4 | **CC-CON-04** | Concierge Conversations Hub | `83:1633` | Verified Clean |
-| 4 | **CC-CON-05** | Active Conversation Room | `83:1698` | Verified Clean |
+| 4 | **CC-CON-03** | Concierge Conversation Inbox | `83:1533` | Verified Clean |
+| 4 | **CC-CON-04** | Concierge Conversation Detail | `83:1633` | Verified Clean |
+| 4 | **CC-CON-05** | Create Concierge Request on Behalf | `83:1698` | Verified Clean |
 | 5 | **CC-VEN-01** | Vendors Directory | `86:1679` | Verified Clean |
 | 5 | **CC-VEN-02** | Vendor Detail & Compliance | `86:1779` | Verified Clean |
 | 5 | **CC-VEN-03** | Create / Edit Vendor Organization | `86:1846` | Verified Clean |

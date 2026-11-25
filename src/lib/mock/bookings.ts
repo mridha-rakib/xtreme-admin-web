@@ -244,6 +244,18 @@ const INITIAL_CHANGE_REQUESTS: BookingChangeRequest[] = [
   },
 ];
 
+export function getVendorIdForBooking(booking: Booking): string {
+  if (booking.dynamicFields?.vendorId) return booking.dynamicFields.vendorId;
+  if (booking.dynamicFields?.allocatedAssetVendorId)
+    return booking.dynamicFields.allocatedAssetVendorId;
+  const vs = (booking.vendorServiceId || "").toLowerCase();
+  if (vs.includes("aerojet")) return "vnd_aerojet_99";
+  if (vs.includes("azure")) return "vnd_azure_01";
+  if (vs.includes("alps")) return "vnd_alps_02";
+  if (vs.includes("monaco")) return "vnd_005";
+  return "vnd_aerojet_99";
+}
+
 export class BookingRepository {
   private bookings: Booking[] = [];
   private changeRequests: BookingChangeRequest[] = [];
@@ -605,7 +617,7 @@ export class BookingRepository {
     actor: AuthorizedActor | null | undefined,
     bookingId: string,
     assetAllocationData: AssetAllocationData,
-    expectedVersion?: number,
+    expectedVersion: number,
   ): Booking {
     if (!actor || !actor.role) {
       throw new UnauthorizedBookingAccessError("Authentication required: Actor context missing.");
@@ -626,15 +638,50 @@ export class BookingRepository {
       throw new BookingAllocationError(`Booking "${bookingId}" was not found.`);
     }
 
+    const bookingVendorId = getVendorIdForBooking(booking);
+
+    if (actor.role === "VENDOR") {
+      if (!actor.vendorId) {
+        throw new UnauthorizedBookingAccessError(
+          "Vendor actor has no associated vendor organization membership.",
+        );
+      }
+      if (bookingVendorId.toLowerCase() !== actor.vendorId.toLowerCase()) {
+        throw new UnauthorizedBookingAccessError(
+          "Unauthorized: Vendor actor cannot allocate assets to bookings of other vendor organizations.",
+        );
+      }
+      if (
+        assetAllocationData.vendorId &&
+        assetAllocationData.vendorId.toLowerCase() !== actor.vendorId.toLowerCase()
+      ) {
+        throw new UnauthorizedBookingAccessError(
+          "Unauthorized: Vendor actor cannot allocate assets belonging to another organization.",
+        );
+      }
+    }
+
+    if (expectedVersion === undefined || expectedVersion === null) {
+      throw new BookingAllocationError(
+        "Expected booking version is required for authoritative concurrency control.",
+      );
+    }
+
+    if (booking.version !== expectedVersion) {
+      throw new StaleVersionConflictError(expectedVersion, booking.version);
+    }
+
+    if (!assetAllocationData.allocatedStartsAt || !assetAllocationData.allocatedEndsAt) {
+      throw new BookingAllocationError(
+        "Allocation scheduling interval (allocatedStartsAt and allocatedEndsAt) is required.",
+      );
+    }
+
     const allowedStates: BookingLifecycleStatus[] = ["PENDING_ADMIN", "CONFIRMED", "IN_PROGRESS"];
     if (!allowedStates.includes(booking.lifecycleStatus)) {
       throw new BookingAllocationError(
         `Cannot allocate asset to booking ${booking.reference} in lifecycle status "${booking.lifecycleStatus}". Allowed states: ${allowedStates.join(", ")}.`,
       );
-    }
-
-    if (expectedVersion !== undefined && booking.version !== expectedVersion) {
-      throw new StaleVersionConflictError(expectedVersion, booking.version);
     }
 
     // Never silently overwrite an existing confirmed commitment to a different asset
@@ -654,6 +701,10 @@ export class BookingRepository {
       allocatedAssetId: assetAllocationData.assetId,
       allocatedAssetCode: assetAllocationData.assetCode,
       allocatedAssetName: assetAllocationData.assetName,
+      allocatedAssetVendorId: assetAllocationData.vendorId || bookingVendorId,
+      allocatedStartsAt: assetAllocationData.allocatedStartsAt,
+      allocatedEndsAt: assetAllocationData.allocatedEndsAt,
+      allocatedCapacity: String(assetAllocationData.requestedCapacity || 1),
     };
     booking.assignmentStatus = "ASSIGNED";
     booking.version += 1;
